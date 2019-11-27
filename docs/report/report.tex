@@ -1,0 +1,75 @@
+\documentclass[10pt]{article}
+\usepackage[utf8]{inputenc}
+\usepackage{parskip}
+\usepackage[a4paper, margin=1.5in]{geometry}
+\usepackage{graphicx}
+\usepackage{hyperref}
+\usepackage{listings}
+\usepackage{array}
+
+\renewcommand{\arraystretch}{1.5}
+
+\title{Task 2 Report}
+\date{\today}
+\author{Federico Fregosi, Mirko Laruina,\\
+        Riccardo Mancini, Gianmarco Petrelli}
+
+\begin{document}
+\pagenumbering{gobble}
+\maketitle
+\vfill
+% \setcounter{tocdepth}{1}
+\tableofcontents
+\vfill
+\clearpage
+\setcounter{page}{1}
+\pagenumbering{arabic}
+
+\section{Specifications}
+
+\subsection{Application Overview}
+The application is an aggregator of movie reviews and ratings with the purpose 
+of providing logged users suggestions based on their previously watched and 
+liked movies. Not logged-in users may still use the service to browse movie 
+rankings and statistics.
+
+All users can search a movie and view its details (e.g., title, 
+original title, duration, cast, ...) along with its reviews and aggregated 
+statistics about ratings. 
+
+In addition, all users can browse movie lists such as:
+\begin{itemize}
+    \item alphabetic list of movies
+    \item rankings based on ratings
+    \item movies currently in movie theaters
+\end{itemize} 
+
+Over these lists the user can apply filters based on, for example, genre, 
+year, casting, etc.
+
+Logged-in users can mark a film as watched and, in that case, to
+submit a rating and, optionally, a review. 
+
+Logged-in users can access a private area with suggestions of 
+movies to watch, with the possibility of adding filters like year, on theater 
+movies, etc.
+
+System administrators can delete unappropriate reviews and ban users.
+
+The movie database will be built upon the publicly available IMDb dataset.
+
+The reviews and ratings will be gathered also from scraping other websites 
+(e.g., Rotten Tomatoes, Coming Soon, MyMovies, Google).
+
+TODO AGGREGATION MONGOLODB
+
+\subsection{Functional Requirements}
+
+\subsection{Non-Functional Requirements}
+
+% - area utente
+%     + film visti (con valutazione, binaria o non)
+%     + suggerimenti
+% - dove vedere il film 
+
+\end{document}
