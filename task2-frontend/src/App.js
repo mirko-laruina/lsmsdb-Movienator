@@ -6,7 +6,8 @@ import {
   Link
 } from "react-router-dom";
 import './App.css';
-
+import HomePage from './HomePage.js'
+import 'bootstrap/dist/css/bootstrap.min.css';
 
 function App() {
   //NOTICE: root route has to be the last route, otherwise it will match all the paths
@@ -17,8 +18,7 @@ function App() {
           <p>test</p>
         </Route>
         <Route path="/">
-          <p>Home</p>
-          <Link to="/test">Test</Link>
+          <HomePage />
         </Route>
       </Switch>
     </Router>

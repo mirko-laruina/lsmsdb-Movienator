@@ -1,0 +1,13 @@
+.wrapper {
+    text-align: center;
+    background-color: #ddffff;
+}
+
+.stat-btn {
+    margin: 10px;
+    border-radius: 0 !important;
+}
+
+.stat-btn-group {
+    margin: 5px;
+}
