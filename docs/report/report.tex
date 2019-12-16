@@ -28,48 +28,93 @@
 \section{Specifications}
 
 \subsection{Application Overview}
-The application is an aggregator of movie reviews and ratings with the purpose 
-of providing logged users suggestions based on their previously watched and 
-liked movies. Not logged-in users may still use the service to browse movie 
-rankings and statistics.
+The application is an aggregator of movie and movie's ratings with the purpose 
+of providing logged users statistics and informations about a large set of movies.
+Logged-in user can also rate movies they have watched while not logged-in users 
+may still use the service to browse movie rankings and statistics but they are not
+able to give their rate. Only movies released in Italy are considered.
 
-All users can search a movie and view its details (e.g., title, 
-original title, duration, cast, ...) along with its reviews and aggregated 
-statistics about ratings. 
+All users can search a movie and view its details (e.g., title, original title, duration, 
+cast, ...) along with its aggregated statistics about ratings. 
 
 In addition, all users can browse movie lists such as:
 \begin{itemize}
     \item alphabetic list of movies
     \item rankings based on ratings
-    \item movies currently in movie theaters
+    \item last added movies
 \end{itemize} 
 
 Over these lists the user can apply filters based on, for example, genre, 
 year, casting, etc.
 
-Logged-in users can mark a film as watched and, in that case, to
-submit a rating and, optionally, a review. 
-
-Logged-in users can access a private area with suggestions of 
-movies to watch, with the possibility of adding filters like year, on theater 
-movies, etc.
-
-System administrators can delete unappropriate reviews and ban users.
+System administrators can check all accounts and ban users.
 
 The movie database will be built upon the publicly available IMDb dataset.
 
-The reviews and ratings will be gathered also from scraping other websites 
+The ratings will be gathered also from scraping other websites 
 (e.g., Rotten Tomatoes, Coming Soon, MyMovies, Google).
 
-TODO AGGREGATION MONGOLODB
+\subsection{Actors}
+Anonymous user, registered user, administrator and bot.
 
-\subsection{Functional Requirements}
+\subsection{Requirement Analysis}
 
-\subsection{Non-Functional Requirements}
+\subsubsection{Functional Requirements}
+An \textbf{anonymous user} must be able to register in order to become a 
+\textit{registered user}. Login is carried out using username and password selected 
+by the user when registering. Username must be unique. A valid email address is
+also required in order to register.
 
-% - area utente
-%     + film visti (con valutazione, binaria o non)
-%     + suggerimenti
-% - dove vedere il film 
+Both \textbf{anonymous user} and \textbf{registered user} must be able to:
+\begin{itemize}
+	\item check informations and average rating of a specific movie
+	\item check a movie's list and filter it by many characteristics. Combined filters 
+	are also allowed.
+	\item check aggregated statistics about movie grouped by year, country, actor,
+	director, genre
+	\item 
+\end{itemize}
+
+A \textbf{registered user} must be able to rate a movie, in addition to what anonymous
+user can do. A registered user must also be able to manage his profile. In the profile a
+registered user can:
+\begin{itemize}
+	\item check, add and modify his personal data
+	\item browse the history of his rates
+	\item view aggregated statistics about his profile (i.e. most viewed genre,
+	most recurrent actor, etc...) based on his rated movies
+	\item delete the account
+\end{itemize}
+Finally, a registered user can logout in any moment.
+
+An \textbf{administrator} is a special registered user who must be able to ban users.
+In order to do that, an administrator can check a global rating history to retrieve informations
+about all the application's activity, and to check every user's profile.
+Banned user's rating are automatically removed from the database.
+
+The \textbf{bot} is not a real user but an entity used to update the database if a 
+new film needs to be added. Moreover, the bot periodically browses all the source sites from 
+where ratings are withdrawn in order to find new ratings and add them to our 
+application's database.
+
+\subsubsection{Non-Functional Requirements}
+
+\section{Design}
+
+\subsection{Use-case diagram}
+
+\subsection{Class diagram}
+
+\subsection{Software Architecture}
+
+%DUBBI
+%username must be unique? (functional or not functional?)
+%->unique, functional, inserire anche in task 1
+%the only difference between anonymous and registered user is that reg. user can rate?
+%->+profile with stats on him
+%can a film be marked as watched?
+%->no
+%email is necessary for registration?
+%->yes + personal informations (not required)
 
 \end{document}
