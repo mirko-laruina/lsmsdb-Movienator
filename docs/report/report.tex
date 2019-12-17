@@ -51,8 +51,8 @@ System administrators can check all accounts and ban users.
 
 The movie database will be built upon the publicly available IMDb dataset.
 
-The ratings will be gathered also from scraping other websites 
-(e.g., Rotten Tomatoes, Coming Soon, MyMovies, Google).
+The ratings will be gathered also by periodically scraping other websites 
+(e.g., Rotten Tomatoes, Coming Soon, MyMovies).
 
 \subsection{Actors}
 Anonymous user, registered user, administrator and bot.
@@ -63,7 +63,7 @@ Anonymous user, registered user, administrator and bot.
 An \textbf{anonymous user} must be able to register in order to become a 
 \textit{registered user}. Login is carried out using username and password selected 
 by the user when registering. Username must be unique. A valid email address is
-also required in order to register.
+also required in order to register. An email cannot be used more than once.
 
 Both \textbf{anonymous user} and \textbf{registered user} must be able to:
 \begin{itemize}
@@ -71,8 +71,7 @@ Both \textbf{anonymous user} and \textbf{registered user} must be able to:
 	\item check a movie's list and filter it by many characteristics. Combined filters 
 	are also allowed.
 	\item check aggregated statistics about movie grouped by year, country, actor,
-	director, genre
-	\item 
+	director, genre 
 \end{itemize}
 
 A \textbf{registered user} must be able to rate a movie, in addition to what anonymous
@@ -90,20 +89,31 @@ Finally, a registered user can logout in any moment.
 An \textbf{administrator} is a special registered user who must be able to ban users.
 In order to do that, an administrator can check a global rating history to retrieve informations
 about all the application's activity, and to check every user's profile.
-Banned user's rating are automatically removed from the database.
+Banned user's rating are automatically removed from the database. Email and username
+of banned users cannot be used again.
 
 The \textbf{bot} is not a real user but an entity used to update the database if a 
 new film needs to be added. Moreover, the bot periodically browses all the source sites from 
-where ratings are withdrawn in order to find new ratings and add them to our 
+where ratings are collected in order to find new ratings and add them to our 
 application's database.
 
 \subsubsection{Non-Functional Requirements}
+\begin{itemize}
+	\item Availability: the Database must be replicated in order to be always available.
+	Write operations on the Database can be eventually consistent.
+	\item Scalability: the application must be able to scale to an arbitrary number of servers.
+	\item Security: passwards must be stored in a secure way.
+	\item Responsive UI: Client-side application must provide a responsive view both for pc, 
+	laptops and mobile devices.
+\end{itemize}
 
 \section{Design}
 
 \subsection{Use-case diagram}
 
 \subsection{Class diagram}
+
+\subsection{Data model}
 
 \subsection{Software Architecture}
 
