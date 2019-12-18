@@ -28,7 +28,7 @@
 \section{Specifications}
 
 \subsection{Application Overview}
-The application is an aggregator of movie and movie's ratings with the purpose 
+The application is an aggregator of movies and movie ratings with the purpose 
 of providing logged users statistics and informations about a large set of movies.
 Logged-in user can also rate movies they have watched while not logged-in users 
 may still use the service to browse movie rankings and statistics but they are not
@@ -37,17 +37,11 @@ able to give their rate. Only movies released in Italy are considered.
 All users can search a movie and view its details (e.g., title, original title, duration, 
 cast, ...) along with its aggregated statistics about ratings. 
 
-In addition, all users can browse movie lists such as:
-\begin{itemize}
-    \item alphabetic list of movies
-    \item rankings based on ratings
-    \item last added movies
-\end{itemize} 
+In addition, all users can browse the list of movies sorting and filtering it by many parameters
+(e.g. year, genre, country, actors, ...).
 
-Over these lists the user can apply filters based on, for example, genre, 
-year, casting, etc.
-
-System administrators can check all accounts and ban users.
+System administrators can view all user pages and ban users. In order to do that, he can 
+check the full history of ratings.
 
 The movie database will be built upon the publicly available IMDb dataset.
 
@@ -67,10 +61,10 @@ also required in order to register. An email cannot be used more than once.
 
 Both \textbf{anonymous user} and \textbf{registered user} must be able to:
 \begin{itemize}
-	\item check informations and average rating of a specific movie
-	\item check a movie's list and filter it by many characteristics. Combined filters 
-	are also allowed.
-	\item check aggregated statistics about movie grouped by year, country, actor,
+	\item view details and average rating of a specific movie
+	\item view a list of movies and filter it by many parameters. Combined filters 
+	are also allowed
+	\item view aggregated statistics about movies grouped by year, country, actor,
 	director, genre 
 \end{itemize}
 
@@ -87,15 +81,12 @@ registered user can:
 Finally, a registered user can logout in any moment.
 
 An \textbf{administrator} is a special registered user who must be able to ban users.
-In order to do that, an administrator can check a global rating history to retrieve informations
+In order to do that, an administrator can check a global rating history to retrieve information
 about all the application's activity, and to check every user's profile.
 Banned user's rating are automatically removed from the database. Email and username
 of banned users cannot be used again.
 
-The \textbf{bot} is not a real user but an entity used to update the database if a 
-new film needs to be added. Moreover, the bot periodically browses all the source sites from 
-where ratings are collected in order to find new ratings and add them to our 
-application's database.
+The \textbf{bot} is not a real user but an entity used to periodically update the database in order to add new movies and update external ratings. 
 
 \subsubsection{Non-Functional Requirements}
 \begin{itemize}
@@ -111,7 +102,22 @@ application's database.
 
 \subsection{Use-case diagram}
 
+\begin{figure}[h!]
+    \centering
+    \includegraphics[width=\textwidth]{figs/use_case.png}
+    \caption{Use-case diagram. }
+    \label{fig:usecase}
+\end{figure}
+Different colors are used to highlight cases that are exclusive of some actors: blank cases are referred to all users; blue cases are referred to registered user and admin; yellow cases are exclusive of the admin.
+
 \subsection{Class diagram}
+
+\begin{figure}[h!]
+    \centering
+    \includegraphics[width=\textwidth]{figs/class_diagram.png}
+    \caption{Class diagram for the identified entities}
+    \label{fig:class_diagram}
+\end{figure}
 
 \subsection{Data model}
 
