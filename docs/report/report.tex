@@ -117,10 +117,12 @@ The use-case diagram is shown in \cref{fig:usecase}. Different colors are used t
 
 \begin{figure}[h!]
     \centering
-    \includegraphics[width=\textwidth]{figs/class_diagram.png}
+    \includegraphics[width=\textwidth]{figs/class_diagram.pdf}
     \caption{Class diagram for the identified entities}
     \label{fig:class_diagram}
 \end{figure}
+
+The class diagram is shown in \cref{fig:class_diagram}. It was decided to show \emph{Country}, \emph{Year} and \emph{Genre} as separate entities as they are some of the fields over which aggregate statistics are calculated. In the database implementation, this will reflect in having a separate collection for each of them in which pre-computed results of the aggregations will be stored.
 
 \subsection{Data model}
 
