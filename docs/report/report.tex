@@ -1,11 +1,13 @@
 \documentclass[10pt]{article}
 \usepackage[utf8]{inputenc}
 \usepackage{parskip}
-\usepackage[a4paper, margin=1.5in]{geometry}
+\usepackage[a4paper, margin=1in]{geometry}
 \usepackage{graphicx}
 \usepackage{hyperref}
 \usepackage{listings}
 \usepackage{array}
+\usepackage[capitalise,noabbrev]{cleveref}
+\usepackage{rotating}
 
 \renewcommand{\arraystretch}{1.5}
 
@@ -102,13 +104,14 @@ The \textbf{bot} is not a real user but an entity used to periodically update th
 
 \subsection{Use-case diagram}
 
-\begin{figure}[h!]
+\begin{sidewaysfigure}[h!]
     \centering
-    \includegraphics[width=\textwidth]{figs/use_case.png}
-    \caption{Use-case diagram. }
+    \includegraphics[height=18cm]{figs/use_case.pdf}
+    \caption{Use-case diagram}
     \label{fig:usecase}
-\end{figure}
-Different colors are used to highlight cases that are exclusive of some actors: blank cases are referred to all users; blue cases are referred to registered user and admin; yellow cases are exclusive of the admin.
+\end{sidewaysfigure}
+
+The use-case diagram is shown in \cref{fig:usecase}. Different colors are used to highlight cases that are exclusive of some actors: blank cases are referred to all users; blue cases are referred to registered user and admin; yellow cases are exclusive of the admin.
 
 \subsection{Class diagram}
 
