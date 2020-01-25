@@ -9,6 +9,48 @@
 \usepackage[capitalise,noabbrev]{cleveref}
 \usepackage{rotating}
 
+% Custom json syntax highlightning
+\usepackage{bera}
+\usepackage{xcolor}
+
+\colorlet{punct}{red!60!black}
+\definecolor{background}{HTML}{EEEEEE}
+\definecolor{delim}{RGB}{20,105,176}
+\definecolor{string}{RGB}{61,107,42}
+\colorlet{numb}{magenta!60!black}
+
+\lstdefinelanguage{json}{
+    basicstyle=\normalfont\ttfamily,
+    % numbers=left,
+    % numberstyle=\scriptsize,
+    % stepnumber=1,
+    % numbersep=8pt,
+    showstringspaces=false,
+    breaklines=true,
+    frame=lines,
+	backgroundcolor=\color{background},
+	string = [d]{"},
+	stringstyle={\color{string}},
+    literate=
+     *{0}{{{\color{numb}0}}}{1}
+      {1}{{{\color{numb}1}}}{1}
+      {2}{{{\color{numb}2}}}{1}
+      {3}{{{\color{numb}3}}}{1}
+      {4}{{{\color{numb}4}}}{1}
+      {5}{{{\color{numb}5}}}{1}
+      {6}{{{\color{numb}6}}}{1}
+      {7}{{{\color{numb}7}}}{1}
+      {8}{{{\color{numb}8}}}{1}
+      {9}{{{\color{numb}9}}}{1}
+      {:}{{{\color{punct}{:}}}}{1}
+      {,}{{{\color{punct}{,}}}}{1}
+      {\{}{{{\color{delim}{\{}}}}{1}
+      {\}}{{{\color{delim}{\}}}}}{1}
+      {[}{{{\color{delim}{[}}}}{1}
+      {]}{{{\color{delim}{]}}}}{1},
+}
+
+
 \renewcommand{\arraystretch}{1.5}
 
 \title{Task 2 Report}
@@ -124,7 +166,144 @@ The use-case diagram is shown in \cref{fig:usecase}. Different colors are used t
 
 The class diagram is shown in \cref{fig:class_diagram}. It was decided to show \emph{Country}, \emph{Year} and \emph{Genre} as separate entities as they are some of the fields over which aggregate statistics are calculated. In the database implementation, this will reflect in having a separate collection for each of them in which pre-computed results of the aggregations will be stored.
 
+\clearpage
 \subsection{Data model}
+The data model is split in 9 different collections:
+\begin{itemize}
+	\item Movies (\cref{sec:movies})
+	\item Users (\cref{sec:users})
+	\item Ratings (\cref{sec:ratings})
+	\item Actors (\cref{sec:actors})
+	\item Directors (\cref{sec:directors})
+	\item Years (\cref{sec:years})
+	\item Genres (\cref{sec:genres})
+	\item Countries (\cref{sec:countries})
+	\item BannedUsers (\cref{sec:banned_users})
+\end{itemize}
+In each following subsection, an example document is shown for every collection.
+
+\subsubsection{Movies}
+\label{sec:movies}
+
+\begin{lstlisting}[language=json]	
+{
+	_id: 7286456,
+	title: "Joker",
+	original_title: "Joker",
+	runtime: 122,
+	country: "USA",
+	year: 2019,
+	date: "2019-10-04",
+	description: "In Gotham City, mentally troubled comedian [...]",
+	poster: "https://m.media-amazon.com/images/M/[...].jpg",
+	characters: [
+		{
+			name: "Joker",
+			actor_name: "Joaquin Phoenix",
+			actor_id: 1618
+
+		},
+		...
+	],
+	directors: [
+		{
+			id: 680846,
+			name: "Todd Phillips",
+		}
+	],
+	genres: ["Crime", "Drama", "Thriller"],
+	ratings: [
+		{
+			source: "internal",
+			avgrating: 9,
+			count: 100,
+			weight: 2
+		},
+		{
+			source: "IMDb",
+			avgrating: 8.6,
+			count: 628981,
+			weight: 1
+		},
+		...
+	],
+	total_rating: 8.87
+}
+\end{lstlisting}
+
+\subsubsection{Users}
+\label{sec:users}
+
+\begin{lstlisting}[language=json]	
+{
+	_id: 1,
+}
+\end{lstlisting}
+	
+
+\subsubsection{Ratings}
+\label{sec:ratings}
+
+\begin{lstlisting}[language=json]	
+{
+	_id: 1,
+}
+\end{lstlisting}
+	
+
+\subsubsection{Actors}
+\label{sec:actors}
+
+\begin{lstlisting}[language=json]	
+{
+	_id: 1,
+}
+\end{lstlisting}
+
+\subsubsection{Directors}
+\label{sec:directors}
+
+\begin{lstlisting}[language=json]	
+{
+	_id: 1,
+}
+\end{lstlisting}
+
+\subsubsection{Years}
+\label{sec:years}
+
+\begin{lstlisting}[language=json]	
+{
+	_id: 1,
+}
+\end{lstlisting}
+
+\subsubsection{Genres}
+\label{sec:genres}
+
+\begin{lstlisting}[language=json]	
+{
+	_id: 1,
+}
+\end{lstlisting}
+
+\subsubsection{Countries}
+\label{sec:countries}
+
+\begin{lstlisting}[language=json]	
+{
+	_id: 1,
+}
+\end{lstlisting}
+
+\subsubsection{BannedUsers}
+\label{sec:banned_users}
+
+\begin{lstlisting}[language=json]	
+{
+	_id: 1,
+}
+\end{lstlisting}
 
 \subsection{Software Architecture}
 
