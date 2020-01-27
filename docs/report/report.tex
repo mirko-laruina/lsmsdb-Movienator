@@ -1,4 +1,4 @@
-\documentclass[10pt]{article}
+\documentclass[11pt]{article}
 \usepackage[utf8]{inputenc}
 \usepackage{parskip}
 \usepackage[a4paper, margin=1in]{geometry}
@@ -191,7 +191,8 @@ In each following subsection, an example document is shown for every collection.
 	title: "Joker",
 	original_title: "Joker",
 	runtime: 122,
-	country: "USA",
+	region: "US",
+	full_region: "USA",
 	year: 2019,
 	date: "2019-10-04",
 	description: "In Gotham City, mentally troubled comedian [...]",
@@ -201,7 +202,6 @@ In each following subsection, an example document is shown for every collection.
 			name: "Joker",
 			actor_name: "Joaquin Phoenix",
 			actor_id: 1618
-
 		},
 		...
 	],
@@ -231,79 +231,180 @@ In each following subsection, an example document is shown for every collection.
 }
 \end{lstlisting}
 
+\paragraph{Notes}
+Character and director nested documents contain redoundant data (person's name) that is introduced to reduce the number of seeks necessary to return the movie details
+to the user.
+
+This collection is mainly read-heavy since most fields will be written only once.
+The only fields subject to change are the ones related to ratings. For these reasons,
+we can affort many indices to speed-up the aggregations.
+
+\paragraph{Indices} 
+Indices on the following fields will be set for this collection:
+\begin{itemize}
+	\item \texttt{title}
+	\item \texttt{region}
+	\item \texttt{year}
+	\item \texttt{characters.actor\_id} (multikey index)
+	\item \texttt{directors.id} (multikey index)
+	\item \texttt{total\_rating}
+\end{itemize}
+
+An index on the \emph{total rating} is necessary for efficiently returning a 
+subset of movies based on their rating. However, frequent writes on it would 
+negatively impact the performance on the system. Therefore, this field will 
+not contain the real-time total rating but will be updated periodically.
+
 \subsubsection{Users}
 \label{sec:users}
 
 \begin{lstlisting}[language=json]	
 {
-	_id: 1,
+	_id: <ObjectId>,
+	username: "joker",
+	password: "<HASHED PASSWORD>",
+	email: "joker@dccomics.com",
+	isadmin: 1 (optional)
 }
 \end{lstlisting}
-	
+% top_actors: [
+% 	{
+% 		name: "Joaquin Phoenix",
+% 		id: 1618
+% 	},
+% 	...
+% ],
+% top_directors: [
+% 	{
+% 		id: 680846,
+% 		name: "Todd Phillips",
+% 	},
+% 	...
+% ],
+% top_genres: ["Crime", "Drama", "Thriller"]
+% }
+
+% TODO controlla che abbia senso
+
+\paragraph{Indices} 
+An index will be introduced on the \emph{username} and \emph{email} fields. 
+Furthermore, these fields must also be unique.
 
 \subsubsection{Ratings}
 \label{sec:ratings}
 
 \begin{lstlisting}[language=json]	
 {
-	_id: 1,
+	_id: <ObjectId>,
+	user_id: <ObjectId>,
+	movie_id: 7286456,
+	date: "2020-01-20",
+	rating: 10
 }
 \end{lstlisting}
-	
+
+\paragraph{Notes}
+The raw ratings are kept separated from the movie they refer to because the single 
+ratings are never shown to the user. 
+Furthermore, new ratings are expected to be frequently added.
+By using a separate collection, the problem of a long array of nested documents 
+is avoided. However, the introduction of an index is necessary.
+
+
+\paragraph{Indices} 
+An index will be introduced on the \emph{movie\_id} field in order to speed up
+aggregations.
 
 \subsubsection{Actors}
 \label{sec:actors}
 
 \begin{lstlisting}[language=json]	
 {
-	_id: 1,
+	_id: 1618,
+	name: "Joaquin Phoenix",
+	avg_rating: 8.75,
+	movie_count: 17
 }
 \end{lstlisting}
+
+\paragraph{Notes}
+This collection will store the pre-computed results of the aggregation.
 
 \subsubsection{Directors}
 \label{sec:directors}
 
 \begin{lstlisting}[language=json]	
 {
-	_id: 1,
+	_id: 680846,
+	name: "Todd Phillips",
+	avg_rating: 7.45,
+	movie_count: 4	
 }
 \end{lstlisting}
+
+\paragraph{Notes}
+This collection will store the pre-computed results of the aggregation.
 
 \subsubsection{Years}
 \label{sec:years}
 
 \begin{lstlisting}[language=json]	
 {
-	_id: 1,
+	_id: 2019,
+	avg_rating: 6.45,
+	movie_count: 867
 }
 \end{lstlisting}
+
+\paragraph{Notes}
+This collection will store the pre-computed results of the aggregation.
 
 \subsubsection{Genres}
 \label{sec:genres}
 
 \begin{lstlisting}[language=json]	
 {
-	_id: 1,
+	_id: "Crime",
+	avg_rating: 4.78,
+	movie_count: 751
 }
 \end{lstlisting}
+
+\paragraph{Notes}
+This collection will store the pre-computed results of the aggregation.
 
 \subsubsection{Countries}
 \label{sec:countries}
 
 \begin{lstlisting}[language=json]	
 {
-	_id: 1,
+	_id: "US",
+	full_name: "USA",
+	avg_rating: 4.78,
+	movie_count: 1597
 }
 \end{lstlisting}
+
+\paragraph{Notes}
+This collection will store the pre-computed results of the aggregation.
 
 \subsubsection{BannedUsers}
 \label{sec:banned_users}
 
 \begin{lstlisting}[language=json]	
 {
-	_id: 1,
+	_id: <ObjectId>,
+	username: "topolino.hackerino",
+	email: "hackerino@topolino.it"
 }
 \end{lstlisting}
+
+\paragraph{Notes}
+This collection stores the username and passwords of banned users. 
+When a user is banned, its record in the \emph{Users} collection is moved
+to this one.
+When a new user registers, this collection is checked for any match and, 
+if any is found, the registration will fail. 
 
 \subsection{Software Architecture}
 
