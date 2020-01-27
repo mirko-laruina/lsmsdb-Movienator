@@ -256,41 +256,6 @@ subset of movies based on their rating. However, frequent writes on it would
 negatively impact the performance on the system. Therefore, this field will 
 not contain the real-time total rating but will be updated periodically.
 
-\subsubsection{Users}
-\label{sec:users}
-
-\begin{lstlisting}[language=json]	
-{
-	_id: <ObjectId>,
-	username: "joker",
-	password: "<HASHED PASSWORD>",
-	email: "joker@dccomics.com",
-	isadmin: 1 (optional)
-}
-\end{lstlisting}
-% top_actors: [
-% 	{
-% 		name: "Joaquin Phoenix",
-% 		id: 1618
-% 	},
-% 	...
-% ],
-% top_directors: [
-% 	{
-% 		id: 680846,
-% 		name: "Todd Phillips",
-% 	},
-% 	...
-% ],
-% top_genres: ["Crime", "Drama", "Thriller"]
-% }
-
-% TODO controlla che abbia senso
-
-\paragraph{Indices} 
-An index will be introduced on the \emph{username} and \emph{email} fields. 
-Furthermore, these fields must also be unique.
-
 \subsubsection{Ratings}
 \label{sec:ratings}
 
@@ -388,6 +353,53 @@ This collection will store the pre-computed results of the aggregation.
 
 \paragraph{Notes}
 This collection will store the pre-computed results of the aggregation.
+
+\subsubsection{Users}
+\label{sec:users}
+
+\begin{lstlisting}[language=json]	
+{
+	_id: <ObjectId>,
+	username: "joker",
+	password: "<HASHED PASSWORD>",
+	email: "joker@dccomics.com",
+	isadmin: 1 (optional),
+	rated_actors: [
+		{
+			actor_id: 1618,
+			avg_rating: 7.5,
+			rating_count: 2
+		},
+		...
+	],
+	rated_directors: [
+		{
+			director_id: 680846,
+			avg_rating: 7.7,
+			rating_count: 4
+		},
+		...
+	],
+	rated_genres: [
+		{
+			genre: "Crime",
+			avg_rating: 7.1,
+			rating_count: 4
+		},
+		...
+	]
+}
+\end{lstlisting}
+
+\paragraph{Notes}
+In order to provide the user with statistics about his favourite actors, directors
+and genres, partial statistics need to be stored within the \emph{Users} collection. 
+In fact, calculating them is very expensive since it involves 
+more than one collection.
+
+\paragraph{Indices} 
+An index will be introduced on the \emph{username} and \emph{email} fields. 
+Furthermore, these fields must also be unique.
 
 \subsubsection{BannedUsers}
 \label{sec:banned_users}
