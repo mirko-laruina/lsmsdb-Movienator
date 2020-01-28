@@ -244,7 +244,7 @@ we can affort many indices to speed-up the aggregations.
 \paragraph{Indices} 
 Indices on the following fields will be set for this collection:
 \begin{itemize}
-	\item \texttt{title}
+	\item \texttt{title} (text index)
 	\item \texttt{region}
 	\item \texttt{year}
 	\item \texttt{characters.actor\_id} (multikey index)
@@ -277,10 +277,11 @@ Furthermore, new ratings are expected to be frequently added.
 By using a separate collection, the problem of a long array of nested documents 
 is avoided. However, the introduction of an index is necessary.
 
-
 \paragraph{Indices} 
-An index will be introduced on the \emph{movie\_id} field in order to speed up
-aggregations.
+\begin{itemize}
+	\item \emph{movie\_id}: speed up aggregations.
+	\item \emph{(user\_id, movie\_id}: quickly find user's ratings (compound index).
+\end{itemize}
 
 \subsubsection{Actors}
 \label{sec:actors}
@@ -297,6 +298,9 @@ aggregations.
 \paragraph{Notes}
 This collection will store the pre-computed results of the aggregation.
 
+\paragraph{Indices}
+A text index will be set on the \emph{name} field.
+
 \subsubsection{Directors}
 \label{sec:directors}
 
@@ -311,6 +315,9 @@ This collection will store the pre-computed results of the aggregation.
 
 \paragraph{Notes}
 This collection will store the pre-computed results of the aggregation.
+
+\paragraph{Indices}
+A text index will be set on the \emph{name} field.
 
 \subsubsection{Years}
 \label{sec:years}
@@ -339,6 +346,7 @@ This collection will store the pre-computed results of the aggregation.
 
 \paragraph{Notes}
 This collection will store the pre-computed results of the aggregation.
+The list of genres is fixed.
 
 \subsubsection{Countries}
 \label{sec:countries}
@@ -354,6 +362,9 @@ This collection will store the pre-computed results of the aggregation.
 
 \paragraph{Notes}
 This collection will store the pre-computed results of the aggregation.
+
+\paragraph{Indices}
+A text index will be set on the \emph{full\_name} field.
 
 \subsubsection{Users}
 \label{sec:users}
@@ -406,7 +417,7 @@ In fact, calculating them is very expensive since it involves
 more than one collection.
 
 \paragraph{Indices} 
-An index will be introduced on the \emph{username} and \emph{email} fields. 
+An index will be introduced on the \emph{username} (text index) and \emph{email} fields. 
 Furthermore, these fields must also be unique.
 
 \subsubsection{BannedUsers}
