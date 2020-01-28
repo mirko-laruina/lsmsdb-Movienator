@@ -193,8 +193,8 @@ In each following subsection, an example document is shown for every collection.
 	title: "Joker",
 	original_title: "Joker",
 	runtime: 122,
-	region: "US",
-	full_region: "USA",
+	country_code: "US",
+	country: "USA",
 	year: 2019,
 	date: "2019-10-04",
 	description: "In Gotham City, mentally troubled comedian [...]",
@@ -245,7 +245,7 @@ we can affort many indices to speed-up the aggregations.
 Indices on the following fields will be set for this collection:
 \begin{itemize}
 	\item \texttt{title} (text index)
-	\item \texttt{region}
+	\item \texttt{country}
 	\item \texttt{year}
 	\item \texttt{characters.actor\_id} (multikey index)
 	\item \texttt{directors.id} (multikey index)

@@ -81,7 +81,7 @@ All parameters are optional. Default behaviour is sorting by release date (ascen
  - maxRating: maximum rating (included)
  - director: director id
  - actor: actor id
- - region: region short name
+ - country: country code
  - fromYear: minimum release year (included)
  - toYear: maximum release year (included)
  - n: number of elements per page (default: 10)
@@ -143,8 +143,8 @@ array.
 	"title": "Joker",
 	"original_title": "Joker",
 	"runtime": 122,
-	"region": "US",
-	"full_region": "USA",
+	"country_code": "US",
+	"country": "USA",
 	"year": 2019,
 	"date": "2019-10-04",
 	"description": "In Gotham City, mentally troubled comedian [...]",
