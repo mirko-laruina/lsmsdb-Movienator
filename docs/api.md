@@ -7,7 +7,9 @@ All responses are like the one below:
 {
     "success": true|false,
     "message": "Error message (if success is false)",
-    "response": NESTED DOCUMENT
+    "response": {
+        ...
+    }
 }
 ```
 
@@ -354,6 +356,35 @@ NB: only the user herself and admins are allowed.
     ...
 ]
 ```
+
+## `POST /user/<username>/rating/<movie_id>`
+Update/Inserts the user rating.
+
+NB: only the user himself and admins are allowed.
+
+### Input
+```
+rating=<rating>
+```
+
+### Output
+None (just success/failure).
+
+## `DELETE /user/<username>/rating/<movie_id>`
+Deletes the user rating.
+
+NB: only the user herself and admins are allowed.
+
+### Output
+None (just success/failure).
+
+## `POST /user/<username>/ban`
+Bans the user and deletes all his ratings.
+
+NB: only admins are allowed.
+
+### Output
+None (just success/failure).
 
 ## `GET /user/search`
 Searches a user from a username (or part of).
