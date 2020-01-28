@@ -1,0 +1,368 @@
+# API Specifications
+The API base URL is: `http://example.com/api/v1/`.
+
+All responses are like the one below:
+
+```json
+{
+    "success": true|false,
+    "message": "Error message (if success is false)",
+    "response": NESTED DOCUMENT
+}
+```
+
+In what follows, only the response nested document is reported.
+
+## `POST /auth/login`
+Logs the user in.
+
+NB: not logged-in sessions must be able to call this API!
+
+### Input
+```
+username=<username>
+password=<plain_text_password>
+```
+
+### Output
+```json
+{
+    "sessionId": "<sessionId>",
+    "is_admin": false
+}
+```
+
+## `POST /auth/logout`
+Logs the user out, terminating his session.
+
+NB: this method is a POST even though it has no inputs since it changes the server internal state.
+
+### Input
+None
+
+### Output
+```json
+{
+    "success": true|false
+}
+```
+
+## `POST /auth/register`
+Registers the user.
+
+NB: not logged-in sessions must be able to call this API!
+
+### Input
+```
+username=<username>
+password=<plain_text_password>
+```
+
+### Output
+```json
+{
+    "sessionId": "<sessionId>"
+}
+```
+
+## `GET /browse`
+Returns a list of movies with the given sorting and filters. Paging is supported.
+
+NB: if a logged-in user browses the movies, his own rating is returned alongside
+the overall rating.
+
+### URL parameters
+All parameters are optional. Default behaviour is sorting by release date (ascending) with no filters.
+ - sortBy: one of ["release", "title", "rating"]. Ties are resolved on ascending title ordering.
+ - sortOrder: 1 for ascending, -1 for descending
+ - minRating: minimum rating (included)
+ - maxRating: maximum rating (included)
+ - director: director id
+ - actor: actor id
+ - region: region short name
+ - titleQuery: all movies matching a title query
+ - fromYear: minimum release year (included)
+ - toYear: maximum release year (included)
+ - n: number of elements per page (default: 10)
+ - page: page number (default: 1)
+
+### Output
+```json
+[
+    {
+        "_id": 7286456,
+        "title": "Joker",
+        "year": 2019,
+        "poster": "https://m.media-amazon.com/images/M/[...].jpg",
+        "genres": ["Crime", "Drama", "Thriller"],
+        "total_rating": 8.87,
+        "user_rating": 7 (optional)
+    },
+    ...
+]
+```
+
+## `GET /movie/<id>`
+Returns detailed information about a movie.
+
+If the user is logged-in, this method will show his rating withing the ratings 
+array.
+
+### Output
+```json
+{
+	"_id": 7286456,
+	"title": "Joker",
+	"original_title": "Joker",
+	"runtime": 122,
+	"region": "US",
+	"full_region": "USA",
+	"year": 2019,
+	"date": "2019-10-04",
+	"description": "In Gotham City, mentally troubled comedian [...]",
+	"poster": "https://m.media-amazon.com/images/M/[...].jpg",
+	"characters": [
+		{
+			"name": "Joker",
+			"actor_name": "Joaquin Phoenix",
+			"actor_id": 1618
+		},
+		...
+	],
+	"directors": [
+		{
+			"id": 680846,
+			"name": "Todd Phillips",
+		}
+	],
+	"genres": ["Crime", "Drama", "Thriller"],
+	"ratings": [
+		{
+			"source": "internal",
+			"avgrating": 9,
+			"count": 100,
+			"weight": 2
+		},
+		{
+			"source": "IMDb",
+			"avgrating": 8.6,
+			"count": 628981,
+			"weight": 1
+		},
+		{
+			"source": "user",
+			"avgrating": 7,
+			"count": 1,
+			"weight": 0
+		},
+		...
+	],
+	"total_rating": 8.87
+}
+```
+
+## `PUT /movie/<id>/rating`
+Update/Inserts the user rating.
+
+NB: only logged-in users.
+
+### Input
+```
+rating=<rating>
+```
+
+### Output
+None (just success/failure).
+
+## `DELETE /movie/<id>/rating`
+Deletes the user rating.
+
+NB: only logged-in users.
+
+### Output
+None (just success/failure).
+
+## `GET /statistics`
+Returns statistics of movies with the given sorting and aggregation. 
+Paging is supported.
+
+### URL parameters
+All parameters are optional, except for the aggregation (groupBy). 
+Default behaviour is sorting by rating (descending).
+ - groupBy: one of ["country", "year", "director", "actor"]. 
+ - sortBy: one of ["count", "rating", "alphabetic"]. Ties are resolved on ascending alphabetic ordering.
+ - sortOrder: 1 for ascending, -1 for descending
+ - n: number of elements per page (default: 10)
+ - page: page number (default: 1)
+
+### Output
+```json
+[
+    {
+        "id": "US",
+        "name": "USA",
+        "count": 500,
+        "rating": 8.87
+    },
+    ...
+]
+```
+
+## `GET /actors`
+Returns a list of actors based on a search query.
+
+### URL parameters
+ - query: a query for finding the actor (required)
+ - limit: maximum number of results (optional, default = 10)
+
+ ### Output
+```json
+[
+    {
+        "id": 1618,
+        "name": "Joaquin Phoenix"
+    },
+    ...
+]
+```
+
+## `GET /directors`
+Returns a list of directors based on a search query.
+
+### URL parameters
+ - query: a query for finding the director (required)
+ - limit: maximum number of results (optional, default = 10)
+
+ ### Output
+```json
+[
+    {
+        "id": 680846,
+        "name": "Todd Phillips"
+    },
+    ...
+]
+```
+
+## `GET /countries`
+Returns a list of countries based on a search query.
+
+### URL parameters
+ - query: a query for finding the country (required)
+ - limit: maximum number of results (optional, default = 10)
+
+ ### Output
+```json
+[
+    {
+        "id": "US",
+        "name": "USA"
+    },
+    ...
+]
+```
+
+## `GET /user/<username>`
+Returns user information (username, email, top-3 most liked actors, directors, 
+genres).
+
+NB: only the user himself and admins are allowed.
+
+### Output
+```json
+{
+    "username": "joker",
+    "email": "joker@dccomics.com",
+    "favourite_actors": [
+		{
+			"id": 1618,
+			"name": "Joaquin Phoenix",
+			"avg_rating": 7.5,
+			"rating_count": 2
+		},
+		...
+	],
+	"favourite_directors": [
+		{
+			"id": 680846,
+			"name": "Todd Phillips",
+			"avg_rating": 7.7,
+			"rating_count": 4
+		},
+		...
+	],
+	"favourite_genres": [
+		{
+			"name": "Crime",
+			"avg_rating": 7.1,
+			"rating_count": 4
+		},
+		...
+	],
+
+}
+```
+
+## `GET /user/<username>/ratings`
+Returns a list of movies rated by the user.
+Paging is supported.
+
+NB: only the user herself and admins are allowed.
+
+### URL parameters
+ - n: number of elements per page (optional, default: 10)
+ - page: page number (optional, default: 1)
+
+### Output
+```json
+[
+    {
+        "_id": 7286456,
+        "title": "Joker",
+        "year": 2019,
+        "poster": "https://m.media-amazon.com/images/M/[...].jpg",
+        "genres": ["Crime", "Drama", "Thriller"],
+        "total_rating": 8.87,
+        "user_rating": 7
+    },
+    ...
+]
+```
+
+## `GET /user/search`
+Searches a user from a username (or part of).
+
+NB: only admins are allowed.
+
+### URL parameters
+ - query: the query that the username (required)
+ - limit: maximum number of results (optional, default = 10)
+
+### Output
+```
+["username1, "username2", "usernameN"]
+```
+
+## `GET /ratings`
+Returns the list of all ratings, sorted by date (descending).
+Paging is supported.
+
+NB: only admins are allowed.
+
+### URL parameters
+ - n: number of elements per page (optional, default: 10)
+ - page: page number (optional, default: 1)
+
+### Output
+```json
+[
+    {
+        "username": "topolino.hackerino",
+        "movie_id": 7286456,
+        "title": "Joker",
+        "year": 2019,
+        "user_rating": 1
+    },
+    ...
+]
+```
