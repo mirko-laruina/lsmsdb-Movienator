@@ -65,7 +65,7 @@ password=<plain_text_password>
 }
 ```
 
-## `GET /browse`
+## `GET /movie/browse`
 Returns a list of movies with the given sorting and filters. Paging is supported.
 
 NB: if a logged-in user browses the movies, his own rating is returned alongside
@@ -80,11 +80,37 @@ All parameters are optional. Default behaviour is sorting by release date (ascen
  - director: director id
  - actor: actor id
  - region: region short name
- - titleQuery: all movies matching a title query
  - fromYear: minimum release year (included)
  - toYear: maximum release year (included)
  - n: number of elements per page (default: 10)
  - page: page number (default: 1)
+
+### Output
+```json
+[
+    {
+        "_id": 7286456,
+        "title": "Joker",
+        "year": 2019,
+        "poster": "https://m.media-amazon.com/images/M/[...].jpg",
+        "genres": ["Crime", "Drama", "Thriller"],
+        "total_rating": 8.87,
+        "user_rating": 7 (optional)
+    },
+    ...
+]
+```
+
+## `GET /movie/search`
+Returns a list of movies that match the given search string. Paging is supported.
+
+NB: if a logged-in user browses the movies, his own rating is returned alongside
+the overall rating.
+
+### URL parameters
+ - query: search query (required)
+ - n: number of elements per page (default: 10)
+ - page: page number (default: 1) 
 
 ### Output
 ```json
