@@ -10,11 +10,11 @@ import java.util.List;
 public class Rating {
     private ObjectId id;
     private ObjectId userId;
-    private long movieId;
+    private String movieId;
     private Date date;
     private double rating;
 
-    public Rating(ObjectId userId, long movieId, Date date, double rating) {
+    public Rating(ObjectId userId, String movieId, Date date, double rating) {
         this.userId = userId;
         this.movieId = movieId;
         this.date = date;
@@ -37,11 +37,11 @@ public class Rating {
         this.userId = userId;
     }
 
-    public long getMovieId() {
+    public String getMovieId() {
         return movieId;
     }
 
-    public void setMovieId(long movieId) {
+    public void setMovieId(String movieId) {
         this.movieId = movieId;
     }
 
@@ -68,7 +68,7 @@ public class Rating {
 
             Rating  rating = new Rating(
                     d.getObjectId("user_id"),
-                    d.getLong("movie_id"),
+                    d.getString("movie_id"),
                     d.getDate("date"),
                     d.getDouble("rating")
             );

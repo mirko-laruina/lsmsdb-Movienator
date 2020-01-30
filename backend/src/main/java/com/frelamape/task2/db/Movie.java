@@ -7,7 +7,7 @@ import java.util.Date;
 import java.util.List;
 
 public class Movie {
-    private long id;
+    private String id;
     private String title;
     private String originalTitle;
     private int runtime;
@@ -27,11 +27,11 @@ public class Movie {
         this.title = title;
     }
 
-    public long getId() {
+    public String getId() {
         return id;
     }
 
-    public void setId(long id) {
+    public void setId(String id) {
         this.id = id;
     }
 
@@ -153,7 +153,7 @@ public class Movie {
                 return null;
 
             Movie movie = new Movie(d.getString("title"));
-            movie.setId(d.getLong("_id"));
+            movie.setId(d.getString("_id"));
             movie.setOriginalTitle(d.getString("original_title"));
             movie.setRuntime(d.getInteger("runtime"));
             movie.setCountry(d.getString("country"));

@@ -6,7 +6,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class Person implements Statistics.Aggregator {
-    private long id;
+    private String id;
     private String name;
 
     public Person(){}
@@ -27,11 +27,11 @@ public class Person implements Statistics.Aggregator {
 
     @Override
     public void fromDBObject(Document d) {
-        id = d.getLong("_id");
+        id = d.getString("_id");
         name = d.getString("name");
     }
 
-    public void setId(long id) {
+    public void setId(String id) {
         this.id = id;
     }
 
