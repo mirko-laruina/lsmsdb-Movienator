@@ -1,0 +1,6 @@
+# VSCode
+.vscode/*
+*.code-workspace
+
+# Misc
+idee_task2.md
