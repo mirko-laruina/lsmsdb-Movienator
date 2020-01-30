@@ -189,7 +189,7 @@ In each following subsection, an example document is shown for every collection.
 
 \begin{lstlisting}[language=json]	
 {
-	_id: 7286456,
+	_id: "tt7286456",
 	title: "Joker",
 	original_title: "Joker",
 	runtime: 122,
@@ -203,13 +203,13 @@ In each following subsection, an example document is shown for every collection.
 		{
 			name: "Joker",
 			actor_name: "Joaquin Phoenix",
-			actor_id: 1618
+			actor_id: "nm0001618"
 		},
 		...
 	],
 	directors: [
 		{
-			id: 680846,
+			id: "nm0680846",
 			name: "Todd Phillips",
 		}
 	],
@@ -264,7 +264,7 @@ not contain the real-time total rating but will be updated periodically.
 {
 	_id: <ObjectId>,
 	user_id: <ObjectId>,
-	movie_id: 7286456,
+	movie_id: "tt7286456",
 	date: "2020-01-20",
 	rating: 10
 }
@@ -288,7 +288,7 @@ is avoided. However, the introduction of an index is necessary.
 
 \begin{lstlisting}[language=json]	
 {
-	_id: 1618,
+	_id: "nm0001618",
 	name: "Joaquin Phoenix",
 	avg_rating: 8.75,
 	movie_count: 17
@@ -306,7 +306,7 @@ A text index will be set on the \emph{name} field.
 
 \begin{lstlisting}[language=json]	
 {
-	_id: 680846,
+	_id: "nm0680846",
 	name: "Todd Phillips",
 	avg_rating: 7.45,
 	movie_count: 4	
@@ -378,7 +378,7 @@ A text index will be set on the \emph{full\_name} field.
 	isadmin: 1 (optional),
 	rated_actors: [
 		{
-			actor_id: 1618,
+			actor_id: "nm0001618",
 			avg_rating: 7.5,
 			rating_count: 2
 		},
@@ -386,7 +386,7 @@ A text index will be set on the \emph{full\_name} field.
 	],
 	rated_directors: [
 		{
-			director_id: 680846,
+			director_id: "nm0680846",
 			avg_rating: 7.7,
 			rating_count: 4
 		},
