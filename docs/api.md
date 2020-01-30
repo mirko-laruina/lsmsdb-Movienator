@@ -43,11 +43,7 @@ NB: this method is a POST even though it has no inputs since it changes the serv
 None
 
 ### Output
-```json
-{
-    "success": true|false
-}
-```
+None (just success/failure).
 
 ## `POST /auth/register`
 Registers the user.
@@ -84,6 +80,7 @@ All parameters are optional. Default behaviour is sorting by release date (ascen
  - country: country code
  - fromYear: minimum release year (included)
  - toYear: maximum release year (included)
+ - genre: genre that the movie must contain
  - n: number of elements per page (default: 10)
  - page: page number (default: 1)
 
