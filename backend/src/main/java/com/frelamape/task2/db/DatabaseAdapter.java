@@ -54,8 +54,8 @@ public class DatabaseAdapter {
 
     public void updateRating(Rating rating){
         ratingsCollection.updateOne(
-                and(eq("movie_id", rating.getMovieId()),
-                        eq("user_id", rating.getUserId())),
+                and(eq("_id.movie_id", rating.getMovieId()),
+                        eq("_id.user_id", rating.getUserId())),
                 combine(set("date", rating.getDate()),
                         set("rating", rating.getRating())
                 )
@@ -74,7 +74,7 @@ public class DatabaseAdapter {
     public List<Rating> getUserRatings(User u){
         return Rating.Adapter.fromDBObjectIterable(
                 ratingsCollection.find(
-                        eq("user_id", u.getId())
+                        eq("_id.user_id", u.getId())
                 )
         );
     }

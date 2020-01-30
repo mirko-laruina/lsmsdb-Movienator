@@ -262,9 +262,10 @@ not contain the real-time total rating but will be updated periodically.
 
 \begin{lstlisting}[language=json]	
 {
-	"_id": <ObjectId>,
-	"user_id": <ObjectId>,
-	"movie_id": "tt7286456",
+	"_id": {
+		"user_id": <ObjectId>,
+		"movie_id": "tt7286456"
+	},
 	"date": "2020-01-20",
 	"rating": 10
 }
@@ -279,8 +280,8 @@ is avoided. However, the introduction of an index is necessary.
 
 \paragraph{Indices} 
 \begin{itemize}
-	\item \emph{movie\_id}: speed up aggregations.
-	\item \emph{(user\_id, movie\_id}: quickly find user's ratings (compound index).
+	\item \emph{\_id.movie\_id}: speed up aggregations.
+	\item \emph{(\_id.user\_id, \_id.movie\_id}: quickly find user's ratings (compound multi-key index).
 \end{itemize}
 
 \subsubsection{Actors}

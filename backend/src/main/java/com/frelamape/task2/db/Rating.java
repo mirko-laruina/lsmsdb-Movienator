@@ -3,12 +3,12 @@ package com.frelamape.task2.db;
 import org.bson.Document;
 import org.bson.types.ObjectId;
 
+import javax.print.Doc;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
 public class Rating {
-    private ObjectId id;
     private ObjectId userId;
     private String movieId;
     private Date date;
@@ -19,14 +19,6 @@ public class Rating {
         this.movieId = movieId;
         this.date = date;
         this.rating = rating;
-    }
-
-    public ObjectId getId() {
-        return id;
-    }
-
-    public void setId(ObjectId id) {
-        this.id = id;
     }
 
     public ObjectId getUserId() {
@@ -66,13 +58,14 @@ public class Rating {
             if (d == null)
                 return null;
 
-            Rating  rating = new Rating(
-                    d.getObjectId("user_id"),
-                    d.getString("movie_id"),
+            Document id = (Document) d.get("_id");
+
+            Rating rating = new Rating(
+                    id.getObjectId("user_id"),
+                    id.getString("movie_id"),
                     d.getDate("date"),
                     d.getDouble("rating")
             );
-            rating.setId(d.getObjectId("_id"));
             return rating;
         }
 
@@ -85,13 +78,12 @@ public class Rating {
         }
 
         public static Document toDBObject(Rating rating){
+            Document id = new Document();
+            id.append("user_id", rating.getUserId());
+            id.append("movie_id", rating.getMovieId());
+
             Document d = new Document();
-
-            if (rating.getId() != null)
-                d.append("_id", rating.getId());
-
-            d.append("user_id", rating.getUserId());
-            d.append("movie_id", rating.getMovieId());
+            d.append("_id", id);
             d.append("date", rating.getDate());
             d.append("rating", rating.getRating());
 
