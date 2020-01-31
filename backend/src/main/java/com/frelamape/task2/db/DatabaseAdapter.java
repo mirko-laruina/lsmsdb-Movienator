@@ -151,7 +151,7 @@ public class DatabaseAdapter {
     }
 
     public List<Movie> getMovieList(String sortBy, int sortOrder, double minRating,
-                                    double maxRating, long directorId, long actorId,
+                                    double maxRating, String directorId, String actorId,
                                     String country, int fromYear, int toYear, String genre,
                                     int n, int page){
 
@@ -173,11 +173,11 @@ public class DatabaseAdapter {
             conditions.add(lte("total_rating", maxRating));
         }
 
-        if (directorId != -1){
+        if (directorId != null){
             conditions.add(eq("directors.id", directorId));
         }
 
-        if (actorId != -1){
+        if (actorId  != null){
             conditions.add(eq("actors.actor_id", actorId));
         }
 
@@ -207,7 +207,7 @@ public class DatabaseAdapter {
         return Movie.Adapter.fromDBObjectIterable(movieIterable);
     }
 
-    public Movie getMovieDetails(long id){
+    public Movie getMovieDetails(String id){
         return Movie.Adapter.fromDBObject(
                 moviesCollection.find(eq("_id", id)).first()
         );
