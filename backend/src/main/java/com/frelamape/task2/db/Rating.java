@@ -3,7 +3,6 @@ package com.frelamape.task2.db;
 import org.bson.Document;
 import org.bson.types.ObjectId;
 
-import javax.print.Doc;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
@@ -12,9 +11,9 @@ public class Rating {
     private ObjectId userId;
     private String movieId;
     private Date date;
-    private double rating;
+    private Double rating;
 
-    public Rating(ObjectId userId, String movieId, Date date, double rating) {
+    public Rating(ObjectId userId, String movieId, Date date, Double rating) {
         this.userId = userId;
         this.movieId = movieId;
         this.date = date;
@@ -45,11 +44,11 @@ public class Rating {
         this.date = date;
     }
 
-    public double getRating() {
+    public Double getRating() {
         return rating;
     }
 
-    public void setRating(double rating) {
+    public void setRating(Double rating) {
         this.rating = rating;
     }
 
