@@ -7,6 +7,7 @@ import com.mongodb.client.MongoCollection;
 import com.mongodb.client.MongoDatabase;
 import com.mongodb.client.model.Projections;
 import com.mongodb.client.model.Sorts;
+import com.mongodb.client.result.DeleteResult;
 import com.mongodb.client.result.UpdateResult;
 import org.bson.Document;
 import org.bson.conversions.Bson;
@@ -52,14 +53,23 @@ public class DatabaseAdapter {
         ratingsCollection.insertOne(Rating.Adapter.toDBObject(rating));
     }
 
-    public void updateRating(Rating rating){
-        ratingsCollection.updateOne(
+    public boolean updateRating(Rating rating){
+        UpdateResult res = ratingsCollection.updateOne(
                 and(eq("_id.movie_id", rating.getMovieId()),
                         eq("_id.user_id", rating.getUserId())),
                 combine(set("date", rating.getDate()),
                         set("rating", rating.getRating())
                 )
         );
+        return res.getMatchedCount() == 1;
+    }
+
+    public boolean deleteRating(Rating rating){
+        DeleteResult res = ratingsCollection.deleteOne(
+                and(eq("_id.movie_id", rating.getMovieId()),
+                        eq("_id.user_id", rating.getUserId()))
+        );
+        return res.getDeletedCount() == 1;
     }
 
     public List<Rating> getAllRatings(int n, int page){
