@@ -7,6 +7,7 @@ import com.mongodb.client.MongoCollection;
 import com.mongodb.client.MongoDatabase;
 import com.mongodb.client.model.Projections;
 import com.mongodb.client.model.Sorts;
+import com.mongodb.client.result.DeleteResult;
 import com.mongodb.client.result.UpdateResult;
 import org.bson.Document;
 import org.bson.conversions.Bson;
@@ -52,14 +53,23 @@ public class DatabaseAdapter {
         ratingsCollection.insertOne(Rating.Adapter.toDBObject(rating));
     }
 
-    public void updateRating(Rating rating){
-        ratingsCollection.updateOne(
-                and(eq("movie_id", rating.getMovieId()),
-                        eq("user_id", rating.getUserId())),
+    public boolean updateRating(Rating rating){
+        UpdateResult res = ratingsCollection.updateOne(
+                and(eq("_id.movie_id", rating.getMovieId()),
+                        eq("_id.user_id", rating.getUserId())),
                 combine(set("date", rating.getDate()),
                         set("rating", rating.getRating())
                 )
         );
+        return res.getMatchedCount() == 1;
+    }
+
+    public boolean deleteRating(Rating rating){
+        DeleteResult res = ratingsCollection.deleteOne(
+                and(eq("_id.movie_id", rating.getMovieId()),
+                        eq("_id.user_id", rating.getUserId()))
+        );
+        return res.getDeletedCount() == 1;
     }
 
     public List<Rating> getAllRatings(int n, int page){
@@ -74,7 +84,7 @@ public class DatabaseAdapter {
     public List<Rating> getUserRatings(User u){
         return Rating.Adapter.fromDBObjectIterable(
                 ratingsCollection.find(
-                        eq("user_id", u.getId())
+                        eq("_id.user_id", u.getId())
                 )
         );
     }
@@ -151,7 +161,7 @@ public class DatabaseAdapter {
     }
 
     public List<Movie> getMovieList(String sortBy, int sortOrder, double minRating,
-                                    double maxRating, long directorId, long actorId,
+                                    double maxRating, String directorId, String actorId,
                                     String country, int fromYear, int toYear, String genre,
                                     int n, int page){
 
@@ -173,11 +183,11 @@ public class DatabaseAdapter {
             conditions.add(lte("total_rating", maxRating));
         }
 
-        if (directorId != -1){
+        if (directorId != null){
             conditions.add(eq("directors.id", directorId));
         }
 
-        if (actorId != -1){
+        if (actorId  != null){
             conditions.add(eq("actors.actor_id", actorId));
         }
 
@@ -207,7 +217,7 @@ public class DatabaseAdapter {
         return Movie.Adapter.fromDBObjectIterable(movieIterable);
     }
 
-    public Movie getMovieDetails(long id){
+    public Movie getMovieDetails(String id){
         return Movie.Adapter.fromDBObject(
                 moviesCollection.find(eq("_id", id)).first()
         );

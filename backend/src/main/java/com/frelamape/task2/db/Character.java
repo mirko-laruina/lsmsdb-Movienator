@@ -35,7 +35,7 @@ public class Character {
             Person actor = new Person(
                     d.getString("actor_name")
             );
-            actor.setId(d.getLong("actor_id"));
+            actor.setId(d.getString("actor_id"));
 
             return new Character(
                 d.getString("name"),

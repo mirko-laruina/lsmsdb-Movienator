@@ -189,47 +189,47 @@ In each following subsection, an example document is shown for every collection.
 
 \begin{lstlisting}[language=json]	
 {
-	_id: 7286456,
-	title: "Joker",
-	original_title: "Joker",
-	runtime: 122,
-	country_code: "US",
-	country: "USA",
-	year: 2019,
-	date: "2019-10-04",
-	description: "In Gotham City, mentally troubled comedian [...]",
-	poster: "https://m.media-amazon.com/images/M/[...].jpg",
-	characters: [
+	"_id": "tt7286456",
+	"title": "Joker",
+	"original_title": "Joker",
+	"runtime": 122,
+	"country_code": "US",
+	"country": "USA",
+	"year": 2019,
+	"date": "2019-10-04",
+	"description": "In Gotham City, mentally troubled comedian [...]",
+	"poster": "https://m.media-amazon.com/images/M/[...].jpg",
+	"characters": [
 		{
-			name: "Joker",
-			actor_name: "Joaquin Phoenix",
-			actor_id: 1618
+			"name": "Joker",
+			"actor_name": "Joaquin Phoenix",
+			"actor_id": "nm0001618"
 		},
 		...
 	],
-	directors: [
+	"directors": [
 		{
-			id: 680846,
-			name: "Todd Phillips",
+			"id": "nm0680846",
+			"name": "Todd Phillips",
 		}
 	],
-	genres: ["Crime", "Drama", "Thriller"],
-	ratings: [
+	"genres": ["Crime", "Drama", "Thriller"],
+	"ratings": [
 		{
-			source: "internal",
-			avgrating: 9,
-			count: 100,
-			weight: 2
+			"source": "internal",
+			"avgrating": 9,
+			"count": 100,
+			"weight": 2
 		},
 		{
-			source: "IMDb",
-			avgrating: 8.6,
-			count: 628981,
-			weight: 1
+			"source": "IMDb",
+			"avgrating": 8.6,
+			"count": 628981,
+			"weight": 1
 		},
 		...
 	],
-	total_rating: 8.87
+	"total_rating": 8.87
 }
 \end{lstlisting}
 
@@ -262,11 +262,12 @@ not contain the real-time total rating but will be updated periodically.
 
 \begin{lstlisting}[language=json]	
 {
-	_id: <ObjectId>,
-	user_id: <ObjectId>,
-	movie_id: 7286456,
-	date: "2020-01-20",
-	rating: 10
+	"_id": {
+		"user_id": <ObjectId>,
+		"movie_id": "tt7286456"
+	},
+	"date": "2020-01-20",
+	"rating": 10
 }
 \end{lstlisting}
 
@@ -279,8 +280,8 @@ is avoided. However, the introduction of an index is necessary.
 
 \paragraph{Indices} 
 \begin{itemize}
-	\item \emph{movie\_id}: speed up aggregations.
-	\item \emph{(user\_id, movie\_id}: quickly find user's ratings (compound index).
+	\item \emph{\_id.movie\_id}: speed up aggregations.
+	\item \emph{(\_id.user\_id, \_id.movie\_id}: quickly find user's ratings (compound multi-key index).
 \end{itemize}
 
 \subsubsection{Actors}
@@ -288,10 +289,10 @@ is avoided. However, the introduction of an index is necessary.
 
 \begin{lstlisting}[language=json]	
 {
-	_id: 1618,
-	name: "Joaquin Phoenix",
-	avg_rating: 8.75,
-	movie_count: 17
+	"_id": "nm0001618",
+	"name": "Joaquin Phoenix",
+	"avg_rating": 8.75,
+	"movie_count": 17
 }
 \end{lstlisting}
 
@@ -306,10 +307,10 @@ A text index will be set on the \emph{name} field.
 
 \begin{lstlisting}[language=json]	
 {
-	_id: 680846,
-	name: "Todd Phillips",
-	avg_rating: 7.45,
-	movie_count: 4	
+	"_id": "nm0680846",
+	"name": "Todd Phillips",
+	"avg_rating": 7.45,
+	"movie_count": 4	
 }
 \end{lstlisting}
 
@@ -324,9 +325,9 @@ A text index will be set on the \emph{name} field.
 
 \begin{lstlisting}[language=json]	
 {
-	_id: 2019,
-	avg_rating: 6.45,
-	movie_count: 867
+	"_id": 2019,
+	"avg_rating": 6.45,
+	"movie_count": 867
 }
 \end{lstlisting}
 
@@ -338,9 +339,9 @@ This collection will store the pre-computed results of the aggregation.
 
 \begin{lstlisting}[language=json]	
 {
-	_id: "Crime",
-	avg_rating: 4.78,
-	movie_count: 751
+	"_id": "Crime",
+	"avg_rating": 4.78,
+	"movie_count": 751
 }
 \end{lstlisting}
 
@@ -353,10 +354,10 @@ The list of genres is fixed.
 
 \begin{lstlisting}[language=json]	
 {
-	_id: "US",
-	full_name: "USA",
-	avg_rating: 4.78,
-	movie_count: 1597
+	"_id": "US",
+	"full_name": "USA",
+	"avg_rating": 4.78,
+	"movie_count": 1597
 }
 \end{lstlisting}
 
@@ -371,39 +372,39 @@ A text index will be set on the \emph{full\_name} field.
 
 \begin{lstlisting}[language=json]	
 {
-	_id: <ObjectId>,
-	username: "joker",
-	password: "<HASHED PASSWORD>",
-	email: "joker@dccomics.com",
-	isadmin: 1 (optional),
-	rated_actors: [
+	"_id": <ObjectId>,
+	"username": "joker",
+	"password": "<HASHED PASSWORD>",
+	"email": "joker@dccomics.com",
+	"isadmin": 1 (optional),
+	"rated_actors": [
 		{
-			actor_id: 1618,
-			avg_rating: 7.5,
-			rating_count: 2
+			"actor_id": "nm0001618",
+			"avg_rating": 7.5,
+			"rating_count": 2
 		},
 		...
 	],
-	rated_directors: [
+	"rated_directors": [
 		{
-			director_id: 680846,
-			avg_rating: 7.7,
-			rating_count: 4
+			"director_id": "nm0680846",
+			"avg_rating": 7.7,
+			"rating_count": 4
 		},
 		...
 	],
-	rated_genres: [
+	"rated_genres": [
 		{
-			genre: "Crime",
-			avg_rating: 7.1,
-			rating_count: 4
+			"genre": "Crime",
+			"avg_rating": 7.1,
+			"rating_count": 4
 		},
 		...
 	],
-	sessions: [
+	"sessions": [
 		{
-			session_id: "<session_id>",
-			expiry: "2020-01-28"
+			"session_id": "<session_id>",
+			"expiry": "2020-01-28"
 		},
 		...
 	]
@@ -425,9 +426,9 @@ Furthermore, these fields must also be unique.
 
 \begin{lstlisting}[language=json]	
 {
-	_id: <ObjectId>,
-	username: "topolino.hackerino",
-	email: "hackerino@topolino.it"
+	"_id": <ObjectId>,
+	"username": "topolino.hackerino",
+	"email": "hackerino@topolino.it"
 }
 \end{lstlisting}
 
@@ -446,6 +447,7 @@ if any is found, the registration will fail.
 	\caption{Software architecture}
 	\label{fig:software_architecture}
 \end{figure}
+%TODO change architecture to highlight periodic scripts
 
 As it can be seen, a Java server back-end is the core of the proposed 
 architecture, providing both the APIs -- through the open source Spring Framework

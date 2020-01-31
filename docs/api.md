@@ -88,7 +88,7 @@ All parameters are optional. Default behaviour is sorting by release date (ascen
 ```json
 [
     {
-        "_id": 7286456,
+        "_id": "tt7286456",
         "title": "Joker",
         "year": 2019,
         "poster": "https://m.media-amazon.com/images/M/[...].jpg",
@@ -115,7 +115,7 @@ the overall rating.
 ```json
 [
     {
-        "_id": 7286456,
+        "_id": "tt7286456",
         "title": "Joker",
         "year": 2019,
         "poster": "https://m.media-amazon.com/images/M/[...].jpg",
@@ -136,7 +136,7 @@ array.
 ### Output
 ```json
 {
-	"_id": 7286456,
+	"_id": "tt7286456",
 	"title": "Joker",
 	"original_title": "Joker",
 	"runtime": 122,
@@ -150,13 +150,13 @@ array.
 		{
 			"name": "Joker",
 			"actor_name": "Joaquin Phoenix",
-			"actor_id": 1618
+			"actor_id": "nm0001618"
 		},
 		...
 	],
 	"directors": [
 		{
-			"id": 680846,
+			"id": "nm0680846",
 			"name": "Todd Phillips",
 		}
 	],
@@ -244,7 +244,7 @@ Returns a list of actors based on a search query.
 ```json
 [
     {
-        "id": 1618,
+        "id": "nm0001618",
         "name": "Joaquin Phoenix"
     },
     ...
@@ -262,7 +262,7 @@ Returns a list of directors based on a search query.
 ```json
 [
     {
-        "id": 680846,
+        "id": "nm0680846",
         "name": "Todd Phillips"
     },
     ...
@@ -300,7 +300,7 @@ NB: only the user himself and admins are allowed.
     "email": "joker@dccomics.com",
     "favourite_actors": [
 		{
-			"id": 1618,
+			"id": "nm0001618",
 			"name": "Joaquin Phoenix",
 			"avg_rating": 7.5,
 			"rating_count": 2
@@ -309,7 +309,7 @@ NB: only the user himself and admins are allowed.
 	],
 	"favourite_directors": [
 		{
-			"id": 680846,
+			"id": "nm0680846",
 			"name": "Todd Phillips",
 			"avg_rating": 7.7,
 			"rating_count": 4

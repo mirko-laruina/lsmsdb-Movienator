@@ -11,7 +11,7 @@ public class User {
     private String username;
     private String password;
     private String email;
-    private boolean isAdmin;
+    private Boolean isAdmin;
     private List<Statistics<Person>> ratedActors = new ArrayList<>();
     private List<Statistics<Person>> ratedDirectors = new ArrayList<>();
     private List<Statistics<Genre>> ratedGenres = new ArrayList<>();
@@ -53,11 +53,11 @@ public class User {
         this.email = email;
     }
 
-    public boolean isAdmin() {
+    public Boolean isAdmin() {
         return isAdmin;
     }
 
-    public void setAdmin(boolean admin) {
+    public void setAdmin(Boolean admin) {
         isAdmin = admin;
     }
 

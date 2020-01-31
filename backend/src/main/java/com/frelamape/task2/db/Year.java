@@ -3,15 +3,15 @@ package com.frelamape.task2.db;
 import org.bson.Document;
 
 public class Year implements Statistics.Aggregator {
-    private int year;
+    private Integer year;
 
     public Year(){}
 
-    public Year(int year) {
+    public Year(Integer year) {
         this.year = year;
     }
 
-    public void setYear(int year) {
+    public void setYear(Integer year) {
         this.year = year;
     }
 

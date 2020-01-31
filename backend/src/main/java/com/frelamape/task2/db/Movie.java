@@ -7,12 +7,12 @@ import java.util.Date;
 import java.util.List;
 
 public class Movie {
-    private long id;
+    private String id;
     private String title;
     private String originalTitle;
-    private int runtime;
+    private Integer runtime;
     private String country;
-    private int year;
+    private Integer year;
     private Date date;
     private String description;
     private String poster;
@@ -20,18 +20,18 @@ public class Movie {
     private List<Person> directors;
     private List<String> genres;
     private List<AggregatedRating> ratings;
-    private double totalRating;
-    private double userRating;
+    private Double totalRating;
+    private Double userRating;
 
     public Movie(String title) {
         this.title = title;
     }
 
-    public long getId() {
+    public String getId() {
         return id;
     }
 
-    public void setId(long id) {
+    public void setId(String id) {
         this.id = id;
     }
 
@@ -51,11 +51,11 @@ public class Movie {
         this.originalTitle = originalTitle;
     }
 
-    public int getRuntime() {
+    public Integer getRuntime() {
         return runtime;
     }
 
-    public void setRuntime(int runtime) {
+    public void setRuntime(Integer runtime) {
         this.runtime = runtime;
     }
 
@@ -67,11 +67,11 @@ public class Movie {
         this.country = country;
     }
 
-    public int getYear() {
+    public Integer getYear() {
         return year;
     }
 
-    public void setYear(int year) {
+    public void setYear(Integer year) {
         this.year = year;
     }
 
@@ -131,19 +131,19 @@ public class Movie {
         this.ratings = ratings;
     }
 
-    public double getTotalRating() {
+    public Double getTotalRating() {
         return totalRating;
     }
 
-    public void setTotalRating(double totalRating) {
+    public void setTotalRating(Double totalRating) {
         this.totalRating = totalRating;
     }
 
-    public double getUserRating() {
+    public Double getUserRating() {
         return userRating;
     }
 
-    public void setUserRating(double userRating) {
+    public void setUserRating(Double userRating) {
         this.userRating = userRating;
     }
 
@@ -153,7 +153,7 @@ public class Movie {
                 return null;
 
             Movie movie = new Movie(d.getString("title"));
-            movie.setId(d.getLong("_id"));
+            movie.setId(d.getString("_id"));
             movie.setOriginalTitle(d.getString("original_title"));
             movie.setRuntime(d.getInteger("runtime"));
             movie.setCountry(d.getString("country"));

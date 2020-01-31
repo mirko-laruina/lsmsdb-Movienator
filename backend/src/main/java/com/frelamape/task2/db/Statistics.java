@@ -14,10 +14,10 @@ public class Statistics<T extends Statistics.Aggregator> {
     }
 
     private T aggregator;
-    private double avgRating;
-    private int movieCount;
+    private Double avgRating;
+    private Integer movieCount;
 
-    public Statistics(T aggregator, double avgRating, int movieCount) {
+    public Statistics(T aggregator, Double avgRating, Integer movieCount) {
         this.aggregator = aggregator;
         this.avgRating = avgRating;
         this.movieCount = movieCount;
@@ -31,19 +31,19 @@ public class Statistics<T extends Statistics.Aggregator> {
         this.aggregator = aggregator;
     }
 
-    public double getAvgRating() {
+    public Double getAvgRating() {
         return avgRating;
     }
 
-    public void setAvgRating(double avgRating) {
+    public void setAvgRating(Double avgRating) {
         this.avgRating = avgRating;
     }
 
-    public int getMovieCount() {
+    public Integer getMovieCount() {
         return movieCount;
     }
 
-    public void setMovieCount(int movieCount) {
+    public void setMovieCount(Integer movieCount) {
         this.movieCount = movieCount;
     }
 

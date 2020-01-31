@@ -8,25 +8,16 @@ import java.util.Date;
 import java.util.List;
 
 public class Rating {
-    private ObjectId id;
     private ObjectId userId;
-    private long movieId;
+    private String movieId;
     private Date date;
-    private double rating;
+    private Double rating;
 
-    public Rating(ObjectId userId, long movieId, Date date, double rating) {
+    public Rating(ObjectId userId, String movieId, Date date, Double rating) {
         this.userId = userId;
         this.movieId = movieId;
         this.date = date;
         this.rating = rating;
-    }
-
-    public ObjectId getId() {
-        return id;
-    }
-
-    public void setId(ObjectId id) {
-        this.id = id;
     }
 
     public ObjectId getUserId() {
@@ -37,11 +28,11 @@ public class Rating {
         this.userId = userId;
     }
 
-    public long getMovieId() {
+    public String getMovieId() {
         return movieId;
     }
 
-    public void setMovieId(long movieId) {
+    public void setMovieId(String movieId) {
         this.movieId = movieId;
     }
 
@@ -53,11 +44,11 @@ public class Rating {
         this.date = date;
     }
 
-    public double getRating() {
+    public Double getRating() {
         return rating;
     }
 
-    public void setRating(double rating) {
+    public void setRating(Double rating) {
         this.rating = rating;
     }
 
@@ -66,13 +57,14 @@ public class Rating {
             if (d == null)
                 return null;
 
-            Rating  rating = new Rating(
-                    d.getObjectId("user_id"),
-                    d.getLong("movie_id"),
+            Document id = (Document) d.get("_id");
+
+            Rating rating = new Rating(
+                    id.getObjectId("user_id"),
+                    id.getString("movie_id"),
                     d.getDate("date"),
                     d.getDouble("rating")
             );
-            rating.setId(d.getObjectId("_id"));
             return rating;
         }
 
@@ -85,13 +77,12 @@ public class Rating {
         }
 
         public static Document toDBObject(Rating rating){
+            Document id = new Document();
+            id.append("user_id", rating.getUserId());
+            id.append("movie_id", rating.getMovieId());
+
             Document d = new Document();
-
-            if (rating.getId() != null)
-                d.append("_id", rating.getId());
-
-            d.append("user_id", rating.getUserId());
-            d.append("movie_id", rating.getMovieId());
+            d.append("_id", id);
             d.append("date", rating.getDate());
             d.append("rating", rating.getRating());
 

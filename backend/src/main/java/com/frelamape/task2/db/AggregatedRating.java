@@ -4,11 +4,11 @@ import org.bson.Document;
 
 public class AggregatedRating {
     private String source;
-    private double avgRating;
-    private long count;
-    private double weight;
+    private Double avgRating;
+    private Integer count;
+    private Double weight;
 
-    public AggregatedRating(String source, double avgRating, long count, double weight) {
+    public AggregatedRating(String source, Double avgRating, Integer count, Double weight) {
         this.source = source;
         this.avgRating = avgRating;
         this.count = count;
@@ -23,27 +23,27 @@ public class AggregatedRating {
         this.source = source;
     }
 
-    public double getAvgRating() {
+    public Double getAvgRating() {
         return avgRating;
     }
 
-    public void setAvgRating(double avgRating) {
+    public void setAvgRating(Double avgRating) {
         this.avgRating = avgRating;
     }
 
-    public long getCount() {
+    public Integer getCount() {
         return count;
     }
 
-    public void setCount(long count) {
+    public void setCount(Integer count) {
         this.count = count;
     }
 
-    public double getWeight() {
+    public Double getWeight() {
         return weight;
     }
 
-    public void setWeight(double weight) {
+    public void setWeight(Double weight) {
         this.weight = weight;
     }
 
