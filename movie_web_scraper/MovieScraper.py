@@ -168,7 +168,7 @@ class MovieScraper:
             return
             
         
-if __name__ == "__main__":#test
+if __name__ == "__main__":#test : settare i parametri k in base al volume richiesto
     a = MovieScraper('imdb')
     """alla prima chiamata se non presente viene generato un file in cui viene salvato l'indice di scrape (un intero) """
     """scrape dei successivi k (=2) movies """
@@ -177,4 +177,5 @@ if __name__ == "__main__":#test
     """legge il file json a gruppi di k (=2) elementi"""
     a.read_k_stored_movies(2)
     print('"""""""\n')
+    """la lettura riparte da inizio file """
     a.read_k_stored_movies(2)
