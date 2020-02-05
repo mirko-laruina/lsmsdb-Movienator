@@ -1,23 +1,24 @@
 #!/usr/bin/env python
 # coding: utf-8
 
-# In[7]:
+# In[2]:
 
 
 import pandas as pd
 import numpy as np
+from config import dataset_location, parse_dataset_output
 
 
-# In[8]:
+# In[3]:
 
 
-title_akas=pd.read_table('title_akas.tsv')
+title_akas=pd.read_table(dataset_location+'title_akas.tsv')
 
 
 # In[9]:
 
 
-title_basics=pd.read_table('title_basics.tsv')
+title_basics=pd.read_table(dataset_location+'title_basics.tsv')
 
 
 # In[10]:
@@ -73,19 +74,19 @@ title_movies_ita
 # In[9]:
 
 
-title_principals=pd.read_table('title_principals.tsv')
+title_principals=pd.read_table(dataset_location+'title_principals.tsv')
 
 
 # In[10]:
 
 
-title_crew=pd.read_table('title_crew.tsv')
+title_crew=pd.read_table(dataset_location+'title_crew.tsv')
 
 
 # In[11]:
 
 
-name_basics=pd.read_table('name_basics.tsv')
+name_basics=pd.read_table(dataset_location+'name_basics.tsv')
 
 
 # In[12]:
@@ -338,5 +339,5 @@ movies_final
 
 
 #export as json
-movies_final.to_json(r'movies.json', orient='records')
+movies_final.to_json(parse_dataset_output, orient='records')
 

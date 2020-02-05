@@ -1,28 +1,29 @@
 #!/usr/bin/env python
 # coding: utf-8
 
-# In[42]:
+# In[1]:
 
 
 import numpy as np
 import json
+from config import parse_dataset_output, mongo_uri, mongo_db
 
 
-# In[43]:
+# In[2]:
 
 
-with open('movies.json') as json_file:
+with open(parse_dataset_output) as json_file:
     movies = json.load(json_file)
     
 
 
-# In[44]:
+# In[3]:
 
 
 print(movies[0].keys())
 
 
-# In[45]:
+# In[4]:
 
 
 # directors
@@ -42,7 +43,7 @@ for movie in movies:
 director_list = [{"_id": did, "name": all_directors[did]} for did in all_directors]
 
 
-# In[46]:
+# In[5]:
 
 
 # characters
@@ -62,7 +63,7 @@ for movie in movies:
 actor_list = [{"_id": aid, "name": all_actors[aid]} for aid in all_actors]
 
 
-# In[47]:
+# In[6]:
 
 
 # genres
@@ -74,7 +75,7 @@ for movie in movies:
     movie['genres'] = movie['genres'].split(',')
 
 
-# In[48]:
+# In[7]:
 
 
 # renamings
@@ -88,29 +89,23 @@ for movie in movies:
         del movie["originaltitle"]
 
 
-# In[49]:
+# In[8]:
 
 
 movies[37276]
 
 
-# In[53]:
+# In[9]:
 
 
 from pymongo import MongoClient
 from pymongo import UpdateOne
 
-client = MongoClient()
-db = client['task2-test']
+client = MongoClient(mongo_uri)
+db = client[mongo_db]
 
 
-# In[54]:
-
-
-db.movies.find_one()
-
-
-# In[56]:
+# In[10]:
 
 
 requests = []
@@ -123,7 +118,7 @@ except BulkWriteError as bwe:
     print(bwe.details)
 
 
-# In[57]:
+# In[11]:
 
 
 requests = []
@@ -136,7 +131,7 @@ except BulkWriteError as bwe:
     print(bwe.details)   
 
 
-# In[58]:
+# In[12]:
 
 
 requests = []
