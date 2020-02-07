@@ -1,9 +1,9 @@
 # -*- coding: utf-8 -*-
 
 import json
-import pprint
+#instal package-> python -m pip install pymongo
 
-"attualmente in grado di gestire lo scrape da imdb,mymovies"
+"attualmente in grado di gestire lo scrape da imdb"
 
 
 import requests
@@ -47,7 +47,7 @@ def get_imdb_movies_from_local_db(lb,hb):
             return None
     
 def getMyMovieQuery(source_path,movie):#returns the path string to reach the movie at passed source
-    m_title = movie["movie"]["name"]
+    m_title = movie["title_ita"]#movie["movie"]["name"]#CAMBIA CON L'ARGOMENTO PASSATO IN INPUT
     source_path += m_title
     return source_path
  
@@ -86,7 +86,7 @@ web_sources = {
 class MovieScraper:
 
     #source itemAttr
-    Attributes = ["name","image","description","datePublished","aggregateRating"]
+    Attributes = ["name","genre","image","description","datePublished","aggregateRating"]
     
     def __init__(self,sourcename="imdb"):
         
@@ -228,17 +228,7 @@ class MovieScraper:
         for key in MovieScraper.Attributes:
             #gestire il name nel formato opportuno per ricavare una lista di nomi compatibile rottent e mymovies
             exec("self."+key+".append(req_movie[key])" ) in locals()
-            nt["movie"][key] = req_movie[key]
-        """     
-            if key !='aggregateRating':
-                nt.append(req_movie[key])
-            else:
-                idx=self.aggregateRating[0]
-                nt.append(idx['ratingCount'])
-                nt.append(idx['bestRating'])
-                nt.append(idx['worstRating'])
-                nt.append(idx['ratingValue'])
-        """       
+            nt["movie"][key] = req_movie[key]      
         #listing attributes in tuples
         """
         new_tuple= tuple(nt)
@@ -246,8 +236,9 @@ class MovieScraper:
         """
         #getting attributes movie matrice
         #print(nt)
-        new_movie_row = nt
-        self.moviesInfo.append(new_movie_row)
+        new_movie_doc = nt
+        self.moviesInfo.append(new_movie_doc)
+        return new_movie_doc
         
        
         
@@ -269,25 +260,27 @@ class MovieScraper:
             print('Il file non è presente o non è stato ancora generato')
             return
     
-
-            
+    """"""""""""
+    def getMovieFromMyMovie(self,movie_info):
+        film_url = FindMovieUrlByQuery("mymovies",movie_info)
+        return self.LoadMovie(film_url)
     
         
 if __name__ == "__main__":#test
     a = MovieScraper('mymovies',)
     """alla prima chiamata se non presente viene generato un file in cui viene salvato l'indice di scrape (un intero) di default a partire da 0 , può essere modificato a piacere da file dataIndex """
     """scrape dei successivi k (e.g.=20) movies da imdb (indice 0) """
-    a.LoadNextKMovies(20)
+   # a.LoadNextKMovies(20)
     
     """test load mymovies data"""
-    a.updateScrapeIndex(8360000)
-    a.LoadNextKMovies(20)
+    #a.updateScrapeIndex(8360000)
+    #a.LoadNextKMovies(20)
     """ """
 
     print('-----\n')
     
     """scarico da mymovies dalla posizione 0 i successivi 25 film che hanno source == imdb diventano il seed per ricercare i film su mymovies"""
-    a.LoadMyMovieByIMDB(0,25)#!!!mismatch di titoli: i film restituiti da mymovies non sono consistenti con quelli usati come indice (di imdb) !!!
-
+    #a.LoadMyMovieByIMDB(0,25)#!!!mismatch di titoli: i film restituiti da mymovies non sono consistenti con quelli usati come indice (di imdb) !!!
+    a.getMovieFromMyMovie({"title_ita":"labellaelabestia"})
     """leggo i risultati a blocchi di k elementi"""
    # a.read_k_stored_movies(10)
