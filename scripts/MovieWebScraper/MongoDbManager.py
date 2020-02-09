@@ -67,6 +67,7 @@ class MongoManager:
         coll_iterator = self.getCollection(coll_name,nrows,skipIdx)####
         
         for movie in coll_iterator:
+            print("\n--getting movie--\n")
             #extract movie by source
             #data from mymovies
             scrape = ms.MovieScraper()
@@ -77,12 +78,17 @@ class MongoManager:
             
             #updatedinfo
             upd_dic ={}
-            
+            #load rates
+            upd_dic["ratings"] = []
+            if "ratings" in movie.keys():
+                for rate in movie["ratings"]:
+                    upd_dic["ratings"].append(rate)
+                    
             #mymovie data manager
             if (mm_movie_info == None):
                 print("\nnessun contenuto mymovie da aggiornare\n")
             else:
-                
+                print(mm_movie_info)
                 if ("ratings" in movie.keys()):
                     yetthere = False
                     #if the movie info already update skip movie
@@ -90,37 +96,38 @@ class MongoManager:
                         if rate["source"]=="MyMovies":
                             yetthere = True
                     if not yetthere:
-                        upd_dic["ratings"] = []
                         #append new rate
                         mm_movie_aggr_info = mm_movie_info["movie"]["aggregateRating"]
                         if (mm_movie_aggr_info != None):
-                            ratepoints =float(mm_movie_aggr_info["ratingValue"])*2
-                            newrate = {"source":"MyMovies","avgrating":ratepoints,"count":mm_movie_aggr_info["ratingCount"],"weight":1}
-                            upd_dic["ratings"].append(newrate)
-                        #load other rates
-                        for rate in movie["ratings"]:
-                                upd_dic["ratings"].append(rate)
+                           if (mm_movie_aggr_info["ratingValue"] != ''):
+                                ratepoints =float(mm_movie_aggr_info["ratingValue"])*2
+                                newrate = {"source":"MyMovies","avgrating":ratepoints,"count":mm_movie_aggr_info["ratingCount"],"weight":1}
+                                upd_dic["ratings"].append(newrate)
                  
                    
-                if ("ratings" not in upd_dic.keys()):
-                    upd_dic["ratings"] = []
                     
                 
                 #update diffs on mongodb
                 mm_movie_info = mm_movie_info["movie"]
-                upd_dic["date"]= mm_movie_info["datePublished"]
                 upd_dic["genres"] = []
-                upd_dic["genres"].append(str(mm_movie_info["genre"]))
-                upd_dic["description"] = mm_movie_info["description"]
-                upd_dic["poster"] = mm_movie_info["image"][0]["url"]
+                
+                if (mm_movie_info["datePublished"] != None):
+                    upd_dic["date"]= mm_movie_info["datePublished"]
+                
+                if (mm_movie_info["genre"] != None):
+                    upd_dic["genres"].append(str(mm_movie_info["genre"]))
+                
+                if (mm_movie_info["description"] != None):
+                    upd_dic["description"] = mm_movie_info["description"]
+                
+                if (mm_movie_info["image"][0]["url"] != None):
+                    upd_dic["poster"] = mm_movie_info["image"][0]["url"]
                 
             #imdb data manager
             if (im_movie_info ==None):
                 print("\nnessun contenuto imdb da aggiornare\n")
             else:
                 
-                if "ratings" not in upd_dic.keys():
-                    upd_dic["ratings"] = []
                 
                 if ("ratings" in movie.keys()):
                     yetthere = False
@@ -132,12 +139,10 @@ class MongoManager:
                         #append new rate
                         im_movie_aggr_info = im_movie_info["movie"]["aggregateRating"]
                         if (im_movie_aggr_info !=None):
-                            ratepoints =float(im_movie_aggr_info["ratingValue"])
-                            newrate = {"source":"IMDb","avgrating":ratepoints,"count":im_movie_aggr_info["ratingCount"],"weight":1}
-                            upd_dic["ratings"].append(newrate)
-                    #load other rates
-                    for rate in movie["ratings"]:
-                        upd_dic["ratings"].append(rate)
+                            if (im_movie_aggr_info["ratingValue"] != ''):
+                                ratepoints =float(im_movie_aggr_info["ratingValue"])
+                                newrate = {"source":"IMDb","avgrating":ratepoints,"count":im_movie_aggr_info["ratingCount"],"weight":1}
+                                upd_dic["ratings"].append(newrate)
                 
                 #update diffs on mongodb
                 im_movie_info = im_movie_info["movie"]
@@ -180,7 +185,7 @@ class MongoManager:
             
             #load updated movie
             self.db["movies"].find_one_and_update(movie,{'$set':upd_dic})
-            
+            print("\n---movie updated---")
         
         #update index
         print("\nupdate effettuato\n")
