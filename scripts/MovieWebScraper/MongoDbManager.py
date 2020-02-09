@@ -120,7 +120,7 @@ class MongoManager:
                 if (mm_movie_info["description"] != None):
                     upd_dic["description"] = mm_movie_info["description"]
                 
-                if (mm_movie_info["image"][0]["url"] != None):
+                if (mm_movie_info["image"] != None):
                     upd_dic["poster"] = mm_movie_info["image"][0]["url"]
                 
             #imdb data manager
