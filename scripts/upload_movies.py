@@ -23,7 +23,7 @@ with open(parse_dataset_output) as json_file:
 print(movies[0].keys())
 
 
-# In[4]:
+# In[5]:
 
 
 # directors
@@ -43,7 +43,7 @@ for movie in movies:
 director_list = [{"_id": did, "name": all_directors[did]} for did in all_directors]
 
 
-# In[5]:
+# In[6]:
 
 
 # characters
@@ -63,19 +63,37 @@ for movie in movies:
 actor_list = [{"_id": aid, "name": all_actors[aid]} for aid in all_actors]
 
 
-# In[6]:
+# In[7]:
 
 
+all_genres = set()
 # genres
 for movie in movies:
-    characters = []
     if movie['genres'] is None:
         movie['genres'] = []
         continue
-    movie['genres'] = movie['genres'].split(',')
+    genres = movie['genres'].split(',')
+    movie['genres'] = genres
+    for genre in genres:
+        all_genres.add(genre)
+genre_list = list(all_genres)
 
 
-# In[7]:
+# In[8]:
+
+
+all_years = set()
+# years
+for movie in movies:
+    if movie['year'] is None:
+        continue
+    year = int(movie['year'])
+    movie['year'] = year
+    all_years.add(year)
+year_list = list(all_years)
+
+
+# In[9]:
 
 
 # renamings
@@ -89,13 +107,18 @@ for movie in movies:
         del movie["originaltitle"]
 
 
-# In[8]:
+# In[12]:
 
 
-movies[37276]
+# fix missing titles
+for movie in movies:
+    if movie["title"] is None:
+        if movie["original_title"] is None:
+            print(movie["_id"])
+        movie["title"] = movie["original_title"]
 
 
-# In[9]:
+# In[13]:
 
 
 from pymongo import MongoClient
@@ -105,7 +128,7 @@ client = MongoClient(mongo_uri)
 db = client[mongo_db]
 
 
-# In[10]:
+# In[14]:
 
 
 requests = []
@@ -118,7 +141,7 @@ except BulkWriteError as bwe:
     print(bwe.details)
 
 
-# In[11]:
+# In[23]:
 
 
 requests = []
@@ -131,7 +154,7 @@ except BulkWriteError as bwe:
     print(bwe.details)   
 
 
-# In[12]:
+# In[24]:
 
 
 requests = []
