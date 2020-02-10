@@ -8,6 +8,7 @@ Created on Thu Feb  6 16:13:41 2020
 import MovieScraper as ms
 from pymongo import MongoClient
 from pprint import pprint
+from config import mongo_uri, mongo_db
 
 class MongoManager:
     
@@ -18,7 +19,7 @@ class MongoManager:
         
     def __init__(self):
         
-        self.client = MongoClient("54.242.141.176",27017)
+        self.client = MongoClient(mongo_uri)
         self.db = self.client.admin
         self.PrintDBs()
         #print(self.db)
@@ -198,7 +199,7 @@ class MongoManager:
 if __name__ == "__main__":#test
     """INIT"""
     a = MongoManager()
-    a.SetDBName('moviedb')
+    a.SetDBName(mongo_db)
     a.PrintCollectsInDb()
     """"""
     
