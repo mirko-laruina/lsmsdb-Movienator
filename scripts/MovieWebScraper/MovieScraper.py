@@ -132,7 +132,11 @@ class MovieScraper:
         soup = BeautifulSoup(req.text, parser)
         
         if self.source == "imdb":
-            return json.loads("".join(soup.find("script", {"type":"application/ld+json"}).contents))
+            ld_json = soup.find("script", {"type":"application/ld+json"})
+            if ld_json is not None:
+                return json.loads("".join(ld_json.contents))
+            else:
+                return None
         elif self.source == "mymovies":
             json_scripts = soup.findAll("script", {"type":"application/ld+json"})
             for script in json_scripts:
@@ -263,7 +267,10 @@ class MovieScraper:
     """"""""""""
     def getMovieFromMyMovie(self,movie_info):
         film_url = FindMovieUrlByQuery("mymovies",movie_info)
-        return self.LoadMovie(film_url)
+        if film_url is not None:
+            return self.LoadMovie(film_url)
+        else:
+            return None
     
         
 if __name__ == "__main__":#test
