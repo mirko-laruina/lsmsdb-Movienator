@@ -71,7 +71,25 @@ def FindMovieUrlByQuery(source:str,movieReq:dict):#mymovies,rottentomato only
             #print(addressMovieUrl)
             return str(addressMovieUrl)
 
-     
+def normalize_json_string(string):
+    """
+    Replaces newlines (\n) within quotes with escaped ones and removes carriage
+    returns (\r).
+    """
+
+    result = ""
+    between_quotes = False
+    for i, c in enumerate(string):
+        if c == '"' and string[i-1] != '\\':
+            between_quotes = not between_quotes
+            result += c
+        elif between_quotes and c == '\n':
+            result += '\\n'
+        elif between_quotes and c == '\r':
+            continue
+        else:
+            result += c    
+    return result
     
     
     
@@ -134,13 +152,13 @@ class MovieScraper:
         if self.source == "imdb":
             ld_json = soup.find("script", {"type":"application/ld+json"})
             if ld_json is not None:
-                return json.loads("".join(ld_json.contents))
+                return json.loads(normalize_json_string("".join(ld_json.contents)))
             else:
                 return None
         elif self.source == "mymovies":
             json_scripts = soup.findAll("script", {"type":"application/ld+json"})
             for script in json_scripts:
-                obj = json.loads("".join(script))
+                obj = json.loads(normalize_json_string(script.getText()))
                 if ("name" in obj.keys() and "genre" in obj.keys() ):
                     return obj#return json.loads("".join( soup.findAll("script", {"type":"application/ld+json"})[2] ))
                 else:
