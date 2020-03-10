@@ -64,7 +64,7 @@ def FindMovieUrlByQuery(source:str,movieReq:dict):#mymovies,rottentomato only
             movie_details = json.loads(soup.get_text())
             #print(movie_details)
             #print(movie_details)
-            if movie_details["esito"]=="SUCCESS":
+            if movie_details["esito"]=="SUCCESS" and 'film' in movie_details['risultati']:
                 addressMovieUrl = movie_details['risultati']['film']['elenco'][1]['url']
             else:
                 addressMovieUrl = None
