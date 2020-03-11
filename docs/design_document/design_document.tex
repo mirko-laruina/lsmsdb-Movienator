@@ -219,13 +219,15 @@ In each following subsection, an example document is shown for every collection.
 			"source": "internal",
 			"avgrating": 9,
 			"count": 100,
-			"weight": 2
+			"weight": 2,
+			"last_update": "2019-11-28"
 		},
 		{
 			"source": "IMDb",
 			"avgrating": 8.6,
 			"count": 628981,
-			"weight": 1
+			"weight": 1,
+			"last_update": "2019-11-28"
 		},
 		...
 	],
@@ -250,6 +252,7 @@ Indices on the following fields will be set for this collection:
 	\item \texttt{characters.actor\_id} (multikey index)
 	\item \texttt{directors.id} (multikey index)
 	\item \texttt{total\_rating}
+	\item \texttt{ratings.last\_update}
 \end{itemize}
 
 An index on the \emph{total rating} is necessary for efficiently returning a 
