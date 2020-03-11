@@ -450,10 +450,11 @@ The application will be made of the following 4 components:
 	\item \textbf{Mongo DB}: a MongoDB cluster will be deployed with sharding and replication.
 	\item \textbf{React Frontend}: web-based UI.
 	\item \textbf{Java Backend}: using \emph{Spring}, the \emph{Java backend} will provide REST APIs to the \emph{React frontent}.
-	\item \textbf{Python scripts}: two kind of scripts are needed: 
+	\item \textbf{Updater ``bot''}: three Python scripts are needed in order to nightly update the DB with the latest movies and ratings: 
 	\begin{enumerate}
-		\item \textbf{parsers} that continuosly parse the rating sources and IMDb to update the ratings and, possibly, add new movies. Ratings of newer movies will be updated more often than older.
-		\item background \textbf{aggregation} scripts that will calculate aggregated statistics during off-peak times (real-time statistics are not important in such a scenario where ratings are not so volatile).
+		\item the \textbf{IMDB parser} periodically parses the IMDb dataset to add the latest movies.
+		\item the \textbf{scraper} continuously parses the rating sources to update the ratings. Ratings of newer movies will be updated more often than older.
+		\item the background \textbf{aggregation} script will calculate aggregated statistics during off-peak times (real-time statistics are not important in such a scenario where ratings are not so volatile).
 	\end{enumerate}
 \end{itemize}
 
