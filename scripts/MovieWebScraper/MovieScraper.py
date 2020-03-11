@@ -8,6 +8,7 @@ import json
 
 import requests
 from bs4 import BeautifulSoup
+import urllib.parse
 
 
         
@@ -48,7 +49,7 @@ def get_imdb_movies_from_local_db(lb,hb):
     
 def getMyMovieQuery(source_path,movie):#returns the path string to reach the movie at passed source
     m_title = movie["title_ita"]#movie["movie"]["name"]#CAMBIA CON L'ARGOMENTO PASSATO IN INPUT
-    source_path += m_title
+    source_path += urllib.parse.quote(m_title, safe='')
     return source_path
  
 def FindMovieUrlByQuery(source:str,movieReq:dict):#mymovies,rottentomato only
@@ -61,7 +62,7 @@ def FindMovieUrlByQuery(source:str,movieReq:dict):#mymovies,rottentomato only
             req_movie_path = getMyMovieQuery(mysource_p,movieReq) #( source=="mymovies" ? getMyMovieQuery(mysource_p,movieReq) : getRottenTPath(mysource_p,movieReq) )
             req_movie = requests.get((req_movie_path))
             soup = BeautifulSoup(req_movie.text, parser)
-            movie_details = json.loads(soup.get_text())
+            movie_details = json.loads(normalize_json_string(soup.get_text()))
             #print(movie_details)
             #print(movie_details)
             if movie_details["esito"]=="SUCCESS" and 'film' in movie_details['risultati']:
