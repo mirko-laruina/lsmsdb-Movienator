@@ -88,6 +88,9 @@ def normalize_json_string(string):
             result += '\\n'
         elif between_quotes and c == '\r':
             continue
+        elif between_quotes and c == '\t':
+            result += ' '
+            continue
         else:
             result += c    
     return result
