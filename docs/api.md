@@ -207,7 +207,7 @@ NB: only logged-in users.
 ### Output
 None (just success/failure).
 
-## `GET /statistics`
+## `GET /movie/statistics`
 Returns statistics of movies with the given sorting and aggregation. 
 Paging is supported.
 
@@ -217,6 +217,14 @@ Default behaviour is sorting by rating (descending).
  - groupBy: one of ["country", "year", "director", "actor"]. 
  - sortBy: one of ["count", "rating", "alphabetic"]. Ties are resolved on ascending alphabetic ordering.
  - sortOrder: 1 for ascending, -1 for descending
+ - minRating: minimum rating (included)
+ - maxRating: maximum rating (included)
+ - director: director id
+ - actor: actor id
+ - country: country code
+ - fromYear: minimum release year (included)
+ - toYear: maximum release year (included)
+ - genre: genre that the movie must contain
  - n: number of elements per page (default: 10)
  - page: page number (default: 1)
 
