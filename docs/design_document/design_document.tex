@@ -81,17 +81,17 @@ may still use the service to browse movie rankings and statistics but they are n
 able to give their rate. Only movies released in Italy are considered.
 
 All users can search a movie and view its details (e.g., title, original title, duration, 
-cast, ...) along with its aggregated statistics about ratings. 
+cast, ...) along with its average rating from users and from external sources. 
 
 In addition, all users can browse the list of movies sorting and filtering it by many parameters
 (e.g. year, genre, country, actors, ...).
 
-System administrators can view all user pages and ban users. In order to do that, he can 
-check the full history of ratings.
+System administrators can view all user profile pages and ban users. In order to do that, he can 
+check the full history of ratings. Once a user is banned, he can no longer log in and his username and email cannot be used by new users.
 
 The movie database will be built upon the publicly available IMDb dataset.
 
-The ratings will be gathered also by periodically scraping other websites 
+The ratings will be gathered also by periodically scraping external websites 
 (e.g., Rotten Tomatoes, Coming Soon, MyMovies).
 
 \subsection{Actors}
@@ -110,8 +110,7 @@ Both \textbf{anonymous user} and \textbf{registered user} must be able to:
 	\item view details and average rating of a specific movie
 	\item view a list of movies and filter it by many parameters. Combined filters 
 	are also allowed
-	\item view aggregated statistics about movies grouped by year, country, actor,
-	director, genre 
+	\item view aggregated statistics about movies: the user can choose on which field to aggregate movies (year, country, actor, director, genre) and additional filters (like the movie browsing feature). E.g. the user might want to see the ranking of the countries with the best movies in the last 10 years.
 \end{itemize}
 
 A \textbf{registered user} must be able to rate a movie, in addition to what anonymous
@@ -166,21 +165,15 @@ The use-case diagram is shown in \cref{fig:usecase}. Different colors are used t
     \label{fig:class_diagram}
 \end{figure}
 
-The class diagram is shown in \cref{fig:class_diagram}. It was decided to show \emph{Country}, \emph{Year} and \emph{Genre} as separate entities as they are some of the fields over which aggregate statistics are calculated. In the database implementation, this will reflect in having a separate collection for each of them in which pre-computed results of the aggregations will be stored.
+The class diagram is shown in \cref{fig:class_diagram}. It was decided to show \emph{Country}, \emph{Year} and \emph{Genre} as separate entities as they are some of the fields over which aggregate statistics are calculated.
 
 \clearpage
 \subsection{Data model}
-The data model is split in 9 different collections:
+The data model is split in 3 different collections:
 \begin{itemize}
 	\item Movies (\cref{sec:movies})
 	\item Users (\cref{sec:users})
 	\item Ratings (\cref{sec:ratings})
-	\item Actors (\cref{sec:actors})
-	\item Directors (\cref{sec:directors})
-	\item Years (\cref{sec:years})
-	\item Genres (\cref{sec:genres})
-	\item Countries (\cref{sec:countries})
-	\item BannedUsers (\cref{sec:banned_users})
 \end{itemize}
 In each following subsection, an example document is shown for every collection.
 
@@ -281,94 +274,13 @@ Furthermore, new ratings are expected to be frequently added.
 By using a separate collection, the problem of a long array of nested documents 
 is avoided. However, the introduction of an index is necessary.
 
+Another reason for keeping it separated is that they may be accessed per-user, per-movie (for calculating statistics) and globally (by the administrator).
+
 \paragraph{Indices} 
 \begin{itemize}
 	\item \texttt{\_id.movie\_id}: speed up aggregations.
 	\item \texttt{(\_id.user\_id, \_id.movie\_id}: quickly find user's ratings (compound multi-key index).
 \end{itemize}
-
-\subsubsection{Actors}
-\label{sec:actors}
-
-\begin{lstlisting}[language=json]	
-{
-	"_id": "nm0001618",
-	"name": "Joaquin Phoenix",
-	"avg_rating": 8.75,
-	"movie_count": 17
-}
-\end{lstlisting}
-
-\paragraph{Notes}
-This collection will store the pre-computed results of the aggregation.
-
-\paragraph{Indices}
-A text index will be set on the \emph{name} field.
-
-\subsubsection{Directors}
-\label{sec:directors}
-
-\begin{lstlisting}[language=json]	
-{
-	"_id": "nm0680846",
-	"name": "Todd Phillips",
-	"avg_rating": 7.45,
-	"movie_count": 4	
-}
-\end{lstlisting}
-
-\paragraph{Notes}
-This collection will store the pre-computed results of the aggregation.
-
-\paragraph{Indices}
-A text index will be set on the \emph{name} field.
-
-\subsubsection{Years}
-\label{sec:years}
-
-\begin{lstlisting}[language=json]	
-{
-	"_id": 2019,
-	"avg_rating": 6.45,
-	"movie_count": 867
-}
-\end{lstlisting}
-
-\paragraph{Notes}
-This collection will store the pre-computed results of the aggregation.
-
-\subsubsection{Genres}
-\label{sec:genres}
-
-\begin{lstlisting}[language=json]	
-{
-	"_id": "Crime",
-	"avg_rating": 4.78,
-	"movie_count": 751
-}
-\end{lstlisting}
-
-\paragraph{Notes}
-This collection will store the pre-computed results of the aggregation.
-The list of genres is fixed.
-
-\subsubsection{Countries}
-\label{sec:countries}
-
-\begin{lstlisting}[language=json]	
-{
-	"_id": "US",
-	"full_name": "USA",
-	"avg_rating": 4.78,
-	"movie_count": 1597
-}
-\end{lstlisting}
-
-\paragraph{Notes}
-This collection will store the pre-computed results of the aggregation.
-
-\paragraph{Indices}
-A text index will be set on the \emph{full\_name} field.
 
 \subsubsection{Users}
 \label{sec:users}
@@ -379,31 +291,8 @@ A text index will be set on the \emph{full\_name} field.
 	"username": "joker",
 	"password": "<HASHED PASSWORD>",
 	"email": "joker@dccomics.com",
-	"isadmin": 1 (optional),
-	"rated_actors": [
-		{
-			"actor_id": "nm0001618",
-			"avg_rating": 7.5,
-			"rating_count": 2
-		},
-		...
-	],
-	"rated_directors": [
-		{
-			"director_id": "nm0680846",
-			"avg_rating": 7.7,
-			"rating_count": 4
-		},
-		...
-	],
-	"rated_genres": [
-		{
-			"genre": "Crime",
-			"avg_rating": 7.1,
-			"rating_count": 4
-		},
-		...
-	],
+	"isadmin": True (optional),
+	"isbanned": False (optional),
 	"sessions": [
 		{
 			"session_id": "<session_id>",
@@ -424,25 +313,6 @@ more than one collection.
 An index will be introduced on the \emph{username} (text index) and \emph{email} fields. 
 Furthermore, these fields must also be unique.
 
-\subsubsection{BannedUsers}
-\label{sec:banned_users}
-
-\begin{lstlisting}[language=json]	
-{
-	"_id": <ObjectId>,
-	"username": "topolino.hackerino",
-	"email": "hackerino@topolino.it"
-}
-\end{lstlisting}
-
-\paragraph{Notes}
-This collection stores the username and passwords of banned users. 
-When a user is banned, its record in the \emph{Users} collection is moved
-to this one.
-When a new user registers, this collection is checked for any match and, 
-if any is found, the registration will fail. 
-
-
 \subsection{Software Architecture}
 
 The application will be made of the following 4 components:
@@ -450,11 +320,10 @@ The application will be made of the following 4 components:
 	\item \textbf{Mongo DB}: a MongoDB cluster will be deployed with sharding and replication.
 	\item \textbf{React Frontend}: web-based UI.
 	\item \textbf{Java Backend}: using \emph{Spring}, the \emph{Java backend} will provide REST APIs to the \emph{React frontent}.
-	\item \textbf{Updater ``bot''}: three Python scripts are needed in order to nightly update the DB with the latest movies and ratings: 
+	\item \textbf{Updater ``bot''}: two Python scripts are needed in order to nightly update the DB with the latest movies and ratings: 
 	\begin{enumerate}
 		\item the \textbf{IMDB parser} periodically parses the IMDb dataset to add the latest movies.
 		\item the \textbf{scraper} continuously parses the rating sources to update the ratings. Ratings of newer movies will be updated more often than older.
-		\item the background \textbf{aggregation} script will calculate aggregated statistics during off-peak times (real-time statistics are not important in such a scenario where ratings are not so volatile).
 	\end{enumerate}
 \end{itemize}
 
