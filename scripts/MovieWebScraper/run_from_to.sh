@@ -15,5 +15,5 @@ echo $from > UpdateIndex.txt
 while [ $(cat UpdateIndex.txt) -lt $to ]; do
     sleep 5
     echo "--- EXECUTING # $(cat UpdateIndex.txt)"
-    python MongoDbManager.py
+    python3 MongoDbManager.py
 done
