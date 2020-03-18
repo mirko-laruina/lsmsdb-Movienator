@@ -75,9 +75,9 @@ All parameters are optional. Default behaviour is sorting by release date (ascen
  - sortOrder: 1 for ascending, -1 for descending
  - minRating: minimum rating (included)
  - maxRating: maximum rating (included)
- - director: director id
- - actor: actor id
- - country: country code
+ - director: director name (or part of)
+ - actor: actor name (or part of)
+ - country: country name (or part of)
  - fromYear: minimum release year (included)
  - toYear: maximum release year (included)
  - genre: genre that the movie must contain
@@ -219,9 +219,9 @@ Default behaviour is sorting by rating (descending).
  - sortOrder: 1 for ascending, -1 for descending
  - minRating: minimum rating (included)
  - maxRating: maximum rating (included)
- - director: director id
- - actor: actor id
- - country: country code
+ - director: director name (or part of)
+ - actor: actor name (or part of)
+ - country: country name (or part of)
  - fromYear: minimum release year (included)
  - toYear: maximum release year (included)
  - genre: genre that the movie must contain
@@ -236,60 +236,6 @@ Default behaviour is sorting by rating (descending).
         "name": "USA",
         "count": 500,
         "rating": 8.87
-    },
-    ...
-]
-```
-
-## `GET /actors`
-Returns a list of actors based on a search query.
-
-### URL parameters
- - query: a query for finding the actor (required)
- - limit: maximum number of results (optional, default = 10)
-
- ### Output
-```json
-[
-    {
-        "id": "nm0001618",
-        "name": "Joaquin Phoenix"
-    },
-    ...
-]
-```
-
-## `GET /directors`
-Returns a list of directors based on a search query.
-
-### URL parameters
- - query: a query for finding the director (required)
- - limit: maximum number of results (optional, default = 10)
-
- ### Output
-```json
-[
-    {
-        "id": "nm0680846",
-        "name": "Todd Phillips"
-    },
-    ...
-]
-```
-
-## `GET /countries`
-Returns a list of countries based on a search query.
-
-### URL parameters
- - query: a query for finding the country (required)
- - limit: maximum number of results (optional, default = 10)
-
- ### Output
-```json
-[
-    {
-        "id": "US",
-        "name": "USA"
     },
     ...
 ]
