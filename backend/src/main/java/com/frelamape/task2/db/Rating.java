@@ -20,6 +20,13 @@ public class Rating {
         this.rating = rating;
     }
 
+    public Rating(User u, Movie m, Double rating) {
+        this.userId = u.getId();
+        this.movieId = m.getId();
+        this.date = new Date();
+        this.rating = rating;
+    }
+
     public ObjectId getUserId() {
         return userId;
     }

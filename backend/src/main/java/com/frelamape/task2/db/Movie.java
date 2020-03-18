@@ -23,8 +23,8 @@ public class Movie {
     private Double totalRating;
     private Double userRating;
 
-    public Movie(String title) {
-        this.title = title;
+    public Movie(String id) {
+        this.id = id;
     }
 
     public String getId() {
@@ -152,13 +152,13 @@ public class Movie {
             if (d == null)
                 return null;
 
-            Movie movie = new Movie(d.getString("title"));
-            movie.setId(d.getString("_id"));
+            Movie movie = new Movie(d.getString("_id"));
+            movie.setTitle(d.getString("title"));
             movie.setOriginalTitle(d.getString("original_title"));
-            movie.setRuntime(d.getInteger("runtime"));
+            movie.setRuntime(BsonAutoCast.asInteger(d, "runtime"));
             movie.setCountry(d.getString("country"));
-            movie.setYear(d.getInteger("year"));
-            movie.setDate(d.getDate("date"));
+            movie.setRuntime(BsonAutoCast.asInteger(d, "year"));
+            movie.setDate(BsonAutoCast.asDate(d,"date"));
             movie.setDescription(d.getString("description"));
             movie.setPoster(d.getString("poster"));
             movie.setTotalRating(d.getDouble("total_rating"));

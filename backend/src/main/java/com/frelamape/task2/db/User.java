@@ -54,6 +54,8 @@ public class User {
     }
 
     public Boolean isAdmin() {
+        if (isAdmin == null)
+            return false;
         return isAdmin;
     }
 

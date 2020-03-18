@@ -1,16 +1,15 @@
 package com.frelamape.task2.db;
 
-import com.mongodb.MongoClient;
-import com.mongodb.MongoClientURI;
-import com.mongodb.client.FindIterable;
-import com.mongodb.client.MongoCollection;
-import com.mongodb.client.MongoDatabase;
+import com.mongodb.client.*;
 import com.mongodb.client.model.Projections;
 import com.mongodb.client.model.Sorts;
 import com.mongodb.client.result.DeleteResult;
 import com.mongodb.client.result.UpdateResult;
+import com.mongodb.client.result.InsertOneResult;
+import org.bson.BsonObjectId;
 import org.bson.Document;
 import org.bson.conversions.Bson;
+import org.bson.types.ObjectId;
 
 import java.util.ArrayList;
 import java.util.Date;
@@ -28,29 +27,19 @@ public class DatabaseAdapter {
     private MongoCollection<Document> moviesCollection;
     private MongoCollection<Document> usersCollection;
     private MongoCollection<Document> ratingsCollection;
-    private MongoCollection<Document> actorsCollection;
-    private MongoCollection<Document> directorsCollection;
-    private MongoCollection<Document> yearsCollection;
-    private MongoCollection<Document> genresCollection;
-    private MongoCollection<Document> countriesCollection;
-    private MongoCollection<Document> bannedUsersCollection;
 
     public DatabaseAdapter(String connectionURI, String dbName){
-        mongoClient = new MongoClient(new MongoClientURI(connectionURI));
+        mongoClient = MongoClients.create(connectionURI);
         database = mongoClient.getDatabase(dbName);
         moviesCollection = database.getCollection("movies");
         usersCollection = database.getCollection("users");
         ratingsCollection = database.getCollection("ratings");
-        actorsCollection = database.getCollection("actors");
-        directorsCollection = database.getCollection("directors");
-        yearsCollection = database.getCollection("years");
-        genresCollection = database.getCollection("genres");
-        countriesCollection = database.getCollection("countries");
-        bannedUsersCollection = database.getCollection("banned_users");
     }
 
-    public void insertRating(Rating rating){
-        ratingsCollection.insertOne(Rating.Adapter.toDBObject(rating));
+    public boolean insertRating(Rating rating){
+        InsertOneResult result = ratingsCollection.insertOne(Rating.Adapter.toDBObject(rating));
+
+        return result.wasAcknowledged() && result.getInsertedId() != null;
     }
 
     public boolean updateRating(Rating rating){
@@ -89,12 +78,24 @@ public class DatabaseAdapter {
         );
     }
 
-    public User getUserLoginInfo(String username){
+    public Rating getUserRating(User u, Movie m){
+        return Rating.Adapter.fromDBObject(
+                ratingsCollection.find(
+                        and(eq("_id.user_id", u.getId()),
+                            eq("_id.movie_id", m.getId()))
+                ).first()
+        );
+    }
+
+    public User getUserLoginInfo(String usernameORemail){
         return User.Adapter.fromDBObject(
                 usersCollection.find(
-                        eq("username", username)
+                        or(
+                                eq("username", usernameORemail),
+                                eq("email", usernameORemail)
+                        )
                 ).projection(
-                        include("username", "email", "password")
+                        include("_id", "username", "email", "password")
                 ).first()
         );
     }
@@ -105,6 +106,7 @@ public class DatabaseAdapter {
                         eq("username", username)
                 ).first()
         );
+        // TODO user statistics
     }
 
     public boolean addSession(User u, Session s){
@@ -143,6 +145,18 @@ public class DatabaseAdapter {
         return true;
     }
 
+    public User getUserFromSession(Session s){
+        Document userDocument = usersCollection.find(
+                and(
+                        eq("sessions._id", s.getId())
+                ))
+                .first();
+        if (userDocument == null)
+            return null;
+
+        return User.Adapter.fromDBObject(userDocument);
+    }
+
     public boolean removeSession(User u, Session s){
         UpdateResult result = usersCollection.updateOne(
                 eq("_id", u.getId()),
@@ -161,7 +175,7 @@ public class DatabaseAdapter {
     }
 
     public List<Movie> getMovieList(String sortBy, int sortOrder, double minRating,
-                                    double maxRating, String directorId, String actorId,
+                                    double maxRating, String director, String actor,
                                     String country, int fromYear, int toYear, String genre,
                                     int n, int page){
 
@@ -183,16 +197,16 @@ public class DatabaseAdapter {
             conditions.add(lte("total_rating", maxRating));
         }
 
-        if (directorId != null){
-            conditions.add(eq("directors.id", directorId));
+        if (director != null && !director.isEmpty()){
+            conditions.add(regex("directors.id", director));
         }
 
-        if (actorId  != null){
-            conditions.add(eq("actors.actor_id", actorId));
+        if (actor  != null && !actor.isEmpty()){
+            conditions.add(regex("actors.actor_id", actor));
         }
 
         if (country != null && !country.isEmpty()){
-            conditions.add(eq("country", country));
+            conditions.add(regex("country", country));
         }
 
         if (fromYear != -1){
@@ -207,9 +221,15 @@ public class DatabaseAdapter {
             conditions.add(eq("genres", genre));
         }
 
-        FindIterable<Document> movieIterable = moviesCollection
-                .find(and(conditions.toArray(new Bson[]{})))
-                .sort(sorting)
+        FindIterable<Document> movieIterable;
+
+        if (!conditions.isEmpty()){
+            movieIterable = moviesCollection.find(and(conditions.toArray(new Bson[]{})));
+        } else {
+            movieIterable = moviesCollection.find();
+        }
+
+        movieIterable.sort(sorting)
                 .projection(include("title", "year", "poster", "genres", "total_rating"))
                 .skip(n*(page-1))
                 .limit(n);
@@ -235,97 +255,63 @@ public class DatabaseAdapter {
     }
 
     public List<Statistics<Statistics.Aggregator>> getStatistics(String groupBy, String sortBy, int sortOrder, int n, int page){
-        MongoCollection<Document> collection;
-        Class<? extends Statistics.Aggregator> aggregatorClass;
+        // TODO
+        return null;
+    }
 
-        switch (groupBy){
-            case "country":
-                collection = countriesCollection;
-                aggregatorClass = Country.class;
-                break;
-            case "year":
-                collection = yearsCollection;
-                aggregatorClass = Year.class;
-                break;
-            case "director":
-                collection = directorsCollection;
-                aggregatorClass = Person.class;
-                break;
-            case "actor":
-                collection = actorsCollection;
-                aggregatorClass = Person.class;
-                break;
-            default:
-                throw new RuntimeException("Not recognized groupBy: " + groupBy);
+    public ObjectId addUser(User u){
+        // TODO name exceptions to return meaningful error message to user
+
+        // check unique
+        // NB: not unique => not banned
+
+        Document userInDB = usersCollection.find(
+                or(
+                    eq("username", u.getUsername()),
+                    eq("email", u.getEmail())
+                )
+        ).first();
+
+        if (userInDB != null){
+            return null;
         }
 
-        Bson sorting;
-        if (sortOrder == 1){
-            sorting = ascending(sortBy);
-        } else if (sortOrder == -1){
-            sorting = descending(sortBy);
+        InsertOneResult result = usersCollection.insertOne(User.Adapter.toDBObject(u));
+
+        if (result.getInsertedId() != null) {
+            return result.getInsertedId().asObjectId().getValue();
         } else{
-            throw new RuntimeException("sortOrder must be 1 or -1.");
+            return null;
         }
-
-        FindIterable<Document> statisticsIterable = collection
-                .find()
-                .sort(sorting)
-                .skip(n*(page-1))
-                .limit(n);
-
-        return Statistics.Adapter.fromDBObjectIterable(statisticsIterable, aggregatorClass);
-    }
-
-    public List<Person> searchActor(String query, int n, int page){
-        FindIterable<Document> actorIterable = actorsCollection
-                .find(text("\""+ query + "\""))
-                .projection(Projections.metaTextScore("score"))
-                .sort(Sorts.metaTextScore("score"))
-                .skip(n*(page-1))
-                .limit(n);
-
-        return Person.Adapter.fromDBObjectIterable(actorIterable);
-    }
-
-    public List<Person> searchDirector(String query, int n, int page){
-        FindIterable<Document> actorIterable = directorsCollection
-                .find(text("\""+ query + "\""))
-                .projection(Projections.metaTextScore("score"))
-                .sort(Sorts.metaTextScore("score"))
-                .skip(n*(page-1))
-                .limit(n);
-
-        return Person.Adapter.fromDBObjectIterable(actorIterable);
-    }
-
-    public List<Person> searchCountry(String query, int n, int page){
-        FindIterable<Document> actorIterable = countriesCollection
-                .find(text("\""+ query + "\""))
-                .projection(Projections.metaTextScore("score"))
-                .sort(Sorts.metaTextScore("score"))
-                .skip(n*(page-1))
-                .limit(n);
-
-        return Person.Adapter.fromDBObjectIterable(actorIterable);
-    }
-
-    public void addUser(User u){
-        usersCollection.insertOne(User.Adapter.toDBObject(u));
     }
 
     public boolean banUser(User u){
-        User dbUser = User.Adapter.fromDBObject(
-                usersCollection.findOneAndDelete(eq("username", u.getUsername()))
+        // NB: User must contain ID
+
+        UpdateResult result = usersCollection.updateOne(
+                eq("_id", u.getId()),
+                set("isbanned", true)
         );
-        if (dbUser == null)
+
+        if (result.wasAcknowledged() && result.getMatchedCount() == 1) {
+            // delete user ratings
+            ratingsCollection.deleteMany(eq("user_id", u.getId()));
+            return true;
+        } else{
             return false;
+        }
+    }
 
-        bannedUsersCollection.insertOne(User.Adapter.toDBObject(dbUser));
-
-        ratingsCollection.deleteMany(eq("user_id", dbUser.getId()));
-
-        return true;
+    public User authUser(User u){
+        Document userDocument = usersCollection.find(
+                and(eq("username", u.getUsername()),
+                        eq("password", u.getPassword())
+                ))
+                .first();
+        if (userDocument == null)
+            return null;
+        else
+            return User.Adapter.fromDBObject(userDocument);
     }
 
     public List<User> searchUser(String query, int n, int page){
@@ -357,29 +343,5 @@ public class DatabaseAdapter {
 
     public MongoCollection<Document> getRatingsCollection() {
         return ratingsCollection;
-    }
-
-    public MongoCollection<Document> getActorsCollection() {
-        return actorsCollection;
-    }
-
-    public MongoCollection<Document> getDirectorsCollection() {
-        return directorsCollection;
-    }
-
-    public MongoCollection<Document> getYearsCollection() {
-        return yearsCollection;
-    }
-
-    public MongoCollection<Document> getGenresCollection() {
-        return genresCollection;
-    }
-
-    public MongoCollection<Document> getCountriesCollection() {
-        return countriesCollection;
-    }
-
-    public MongoCollection<Document> getBannedUsersCollection() {
-        return bannedUsersCollection;
     }
 }
