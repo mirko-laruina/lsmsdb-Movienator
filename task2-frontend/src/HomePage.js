@@ -1,7 +1,8 @@
 import React from 'react';
 
 /* Basic imports material-ui */
-import { AppBar, Toolbar, Typography, Container, InputBase } from '@material-ui/core';
+import { AppBar, Toolbar, Typography, Container, InputBase, CssBaseline, ThemeProvider} from '@material-ui/core';
+
 /* Graphical components material-ui */
 import {
   Card, CardContent, FormControl, OutlinedInput, InputAdornment,
@@ -16,12 +17,27 @@ import MovieFilterIcon from '@material-ui/icons/MovieFilter';
 import PersonIcon from '@material-ui/icons/Person';
 import SearchIcon from '@material-ui/icons/Search';
 
-import { fade, makeStyles } from '@material-ui/core/styles';
+import { fade, makeStyles, createMuiTheme } from '@material-ui/core/styles';
+
 import './HomePage.css'
 
-const useStyles = makeStyles(theme => ({
+const ctheme = createMuiTheme({
+  palette: {
+    background: {
+      default: "#717078"
+    },
+    primary: {
+      main: "#8e1d34",
+      contrastText: '#fff',
+    },
+  },
+});
+
+const useStyles = makeStyles(theme => (
+  {
   root: {
     flexGrow: 1,
+    color: ctheme.palette.primary.main,
   },
   menuButton: {
     marginRight: theme.spacing(2),
@@ -73,10 +89,22 @@ const useStyles = makeStyles(theme => ({
       },
     },
   },
+  tabsRoot: {
+    color: ctheme.palette.primary.main,
+  },
+  tabsIndicator: {
+    visibility: 'hidden',
+  },
+  tabsButton: {
+    opacity: '1',
+  },
+  paperRoot: {
+    color: ctheme.palette.primary.main,
+  }
 }));
 
 export default function SearchAppBar() {
-  const classes = useStyles();
+  const classes = useStyles()
   const [auth, setAuth] = React.useState(true);
   const [anchorEl, setAnchorEl] = React.useState(null);
   const open = Boolean(anchorEl);
@@ -94,6 +122,8 @@ export default function SearchAppBar() {
   };
 
   return (
+    <ThemeProvider theme={ctheme}>
+      <CssBaseline />
     <div className={classes.root}>
       <AppBar position="static">
         <Toolbar>
@@ -148,9 +178,15 @@ export default function SearchAppBar() {
       </AppBar>
       <Container maxWidth="md" className="wrapper">
         <br />
-        <h1>THE Movie Database</h1>
+        <Card elevation={5} classes={{root: classes.paperRoot}}>
+          <CardContent >
+            <br />
+            <h1>Movienator</h1>
+            <p>The movie search engine you didn't know you needed</p>
+          </CardContent>
+        </Card>
         <br />
-        <Card elevation={5}>
+        <Card elevation={5} classes={{root: classes.paperRoot}}>
           <CardContent>
             <h2>Search a movie</h2>
             <br />
@@ -177,28 +213,29 @@ export default function SearchAppBar() {
           </CardContent>
         </Card>
         <br />
-        <Card elevation={5}>
+        <Card elevation={5} classes={{root: classes.paperRoot}}>
           <CardContent>
             <h2>Explore statistics</h2>
             <br />
             <Tabs
               value={0}
-              onChange={handleChange}
               variant="scrollable"
               scrollButtons="on"
-              indicatorColor="none"
-              textColor="none"
               aria-label="scrollable force tabs example"
-            >
-              <Tab label="By Director" icon={<CameraRollIcon />} />
-              <Tab label="By Author" icon={<PersonIcon />} />
-              <Tab label="By Country" icon={<LanguageIcon />} />
-              <Tab label="By Year" icon={<DateRangeIcon />} />
-              <Tab label="By Genre" icon={<MovieFilterIcon />} />
+              classes={{
+                root: classes.tabsRoot,
+                indicator: classes.tabsIndicator,
+              }}>
+              <Tab label="By Director" classes={{textColorInherit: classes.tabsButton}} icon={<CameraRollIcon />} />
+              <Tab label="By Author" classes={{textColorInherit: classes.tabsButton}} icon={<PersonIcon />} />
+              <Tab label="By Country" classes={{root: classes.tabsButton}} icon={<LanguageIcon />} />
+              <Tab label="By Year" classes={{textColorInherit: classes.tabsButton}} icon={<DateRangeIcon />} />
+              <Tab label="By Genre" classes={{textColorInherit: classes.tabsButton}} icon={<MovieFilterIcon />} />
             </Tabs>
           </CardContent>
         </Card>
       </Container>
     </div>
+    </ThemeProvider>
   );
 }
