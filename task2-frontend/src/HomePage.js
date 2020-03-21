@@ -2,8 +2,7 @@ import React from 'react';
 import { Link } from 'react-router-dom';
 
 /* Graphical components material-ui */
-import {
-  Card, CardContent, FormControl, OutlinedInput, InputAdornment, Tabs, Tab, IconButton
+import { FormControl, OutlinedInput, InputAdornment, Tabs, Tab, IconButton
 } from '@material-ui/core';
 /* Icon material-ui */
 import CameraRollIcon from '@material-ui/icons/CameraRoll';
@@ -13,7 +12,7 @@ import MovieFilterIcon from '@material-ui/icons/MovieFilter';
 import PersonIcon from '@material-ui/icons/Person';
 import SearchIcon from '@material-ui/icons/Search';
 
-import { makeStyles } from '@material-ui/core/styles';
+import { makeStyles, withStyles } from '@material-ui/core/styles';
 
 import './HomePage.css'
 import BasicPage from './BasicPage.js'
@@ -24,18 +23,18 @@ const useStyles = makeStyles(theme => (
     tabsIndicator: {
       visibility: 'hidden',
     },
-    tabsButton: {
-      opacity: '1',
-    },
-    paperRoot: {
-      color: theme.palette.primary.main,
-    },
     iconButton: {
       '&:hover': {
         color: theme.palette.primary.main,
       }
     }
   }));
+
+const MyTab = withStyles({
+  textColorInherit: {
+    opacity: '1',
+  },
+})(Tab)
 
 export default function HomePage() {
   const classes = useStyles()
@@ -86,11 +85,11 @@ export default function HomePage() {
             root: classes.tabsRoot,
             indicator: classes.tabsIndicator,
           }}>
-          <Tab label="By Director" classes={{ textColorInherit: classes.tabsButton }} icon={<CameraRollIcon />} />
-          <Tab label="By Author" classes={{ textColorInherit: classes.tabsButton }} icon={<PersonIcon />} />
-          <Tab label="By Country" classes={{ textColorInherit: classes.tabsButton }} icon={<LanguageIcon />} />
-          <Tab label="By Year" classes={{ textColorInherit: classes.tabsButton }} icon={<DateRangeIcon />} />
-          <Tab label="By Genre" classes={{ textColorInherit: classes.tabsButton }} icon={<MovieFilterIcon />} />
+          <MyTab label="By Director" icon={<CameraRollIcon />} />
+          <MyTab label="By Author" icon={<PersonIcon />} />
+          <MyTab label="By Country" icon={<LanguageIcon />} />
+          <MyTab label="By Year" icon={<DateRangeIcon />} />
+          <MyTab label="By Genre" icon={<MovieFilterIcon />} />
         </Tabs>
       </MyCard>
     </BasicPage>

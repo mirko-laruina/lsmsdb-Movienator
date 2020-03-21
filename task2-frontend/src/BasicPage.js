@@ -4,7 +4,7 @@ import React from 'react';
 import { AppBar, Toolbar, Typography, Container, InputBase } from '@material-ui/core';
 
 /* Graphical components material-ui */
-import { Menu, MenuItem, Tabs, Tab, IconButton } from '@material-ui/core';
+import { Menu, MenuItem, IconButton } from '@material-ui/core';
 /* Icon material-ui */
 import AccountCircle from '@material-ui/icons/AccountCircle';
 import SearchIcon from '@material-ui/icons/Search';

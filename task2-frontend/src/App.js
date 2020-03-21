@@ -8,7 +8,7 @@ import './App.css';
 import HomePage from './HomePage.js'
 import 'bootstrap/dist/css/bootstrap.min.css';
 import { CssBaseline, ThemeProvider } from '@material-ui/core';
-import { fade, makeStyles, createMuiTheme } from '@material-ui/core/styles';
+import { createMuiTheme } from '@material-ui/core/styles';
 
 const theme = createMuiTheme({
   palette: {
