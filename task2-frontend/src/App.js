@@ -5,10 +5,11 @@ import {
   Route
 } from "react-router-dom";
 import './App.css';
-import HomePage from './HomePage.js'
-import 'bootstrap/dist/css/bootstrap.min.css';
 import { CssBaseline, ThemeProvider } from '@material-ui/core';
 import { createMuiTheme } from '@material-ui/core/styles';
+
+import HomePage from './HomePage.js'
+import ResultsPage from './ResultsPage.js'
 
 const theme = createMuiTheme({
   palette: {
@@ -43,7 +44,7 @@ function App() {
             <p>test</p>
           </Route>
           <Route path="/results">
-            <p>test</p>
+            <ResultsPage />
           </Route>
           <Route path="/">
             <HomePage />

@@ -1,4 +1,5 @@
 import React from 'react';
+import { Link } from 'react-router-dom';
 
 /* Basic imports material-ui */
 import { AppBar, Toolbar, Typography, Container, InputBase } from '@material-ui/core';
@@ -11,7 +12,7 @@ import SearchIcon from '@material-ui/icons/Search';
 
 import { fade, makeStyles } from '@material-ui/core/styles';
 
-import './HomePage.css'
+import './App.css'
 
 const useStyles = makeStyles(theme => (
     {
@@ -89,9 +90,9 @@ export default function BasicPage(props) {
         <div className={classes.root}>
             <AppBar position="static">
                 <Toolbar>
-                    <Typography className={classes.title} variant="h6" noWrap>
+                    <Typography className={classes.title} variant="h6" noWrap to="/" component={Link}>
                         The movie database
-                        </Typography>
+                    </Typography>
                     <div className={classes.search}>
                         <div className={classes.searchIcon}>
                             <SearchIcon />

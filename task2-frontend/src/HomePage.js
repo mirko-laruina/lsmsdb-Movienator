@@ -14,7 +14,6 @@ import SearchIcon from '@material-ui/icons/Search';
 
 import { makeStyles, withStyles } from '@material-ui/core/styles';
 
-import './HomePage.css'
 import BasicPage from './BasicPage.js'
 import MyCard from './MyCard.js'
 
