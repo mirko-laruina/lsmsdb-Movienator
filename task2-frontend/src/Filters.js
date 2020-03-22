@@ -5,7 +5,7 @@ import MenuItem from '@material-ui/core/MenuItem';
 import FormHelperText from '@material-ui/core/FormHelperText';
 import FormControl from '@material-ui/core/FormControl';
 import Select from '@material-ui/core/Select';
-import { FormGroup, Typography, TextField, FormControlLabel, Tabs, Tab, TabPanel } from '@material-ui/core';
+import { FormGroup, Typography, TextField, Grid, Tabs, Tab } from '@material-ui/core';
 import Autocomplete from '@material-ui/lab/Autocomplete';
 
 import Rating from '@material-ui/lab/Rating';
@@ -56,55 +56,65 @@ export default function Filter() {
                             <TextField {...params} label="Genre" margin="normal" variant="outlined" />
                         )}
                     />
-                    <Autocomplete
-                        id="min-year"
-                        autoHighlight
-                        options={years}
-                        renderInput={params => (
-                            <TextField {...params} label="From year" margin="normal" variant="outlined" />
-                        )}
-                    />
-                    <Autocomplete
-                        id="max-year"
-                        autoHighlight
-                        options={years}
-                        renderInput={params => (
-                            <TextField {...params} label="To year" margin="normal" variant="outlined" />
-                        )}
-                    />
+                    <Grid container spacing={2}>
+                        <Grid item xs={6}>
+                            <Autocomplete
+                                id="min-year"
+                                autoHighlight
+                                options={years}
+                                renderInput={params => (
+                                    <TextField {...params} label="From year" margin="normal" variant="outlined" />
+                                )}
+                            />
+                        </Grid>
+                        <Grid item xs={6}>
+                            <Autocomplete
+                                id="max-year"
+                                autoHighlight
+                                options={years}
+                                renderInput={params => (
+                                    <TextField {...params} label="To year" margin="normal" variant="outlined" />
+                                )}
+                            />
+                        </Grid>
+                    </Grid>
                 </FormGroup>
             }
 
             {currTab == 1 &&
                 <React.Fragment>
-                    <Typography variant="body1" align="center">
-                        Minimum rating: {minTempRat >= 0 ? minTempRat : minRat}/10
+                    <Grid container>
+                        <Grid item xs={6}>
+                            <Typography variant="body1" align="center">
+                                Minimum rating: {minTempRat >= 0 ? minTempRat : minRat}/10
                         </Typography>
-                    <Typography align="center">
-                        <Rating name="min-rating"
-                            value={minRat / 2}
-                            onChange={(event, value) => setMinRat(value * 2)}
-                            onChangeActive={(event, value) => setMinTempRat(value * 2)}
-                            max={5}
-                            precision={0.05}
-                            size="large"
-                        />
+                            <Typography align="center">
+                                <Rating name="min-rating"
+                                    value={minRat / 2}
+                                    onChange={(event, value) => setMinRat(value * 2)}
+                                    onChangeActive={(event, value) => setMinTempRat(value * 2)}
+                                    max={5}
+                                    precision={0.05}
+                                    size="large"
+                                />
+                            </Typography>
+                        </Grid>
+                        <Grid item xs={6}>
+                            <Typography variant="body1" align="center">
+                                Maximum rating: {maxTempRat >= 0 ? maxTempRat : maxRat}/10
                     </Typography>
-
-                    <Typography variant="body1" align="center">
-                        Maximum rating: {maxTempRat >= 0 ? maxTempRat : maxRat}/10
-                    </Typography>
-                    <Typography align="center">
-                        <Rating name="max-rating"
-                            value={maxRat / 2}
-                            onChange={(event, value) => setMaxRat(value * 2)}
-                            onChangeActive={(event, value) => setMaxTempRat(value * 2)}
-                            max={5}
-                            precision={0.05}
-                            size="large"
-                        />
-                    </Typography>
-
+                            <Typography align="center">
+                                <Rating name="max-rating"
+                                    value={maxRat / 2}
+                                    onChange={(event, value) => setMaxRat(value * 2)}
+                                    onChangeActive={(event, value) => setMaxTempRat(value * 2)}
+                                    max={5}
+                                    precision={0.05}
+                                    size="large"
+                                />
+                            </Typography>
+                        </Grid>
+                    </Grid>
                     <br />
                 </React.Fragment>
             }
@@ -135,7 +145,7 @@ export default function Filter() {
                         getOptionLabel={option => option.label}
                         renderOption={option => (
                             <React.Fragment>
-                                <span style={{marginRight: '0.3em'}}>{countryToFlag(option.code)}</span>
+                                <span style={{ marginRight: '0.3em' }}>{countryToFlag(option.code)}</span>
                                 {option.label} ({option.code})
                             </React.Fragment>
                         )}
