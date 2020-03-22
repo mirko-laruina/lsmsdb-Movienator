@@ -26,6 +26,7 @@ const theme = createMuiTheme({
   },
   typography: {
     fontFamily: [
+      'Noto Sans',
       'Ubuntu',
       'Roboto',
       'Arial'

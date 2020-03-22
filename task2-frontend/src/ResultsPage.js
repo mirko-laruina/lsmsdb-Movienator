@@ -11,7 +11,12 @@ import Rating from '@material-ui/lab/Rating';
 
 const styles = {
     img: {
-        paddingRight: '10px',
+        paddingRight: '1.5em',
+    },
+    genre: {
+        marginRight: '0.5em',
+        fontSize: '1em',
+        padding: '0px',
     }
 }
 
@@ -53,7 +58,8 @@ class ResultsPage extends Component {
             <BasicPage>
                 <br />
                 <MyCard>
-                    The best results are here for you:
+                    <br />
+                    <h1>The best results are here for you:</h1>
                     <List>
                         {this.queryOut.map((data, index) => (
                             <div key={index}>
@@ -63,24 +69,42 @@ class ResultsPage extends Component {
                                     }>
                                     </ListItemAvatar>
                                     <ListItemText
-                                        className={styles.itemText}
-                                        primary={data.title}
+                                        primary={
+                                            <React.Fragment>
+                                                <h4>{data.title} ({data.year})</h4>
+                                                {data.genres.map((gen, index) => (
+                                                    <Chip key={index} size="small" label={gen} variant="outlined" color="primary" style={styles.genre} />
+                                                ))}
+                                            </React.Fragment>
+                                        }
+                                        primaryTypographyProps={{ variant: 'body2' }}
                                         secondary={
                                             <React.Fragment>
-                                                {data.genres.map((gen, index) => (
-                                                    <Chip key={index} label={gen} variant="outlined" color="primary" />
-                                                ))}
                                                 <br />
                                                 <Typography
                                                     component="span"
-                                                    variant="body2"
+                                                    variant="body1"
                                                     color="textPrimary"
                                                 >
-                                                    Ali Connors  {data.year}
+                                                    Average rating {data.total_rating}/10
                                                 </Typography>
-                                                {" — I'll be in your neighborhood doing errands this…"}
                                                 <br />
-                                                <Rating name="read-only" value={data.total_rating / 2} max={5} precision={0.1} readOnly />
+                                                <Rating name="avg-rating" value={data.total_rating / 2} max={5} precision={0.1} readOnly />
+                                                <br />
+                                                {
+                                                    !data.user_rating ? null :
+                                                        <React.Fragment>
+                                                            <Typography
+                                                                component="span"
+                                                                variant="body1"
+                                                                color="textPrimary"
+                                                            >
+                                                                Your rating {data.user_rating}/10
+                                                                                            </Typography>
+                                                            <br />
+                                                            <Rating name="user-rating" value={data.user_rating / 2} max={5} precision={0.5}/>
+                                                        </React.Fragment>
+                                                }
                                             </React.Fragment>
                                         }
                                     />
