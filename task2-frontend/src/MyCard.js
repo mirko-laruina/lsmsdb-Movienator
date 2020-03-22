@@ -14,8 +14,8 @@ export default function MyCard(props) {
     return (
         <React.Fragment>
             <br />
-            <Card elevation={5} classes={{ root: classes.paperRoot }}>
-                <CardContent>
+            <Card elevation={5} classes={{ root: classes.paperRoot }} >
+                <CardContent {...props}>
                     {props.children}
                 </CardContent>
             </Card>
