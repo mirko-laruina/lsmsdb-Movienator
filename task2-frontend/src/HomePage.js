@@ -2,7 +2,8 @@ import React from 'react';
 import { Link } from 'react-router-dom';
 
 /* Graphical components material-ui */
-import { FormControl, OutlinedInput, InputAdornment, Tabs, Tab, IconButton
+import {
+  FormControl, OutlinedInput, InputAdornment, Tabs, Tab, IconButton, Grid, Typography
 } from '@material-ui/core';
 /* Icon material-ui */
 import CameraRollIcon from '@material-ui/icons/CameraRoll';
@@ -42,8 +43,14 @@ export default function HomePage() {
     <BasicPage>
       <MyCard>
         <br />
-        <h1>Movienator</h1>
-        <p>The movie search engine you didn't know you needed</p>
+        <Typography
+          variant='h2'
+          align="center">Movienator</Typography>
+        <Typography
+          variant='body1'
+          align="center">
+          The movie search engine you didn't know you needed
+          </Typography>
       </MyCard>
       <MyCard>
         <h2>Search a movie</h2>
