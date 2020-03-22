@@ -2,7 +2,12 @@ import React, { Component } from 'react'
 
 import BasicPage from './BasicPage.js'
 import MyCard from './MyCard.js'
-import { List, ListItem, ListItemIcon, ListItemAvatar, Avatar, Divider, ListItemText, Typography } from '@material-ui/core'
+import {
+    List, ListItem, ListItemIcon, ListItemAvatar,
+    Avatar, Divider, ListItemText, Typography, Chip
+} from '@material-ui/core'
+
+import Rating from '@material-ui/lab/Rating';
 
 const styles = {
     img: {
@@ -62,6 +67,10 @@ class ResultsPage extends Component {
                                         primary={data.title}
                                         secondary={
                                             <React.Fragment>
+                                                {data.genres.map((gen, index) => (
+                                                    <Chip key={index} label={gen} variant="outlined" color="primary" />
+                                                ))}
+                                                <br />
                                                 <Typography
                                                     component="span"
                                                     variant="body2"
@@ -70,6 +79,8 @@ class ResultsPage extends Component {
                                                     Ali Connors  {data.year}
                                                 </Typography>
                                                 {" — I'll be in your neighborhood doing errands this…"}
+                                                <br />
+                                                <Rating name="read-only" value={data.total_rating / 2} max={5} precision={0.1} readOnly />
                                             </React.Fragment>
                                         }
                                     />
