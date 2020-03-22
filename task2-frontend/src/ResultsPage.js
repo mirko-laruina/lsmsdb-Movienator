@@ -56,7 +56,9 @@ class ResultsPage extends Component {
     render() {
         return (
             <BasicPage>
-                <br />
+                <MyCard>
+                    Filters:
+                </MyCard>
                 <MyCard>
                     <br />
                     <h1>The best results are here for you:</h1>

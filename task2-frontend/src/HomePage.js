@@ -40,13 +40,11 @@ export default function HomePage() {
 
   return (
     <BasicPage>
-      <br />
       <MyCard>
         <br />
         <h1>Movienator</h1>
         <p>The movie search engine you didn't know you needed</p>
       </MyCard>
-      <br />
       <MyCard>
         <h2>Search a movie</h2>
         <br />
@@ -71,7 +69,6 @@ export default function HomePage() {
           </FormControl>
         </form>
       </MyCard>
-      <br />
       <MyCard>
         <h2>Explore statistics</h2>
         <br />
