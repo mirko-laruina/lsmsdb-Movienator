@@ -4,9 +4,9 @@ import BasicPage from './BasicPage.js'
 import MyCard from './MyCard.js'
 import {
     List, ListItem, ListItemIcon, ListItemAvatar,
-    Avatar, Divider, ListItemText, Typography, Chip, Dialog, Button, Grid
+    Avatar, Divider, ListItemText, Typography, Chip, Dialog, Button, Slide, DialogTitle
 } from '@material-ui/core'
-
+import ListIcon from '@material-ui/icons/List';
 import Rating from '@material-ui/lab/Rating';
 import Filters from './Filters.js';
 
@@ -20,7 +20,7 @@ const styles = {
         padding: '0px',
     },
     cardRoot: {
-        padding: '3em',
+        padding: '1em 3em',
     }
 }
 
@@ -53,26 +53,47 @@ const queryOut = [
     },
 ]
 
+const Transition = React.forwardRef(function Transition(props, ref) {
+    return <Slide direction="down" ref={ref} {...props} />;
+});
+
 export default function ResultsPage() {
     const [open, setOpen] = React.useState(false);
 
     return (
         <BasicPage>
-            <MyCard>
+            <MyCard style={styles.cardRoot}>
                 <br />
-                <Grid justify="flex-start">
-                    <Button variant="outlined" color="primary" align="right" onClick={() => setOpen(true)}>
-                    Open simple dialog
+                <Typography align="right">
+                    <Button
+                        variant="outlined"
+                        color="primary"
+                        align="right"
+                        onClick={() => setOpen(true)}
+                        startIcon={<ListIcon />}
+                    >
+                        Show filters
+                    </Button></Typography>
+                <Dialog
+                    TransitionComponent={Transition}
+                    open={open}
+                    PaperComponent={MyCard}
+                    onClose={() => setOpen(false)}
+                >
+                    <Typography
+                        variant="h3"
+                        align="center">
+                        Filters
+                    </Typography>
+                    <br />
+                    <Filters />
+                    <br />
+                    <Button size="large" variant="outlined" color="primary" onClick={() => setOpen(false)}>
+                        Apply
                     </Button>
-                </Grid>
-                <Dialog selectedValue={0} open={open} onClose={() => setOpen(false)} >
-                    <MyCard style={styles.cardRoot}>
-                        <Typography variant="body1">Filters:</Typography>
-                        <Filters />
-                        <Button variant="outlined" color="primary" onClick={() => setOpen(false)}>
-                            Close
-                        </Button>
-                    </MyCard>
+                    <Button size="large" color="secondary" onClick={() => setOpen(false)}>
+                        Cancel
+                    </Button>
                 </Dialog>
                 <h1>The best results are here for you:</h1>
                 <List>
