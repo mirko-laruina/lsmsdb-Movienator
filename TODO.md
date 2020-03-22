@@ -1,0 +1,1 @@
+- [ ] ADD description to search results (back-end and frontend)
