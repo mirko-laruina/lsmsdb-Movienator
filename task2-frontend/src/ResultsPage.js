@@ -110,6 +110,8 @@ export default function ResultsPage() {
                             TransitionComponent={Transition}
                             open={open}
                             PaperComponent={MyCard}
+                            fullWidth={true}
+                            maxWidth={'lg'}
                             onClose={() => setOpen(false)}
                         >
 

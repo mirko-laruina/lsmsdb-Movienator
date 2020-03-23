@@ -77,7 +77,7 @@ export default function Filter(props) {
             >
                 <Tab label="By year and genre " icon={<TheatersIcon />} />
                 <Tab label="By rating" icon={<StarBorderIcon />} />
-                <Tab label="By people" icon={<PeopleIcon />} />
+                <Tab label="By people and country" icon={<PeopleIcon />} />
             </Tabs>
             <br />
             {currTab === 0 &&
