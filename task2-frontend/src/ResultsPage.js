@@ -11,7 +11,7 @@ import ListIcon from '@material-ui/icons/List';
 
 import Rating from '@material-ui/lab/Rating';
 import Filters from './Filters.js';
-import Grouping from './Grouping.js';
+import Sorting from './Sorting.js';
 
 const styles = {
     img: {
@@ -63,7 +63,7 @@ const Transition = React.forwardRef(function Transition(props, ref) {
 export default function ResultsPage(props) {
     const [open, setOpen] = React.useState(false);
     const [filters, setFilters] = React.useState({});
-    const [groupOpt, setGroupOpt] = React.useState({})
+    const [sortOpt, setSortOpt] = React.useState({})
 
     return (
         <BasicPage history={props.history}>
@@ -121,7 +121,7 @@ export default function ResultsPage(props) {
                 </Grid>
                 <br />
                     <Typography variant="h4">Best results for "{props.match.params.value}":</Typography>
-                <Grouping groupOpt={groupOpt} handler={setGroupOpt} />
+                <Sorting noGroup sortOpt={sortOpt} handler={setSortOpt} />
                 <List>
                     {queryOut.map((data, index) => (
                         <div key={index}>

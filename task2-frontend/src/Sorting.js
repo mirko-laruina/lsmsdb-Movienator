@@ -1,4 +1,4 @@
-import React, {useEffect} from 'react'
+import React, { useEffect } from 'react'
 import { Grid, TextField } from '@material-ui/core'
 import Autocomplete from '@material-ui/lab/Autocomplete';
 
@@ -9,7 +9,7 @@ const sorts = ["Count", "Rating", "Alphabetic"];
 const sortOrders = ["Ascending", "Descending"];
 
 
-export default function Grouping(props) {
+export default function Sorting(props) {
     const [sortByValue, setSortBy] = React.useState(0);
     const [groupByValue, setGroupBy] = React.useState(0);
     const [sortOrderValue, setSortOrder] = React.useState(0);
@@ -24,15 +24,17 @@ export default function Grouping(props) {
 
     return (
         <Grid container spacing={2}>
-            <Grid item xs={3}>
-                <MySelect
-                    id="group-by-select"
-                    label="Group by"
-                    options={groups}
-                    selectedIndex={groupByValue}
-                    changeHandler={setGroupBy}    
-                />
-            </Grid>
+            {!props.noGroup &&
+                <Grid item xs={3}>
+                    <MySelect
+                        id="group-by-select"
+                        label="Group by"
+                        options={groups}
+                        selectedIndex={groupByValue}
+                        changeHandler={setGroupBy}
+                    />
+                </Grid>
+            }
             <Grid item xs={3}>
                 <MySelect
                     id="sort-by-select"
