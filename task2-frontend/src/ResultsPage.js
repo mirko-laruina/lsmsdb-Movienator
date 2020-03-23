@@ -3,14 +3,16 @@ import React, { Component } from 'react'
 import BasicPage from './BasicPage.js'
 import MyCard from './MyCard.js'
 import {
-    List, ListItem, ListItemIcon, ListItemAvatar,
+    List, ListItem, FormControl, InputLabel, Select, MenuItem, ListItemAvatar,
     TextField, Divider, ListItemText, Typography, Chip, Dialog, Button, Slide, Grid
 } from '@material-ui/core'
 import Autocomplete from '@material-ui/lab/Autocomplete';
 
 import ListIcon from '@material-ui/icons/List';
+
 import Rating from '@material-ui/lab/Rating';
 import Filters from './Filters.js';
+import Grouping from './Grouping.js';
 
 const styles = {
     img: {
@@ -59,10 +61,6 @@ const Transition = React.forwardRef(function Transition(props, ref) {
     return <Slide direction="down" ref={ref} {...props} />;
 });
 
-const groups = ["Country", "Year", "Director", "Actor"];
-const sorts = ["Count", "Rating", "Alphabetic"];
-const sortOrders = ["Ascending", "Descending"];
-
 export default function ResultsPage() {
     const [open, setOpen] = React.useState(false);
 
@@ -103,45 +101,7 @@ export default function ResultsPage() {
                     </Button>
                 </Dialog>
                 <Typography variant="h4">The best results are here for you:</Typography>
-                <Grid container spacing={2}>
-                    <Grid item xs={3}>
-                        <Autocomplete
-                            id="group-by"
-                            autoHighlight
-                            size="small"
-                            options={groups}
-                            renderInput={params => (
-                                <TextField {...params} label="Group by" margin="normal" variant="outlined" />
-                            )}
-                        />
-                    </Grid>
-                    <Grid item xs={3}>
-                        <Autocomplete
-                            id="sort-by"
-                            autoHighlight
-                            size="small"
-                            options={sorts}
-                            renderInput={params => (
-                                <TextField {...params} label="Sort by" margin="normal" variant="outlined" />
-                            )}
-                        />
-                    </Grid>
-                    <Grid item xs={3}>
-                        <Autocomplete
-                            id="sort-order"
-                            autoHighlight
-                            size="small"
-                            options={sortOrders}
-                            defaultValue={sortOrders[0]}
-                            renderInput={params => (
-                                <TextField {...params} label="Sort order" margin="normal" variant="outlined" />
-                            )}
-                        />
-                    </Grid>
-                    <Grid item xs={3}>
-
-                    </Grid>
-                </Grid>
+                <Grouping />
                 <List>
                     {queryOut.map((data, index) => (
                         <div key={index}>
