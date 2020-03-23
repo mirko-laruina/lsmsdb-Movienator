@@ -36,11 +36,12 @@ const MyTab = withStyles({
   },
 })(Tab)
 
-export default function HomePage() {
+export default function HomePage(props) {
   const classes = useStyles()
-
+  const [searchValue, setSearch] = React.useState("")
+  const backUrl = '/results/'
   return (
-    <BasicPage>
+    <BasicPage history={props.history}>
       <MyCard>
         <br />
         <Typography
@@ -55,14 +56,20 @@ export default function HomePage() {
       <MyCard>
         <h2>Search a movie</h2>
         <br />
-        <form className={classes.root} noValidate autoComplete="off">
+        <form onSubmit={() => { props.history.push('/results/'+searchValue) }}>
           <FormControl fullWidth variant="outlined">
             <OutlinedInput
               id="search-home"
               placeholder="Search a movie"
+              value={searchValue}
+              onChange={(e) => setSearch(e.target.value)}
               endAdornment={
                 <InputAdornment position="end">
-                  <IconButton type="submit" className={classes.iconButton} aria-label="search" to='/results' component={Link}>
+                  <IconButton
+                    type="submit"
+                    className={classes.iconButton}
+                    aria-label="search"
+                    >
                     <SearchIcon />
                   </IconButton>
                 </InputAdornment>

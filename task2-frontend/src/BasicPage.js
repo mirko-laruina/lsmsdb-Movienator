@@ -2,7 +2,7 @@ import React from 'react';
 import { Link } from 'react-router-dom';
 
 /* Basic imports material-ui */
-import { AppBar, Toolbar, Typography, Container, InputBase } from '@material-ui/core';
+import { AppBar, Toolbar, Typography, Container, InputBase, FormControl } from '@material-ui/core';
 
 /* Graphical components material-ui */
 import { Menu, MenuItem, IconButton } from '@material-ui/core';
@@ -76,6 +76,7 @@ export default function BasicPage(props) {
     const classes = useStyles()
     const [auth, setAuth] = React.useState(true);
     const [anchorEl, setAnchorEl] = React.useState(null);
+    const [searchValue, setSearchValue] = React.useState("");
     const open = Boolean(anchorEl);
 
     const handleMenu = event => {
@@ -97,14 +98,21 @@ export default function BasicPage(props) {
                         <div className={classes.searchIcon}>
                             <SearchIcon />
                         </div>
-                        <InputBase
-                            placeholder="Search…"
-                            classes={{
-                                root: classes.inputRoot,
-                                input: classes.inputInput,
-                            }}
-                            inputProps={{ 'aria-label': 'search' }}
-                        />
+                        <form onSubmit={() => { props.history.push('/results/' + searchValue) }}>
+                            <FormControl >
+                                <InputBase
+                                    placeholder="Search…"
+                                    classes={{
+                                        root: classes.inputRoot,
+                                        input: classes.inputInput,
+                                    }}
+                                    value={searchValue}
+                                    onChange={(e) => setSearchValue(e.target.value)}
+
+                                    inputProps={{ 'aria-label': 'search' }}
+                                />
+                            </FormControl>
+                        </form>
                     </div>
                     {auth && (
                         <div>

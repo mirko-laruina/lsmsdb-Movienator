@@ -60,13 +60,13 @@ const Transition = React.forwardRef(function Transition(props, ref) {
     return <Slide direction="down" ref={ref} {...props} />;
 });
 
-export default function ResultsPage() {
+export default function ResultsPage(props) {
     const [open, setOpen] = React.useState(false);
     const [filters, setFilters] = React.useState({});
     const [groupOpt, setGroupOpt] = React.useState({})
 
     return (
-        <BasicPage>
+        <BasicPage history={props.history}>
             <MyCard style={styles.cardRoot}>
                 <br />
                 <Grid container>
@@ -120,7 +120,7 @@ export default function ResultsPage() {
                     </Grid>
                 </Grid>
                 <br />
-                <Typography variant="h4">The best results are here for you:</Typography>
+                    <Typography variant="h4">Best results for "{props.match.params.value}":</Typography>
                 <Grouping groupOpt={groupOpt} handler={setGroupOpt} />
                 <List>
                     {queryOut.map((data, index) => (

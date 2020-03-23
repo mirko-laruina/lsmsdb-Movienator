@@ -44,15 +44,11 @@ function App() {
       <CssBaseline />
       <Router>
         <Switch>
-          <Route path="/test">
-            <p>test</p>
+          <Route path="/results/a">
+            <p>a</p>
           </Route>
-          <Route path="/results">
-            <ResultsPage />
-          </Route>
-          <Route path="/">
-            <HomePage />
-          </Route>
+          <Route path="/results/:value" component={ResultsPage} />
+          <Route path="/" component={HomePage} />
         </Switch>
       </Router>
     </ThemeProvider>
