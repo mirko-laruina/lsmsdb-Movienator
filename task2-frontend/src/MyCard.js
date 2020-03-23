@@ -6,6 +6,9 @@ const useStyles = makeStyles(theme => ({
     paperRoot: {
         color: theme.palette.primary.main,
     },
+    contentRoot: {
+        margin: '1em',
+    }
 }))
 
 export default function MyCard(props) {
@@ -15,7 +18,7 @@ export default function MyCard(props) {
         <React.Fragment>
             <br />
             <Card elevation={5} classes={{ root: classes.paperRoot }} >
-                <CardContent {...props}>
+                <CardContent classes={{ root: classes.contentRoot }} {...props}>
                     {props.children}
                 </CardContent>
             </Card>

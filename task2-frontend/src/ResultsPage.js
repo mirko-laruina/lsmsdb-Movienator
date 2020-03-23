@@ -3,14 +3,13 @@ import React from 'react'
 import BasicPage from './BasicPage.js'
 import MyCard from './MyCard.js'
 import {
-    List, ListItem, ListItemAvatar, Divider, Grid,
-    ListItemText, Typography, Chip, Dialog, Button, Slide
+    List, ListItem, ListItemAvatar, Divider,
+    ListItemText, Typography, Chip
 } from '@material-ui/core'
 
-import ListIcon from '@material-ui/icons/List';
 
 import Rating from '@material-ui/lab/Rating';
-import Filters from './Filters.js';
+import FilterDisplay from './FilterDisplay.js';
 import Sorting from './Sorting.js';
 
 const styles = {
@@ -56,69 +55,14 @@ const queryOut = [
     },
 ]
 
-const Transition = React.forwardRef(function Transition(props, ref) {
-    return <Slide direction="down" ref={ref} {...props} />;
-});
-
 export default function ResultsPage(props) {
-    const [open, setOpen] = React.useState(false);
     const [filters, setFilters] = React.useState({});
     const [sortOpt, setSortOpt] = React.useState({})
 
     return (
         <BasicPage history={props.history}>
             <MyCard style={styles.cardRoot}>
-                <br />
-                <Grid container>
-                    <Grid item xs={9}>
-                        {
-                            Object.keys(filters).map((key, i) => {
-                                var label = key.replace(/([A-Z])/g, ' $1').replace(/^./, function (str) { return str.toUpperCase(); })
-                                return (
-                                    <Chip
-                                        variant="outlined"
-                                        color="primary"
-                                        style={{
-                                            marginRight: '0.5em',
-                                            marginTop: '0.5em',
-                                        }}
-                                        onDelete={() => {
-                                            var newFilters = Object.assign({}, filters);
-                                            delete newFilters[key];
-                                            setFilters(newFilters)
-                                        }
-                                        }
-                                        key={key}
-                                        label={label + ": " + filters[key]}
-                                    />
-                                )
-                            })
-                        }
-                    </Grid>
-                    <Grid item xs={3}>
-                        <Typography align="right">
-                            <Button
-                                variant="outlined"
-                                color="primary"
-                                onClick={() => setOpen(true)}
-                                startIcon={<ListIcon />}
-                            >
-                                Show filters
-                            </Button>
-                        </Typography>
-                        <Dialog
-                            TransitionComponent={Transition}
-                            open={open}
-                            PaperComponent={MyCard}
-                            fullWidth={true}
-                            maxWidth={'lg'}
-                            onClose={() => setOpen(false)}
-                        >
-
-                            <Filters setOpen={setOpen} filters={filters} handler={setFilters} />
-                        </Dialog>
-                    </Grid>
-                </Grid>
+                <FilterDisplay filters={filters} setFilters={setFilters} />
                 <br />
                     <Typography variant="h4">Best results for "{props.match.params.value}":</Typography>
                 <Sorting noGroup sortOpt={sortOpt} handler={setSortOpt} />
