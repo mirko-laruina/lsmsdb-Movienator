@@ -18,8 +18,8 @@ function countryToFlag(isoCode) {
 }
 
 const defaultFilters = {
-    minRat: 0,
-    maxRat: 10,
+    minRating: 0,
+    maxRating: 10,
     genre: "",
     fromYear: "",
     toYear: "",
@@ -35,9 +35,9 @@ function setIfDef(handler, value){
 }
 
 export default function Filter(props) {
-    const [minRat, setMinRat] = React.useState(0);
+    const [minRating, setminRating] = React.useState(0);
     const [minTempRat, setMinTempRat] = React.useState(-1);
-    const [maxRat, setMaxRat] = React.useState(10);
+    const [maxRating, setmaxRating] = React.useState(10);
     const [maxTempRat, setMaxTempRat] = React.useState(-1);
     const [currTab, setCurrTab] = React.useState(0);
     const [genreValue, setGenre] = React.useState("");
@@ -51,8 +51,8 @@ export default function Filter(props) {
         setIfDef(setGenre, props.filters.genre);
         setIfDef(setFromYear, props.filters.fromYear);
         setIfDef(setToYear, props.filters.toYear);
-        setIfDef(setMinRat, props.filters.minRat);
-        setIfDef(setMaxRat, props.filters.maxRat);
+        setIfDef(setminRating, props.filters.minRating);
+        setIfDef(setmaxRating, props.filters.maxRating);
         setIfDef(setDirector, props.filters.director);
         setIfDef(setActor, props.filters.actor);
         setIfDef(setCountry, props.filters.country);
@@ -126,12 +126,12 @@ export default function Filter(props) {
                     <Grid container>
                         <Grid item xs={6}>
                             <Typography variant="body1" align="center">
-                                Minimum rating: {minTempRat >= 0 ? minTempRat : minRat}/10
+                                Minimum rating: {minTempRat >= 0 ? minTempRat : minRating}/10
                         </Typography>
                             <Typography align="center">
                                 <Rating name="min-rating"
-                                    value={minRat / 2}
-                                    onChange={(event, value) => setMinRat(value * 2)}
+                                    value={minRating / 2}
+                                    onChange={(event, value) => setminRating(value * 2)}
                                     onChangeActive={(event, value) => setMinTempRat(value * 2)}
                                     max={5}
                                     precision={0.05}
@@ -141,12 +141,12 @@ export default function Filter(props) {
                         </Grid>
                         <Grid item xs={6}>
                             <Typography variant="body1" align="center">
-                                Maximum rating: {maxTempRat >= 0 ? maxTempRat : maxRat}/10
+                                Maximum rating: {maxTempRat >= 0 ? maxTempRat : maxRating}/10
                     </Typography>
                             <Typography align="center">
                                 <Rating name="max-rating"
-                                    value={maxRat / 2}
-                                    onChange={(event, value) => setMaxRat(value * 2)}
+                                    value={maxRating / 2}
+                                    onChange={(event, value) => setmaxRating(value * 2)}
                                     onChangeActive={(event, value) => setMaxTempRat(value * 2)}
                                     max={5}
                                     precision={0.05}
@@ -209,8 +209,8 @@ export default function Filter(props) {
                     genre: genreValue,
                     fromYear: fromYearValue,
                     toYear: toYearValue,
-                    minRat: minRat,
-                    maxRat: maxRat,
+                    minRating: minRating,
+                    maxRating: maxRating,
                     director: directorValue,
                     actor: actorValue,
                     country: countryValue
