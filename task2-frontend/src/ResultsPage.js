@@ -63,6 +63,7 @@ const Transition = React.forwardRef(function Transition(props, ref) {
 export default function ResultsPage() {
     const [open, setOpen] = React.useState(false);
     const [filters, setFilters] = React.useState({});
+    const [groupOpt, setGroupOpt] = React.useState({})
 
     return (
         <BasicPage>
@@ -118,7 +119,7 @@ export default function ResultsPage() {
                 </Grid>
                 <br />
                 <Typography variant="h4">The best results are here for you:</Typography>
-                <Grouping />
+                <Grouping groupOpt={groupOpt} handler={setGroupOpt} />
                 <List>
                     {queryOut.map((data, index) => (
                         <div key={index}>
