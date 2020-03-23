@@ -3,7 +3,7 @@ import { Link } from 'react-router-dom';
 
 /* Graphical components material-ui */
 import {
-  FormControl, OutlinedInput, InputAdornment, Tabs, Tab, IconButton, Grid, Typography
+  FormControl, OutlinedInput, InputAdornment, Tabs, Tab, IconButton, Typography
 } from '@material-ui/core';
 /* Icon material-ui */
 import CameraRollIcon from '@material-ui/icons/CameraRoll';

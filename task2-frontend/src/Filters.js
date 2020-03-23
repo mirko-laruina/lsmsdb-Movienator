@@ -1,5 +1,6 @@
 import React from 'react';
-import { FormGroup, Typography, TextField, Grid, Tabs, Tab } from '@material-ui/core';
+import { useEffect } from 'react';
+import { FormGroup, Typography, TextField, Grid, Tabs, Tab, Button } from '@material-ui/core';
 import Autocomplete from '@material-ui/lab/Autocomplete';
 
 import Rating from '@material-ui/lab/Rating';
@@ -16,16 +17,55 @@ function countryToFlag(isoCode) {
         : isoCode;
 }
 
-export default function Filter() {
-    const [minRat, setMinRat] = React.useState(0);
-    const [minTempRat, setMinTempRat] = React.useState(0);
-    const [maxRat, setMaxRat] = React.useState(10);
-    const [maxTempRat, setMaxTempRat] = React.useState(0);
-    const [currTab, setCurrTab] = React.useState(0);
+const defaultFilters = {
+    minRat: 0,
+    maxRat: 10,
+    genre: "",
+    fromYear: "",
+    toYear: "",
+    director: "",
+    actor: "",
+    country: "",
+}
 
+function setIfDef(handler, value){
+    if(typeof value !== 'undefined'){
+        handler(value);
+    }
+}
+
+export default function Filter(props) {
+    const [minRat, setMinRat] = React.useState(0);
+    const [minTempRat, setMinTempRat] = React.useState(-1);
+    const [maxRat, setMaxRat] = React.useState(10);
+    const [maxTempRat, setMaxTempRat] = React.useState(-1);
+    const [currTab, setCurrTab] = React.useState(0);
+    const [genreValue, setGenre] = React.useState("");
+    const [fromYearValue, setFromYear] = React.useState("");
+    const [toYearValue, setToYear] = React.useState("");
+    const [directorValue, setDirector] = React.useState("");
+    const [actorValue, setActor] = React.useState("");
+    const [countryValue, setCountry] = React.useState("");
+
+    useEffect(() => {
+        setIfDef(setGenre, props.filters.genre);
+        setIfDef(setFromYear, props.filters.fromYear);
+        setIfDef(setToYear, props.filters.toYear);
+        setIfDef(setMinRat, props.filters.minRat);
+        setIfDef(setMaxRat, props.filters.maxRat);
+        setIfDef(setDirector, props.filters.director);
+        setIfDef(setActor, props.filters.actor);
+        setIfDef(setCountry, props.filters.country);
+    }, [props.filters, currTab])
 
     return (
         <div>
+            <Typography
+                variant="h3"
+                align="center">
+                Filters
+            </Typography>
+            <br />
             <Tabs
                 value={currTab}
                 onChange={(evt, v) => setCurrTab(v)}
@@ -40,11 +80,13 @@ export default function Filter() {
                 <Tab label="By people" icon={<PeopleIcon />} />
             </Tabs>
             <br />
-            {currTab == 0 &&
+            {currTab === 0 &&
                 <FormGroup>
                     <Autocomplete
                         id="genre"
                         freeSolo
+                        inputValue={genreValue}
+                        onInputChange={(e, v) => setGenre(v)}
                         options={genres}
                         renderInput={params => (
                             <TextField {...params} label="Genre" margin="normal" variant="outlined" />
@@ -55,6 +97,8 @@ export default function Filter() {
                             <Autocomplete
                                 id="min-year"
                                 autoHighlight
+                                inputValue={fromYearValue}
+                                onInputChange={(e, v) => setFromYear(v)}
                                 options={years}
                                 renderInput={params => (
                                     <TextField {...params} label="From year" margin="normal" variant="outlined" />
@@ -65,6 +109,8 @@ export default function Filter() {
                             <Autocomplete
                                 id="max-year"
                                 autoHighlight
+                                inputValue={toYearValue}
+                                onInputChange={(e, v) => setToYear(v)}
                                 options={years}
                                 renderInput={params => (
                                     <TextField {...params} label="To year" margin="normal" variant="outlined" />
@@ -75,7 +121,7 @@ export default function Filter() {
                 </FormGroup>
             }
 
-            {currTab == 1 &&
+            {currTab === 1 &&
                 <React.Fragment>
                     <Grid container>
                         <Grid item xs={6}>
@@ -114,11 +160,13 @@ export default function Filter() {
             }
 
             {
-                currTab == 2 &&
+                currTab === 2 &&
                 <FormGroup>
                     <Autocomplete
                         id="director-filter"
                         freeSolo
+                        inputValue={directorValue}
+                        onInputChange={(e, v) => setDirector(v)}
                         options={[]}
                         renderInput={params => (
                             <TextField {...params} label="Director" margin="normal" variant="outlined" />
@@ -127,6 +175,8 @@ export default function Filter() {
                     <Autocomplete
                         id="actor-filter"
                         freeSolo
+                        inputValue={actorValue}
+                        onInputChange={(e, v) => setActor(v)}
                         options={[]}
                         renderInput={params => (
                             <TextField {...params} label="Actor" margin="normal" variant="outlined" />
@@ -135,6 +185,8 @@ export default function Filter() {
                     <Autocomplete
                         id="country-filter"
                         autoHighlight
+                        inputValue={countryValue}
+                        onInputChange={(e, v) => setCountry(v)}
                         options={countries}
                         getOptionLabel={option => option.label}
                         renderOption={option => (
@@ -149,6 +201,33 @@ export default function Filter() {
                     />
                 </FormGroup>
             }
+            <br />
+            <Button fullWidth size="large" variant="outlined" color="primary" onClick={() => {
+                // Ugly: to be modified
+                var newFilters = {}
+                var supposedFilters = {
+                    genre: genreValue,
+                    fromYear: fromYearValue,
+                    toYear: toYearValue,
+                    minRat: minRat,
+                    maxRat: maxRat,
+                    director: directorValue,
+                    actor: actorValue,
+                    country: countryValue
+                }
+                Object.keys(supposedFilters).map((key, i) => {
+                    if(supposedFilters[key] != defaultFilters[key]){
+                        newFilters[key] = supposedFilters[key]
+                    }
+                })
+                props.handler(newFilters)
+                props.setOpen(false)
+            }}>
+                Apply
+            </Button>
+            <Button fullWidth size="large" color="secondary" onClick={() => props.setOpen(false)}>
+                Cancel
+            </Button>
 
 
         </div >

@@ -1,12 +1,11 @@
-import React, { Component } from 'react'
+import React from 'react'
 
 import BasicPage from './BasicPage.js'
 import MyCard from './MyCard.js'
 import {
-    List, ListItem, FormControl, InputLabel, Select, MenuItem, ListItemAvatar,
-    TextField, Divider, ListItemText, Typography, Chip, Dialog, Button, Slide, Grid
+    List, ListItem, ListItemAvatar, Divider, Grid,
+    ListItemText, Typography, Chip, Dialog, Button, Slide
 } from '@material-ui/core'
-import Autocomplete from '@material-ui/lab/Autocomplete';
 
 import ListIcon from '@material-ui/icons/List';
 
@@ -63,43 +62,61 @@ const Transition = React.forwardRef(function Transition(props, ref) {
 
 export default function ResultsPage() {
     const [open, setOpen] = React.useState(false);
+    const [filters, setFilters] = React.useState({});
 
     return (
         <BasicPage>
             <MyCard style={styles.cardRoot}>
                 <br />
-                <Typography align="right">
-                    <Button
-                        variant="outlined"
-                        color="primary"
-                        onClick={() => setOpen(true)}
-                        startIcon={<ListIcon />}
-                    >
-                        Show filters
+                <Grid container>
+                    <Grid item xs={9}>
+                        {
+                            Object.keys(filters).map((key, i) => {
+                                var label = key.replace(/([A-Z])/g, ' $1').replace(/^./, function (str) { return str.toUpperCase(); })
+                                return (
+                                    <Chip
+                                        variant="outlined"
+                                        color="primary"
+                                        style={{
+                                            marginRight: '0.5em',
+                                            marginTop: '0.5em',
+                                        }}
+                                        onDelete={() => {
+                                            var newFilters = Object.assign({}, filters);
+                                            delete newFilters[key];
+                                            setFilters(newFilters)
+                                        }
+                                        }
+                                        key={key}
+                                        label={label + ": " + filters[key]}
+                                    />
+                                )
+                            })
+                        }
+                    </Grid>
+                    <Grid item xs={3}>
+                        <Typography align="right">
+                            <Button
+                                variant="outlined"
+                                color="primary"
+                                onClick={() => setOpen(true)}
+                                startIcon={<ListIcon />}
+                            >
+                                Show filters
                             </Button>
-                </Typography>
-                <Dialog
-                    TransitionComponent={Transition}
-                    open={open}
-                    PaperComponent={MyCard}
-                    onClose={() => setOpen(false)}
-                >
+                        </Typography>
+                        <Dialog
+                            TransitionComponent={Transition}
+                            open={open}
+                            PaperComponent={MyCard}
+                            onClose={() => setOpen(false)}
+                        >
 
-                    <Typography
-                        variant="h3"
-                        align="center">
-                        Filters
-                    </Typography>
-                    <br />
-                    <Filters />
-                    <br />
-                    <Button size="large" variant="outlined" color="primary" onClick={() => setOpen(false)}>
-                        Apply
-                    </Button>
-                    <Button size="large" color="secondary" onClick={() => setOpen(false)}>
-                        Cancel
-                    </Button>
-                </Dialog>
+                            <Filters setOpen={setOpen} filters={filters} handler={setFilters} />
+                        </Dialog>
+                    </Grid>
+                </Grid>
+                <br />
                 <Typography variant="h4">The best results are here for you:</Typography>
                 <Grouping />
                 <List>
@@ -107,7 +124,7 @@ export default function ResultsPage() {
                         <div key={index}>
                             <ListItem alignItems="flex-start">
                                 <ListItemAvatar children={
-                                    <img src={data.poster} style={styles.img} />
+                                    <img alt={data.title} src={data.poster} style={styles.img} />
                                 }>
                                 </ListItemAvatar>
                                 <ListItemText
