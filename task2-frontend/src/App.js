@@ -10,6 +10,7 @@ import { createMuiTheme } from '@material-ui/core/styles';
 
 import HomePage from './HomePage.js'
 import ResultsPage from './ResultsPage.js'
+import StatsPage from './StatsPage.js'
 
 const theme = createMuiTheme({
   palette: {
@@ -44,9 +45,7 @@ function App() {
       <CssBaseline />
       <Router>
         <Switch>
-          <Route path="/results/a">
-            <p>a</p>
-          </Route>
+          <Route path="/stats/:group/" component={StatsPage} />
           <Route path="/results/:value" component={ResultsPage} />
           <Route path="/" component={HomePage} />
         </Switch>

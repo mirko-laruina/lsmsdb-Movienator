@@ -95,11 +95,11 @@ export default function HomePage(props) {
             root: classes.tabsRoot,
             indicator: classes.tabsIndicator,
           }}>
-          <MyTab label="By Director" icon={<CameraRollIcon />} />
-          <MyTab label="By Author" icon={<PersonIcon />} />
-          <MyTab label="By Country" icon={<LanguageIcon />} />
-          <MyTab label="By Year" icon={<DateRangeIcon />} />
-          <MyTab label="By Genre" icon={<MovieFilterIcon />} />
+          <MyTab component={Link} to="/stats/director" label="By Director" icon={<CameraRollIcon />} />
+          <MyTab component={Link} to="/stats/actor" label="By Actor" icon={<PersonIcon />} />
+          <MyTab component={Link} to="/stats/country" label="By Country" icon={<LanguageIcon />} />
+          <MyTab component={Link} to="/stats/year" label="By Year" icon={<DateRangeIcon />} />
+          <MyTab component={Link} to="/stats/genre" label="By Genre" icon={<MovieFilterIcon />} />
         </Tabs>
       </MyCard>
     </BasicPage>

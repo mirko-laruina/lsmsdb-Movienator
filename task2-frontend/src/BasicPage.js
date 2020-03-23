@@ -92,7 +92,7 @@ export default function BasicPage(props) {
             <AppBar position="static">
                 <Toolbar>
                     <Typography className={classes.title} variant="h6" noWrap to="/" component={Link}>
-                        The movie database
+                        Movienator
                     </Typography>
                     <div className={classes.search}>
                         <div className={classes.searchIcon}>
