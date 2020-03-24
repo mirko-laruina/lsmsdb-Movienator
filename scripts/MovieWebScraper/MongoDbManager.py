@@ -178,11 +178,13 @@ class MongoManager:
                 if ("poster" not in upd_dic.keys()):
                     upd_dic["poster"] = im_movie_info["image"]
                 else:
-                    if (upd_dic["description"]==""):
-                        upd_dic["description"] = im_movie_info["description"]
+                    if (upd_dic["poster"]==""):
+                        upd_dic["poster"] = im_movie_info["image"]
                 upd_dic["poster"] = im_movie_info["image"]
-                  
-           
+
+                for attribute in ms.MovieScraper.EXTRA_ATTRIBUTES:    
+                    if im_movie_info[attribute]:
+                        upd_dic[attribute] = im_movie_info[attribute]
             
             #load updated movie
             self.db["movies"].find_one_and_update(movie,{'$set':upd_dic})

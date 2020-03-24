@@ -118,7 +118,7 @@ class MovieScraper:
         else:
             self.source = mysource
             
-        for key in MovieScraper.Attributes:
+        for key in MovieScraper.Attributes + MovieScraper.EXTRA_ATTRIBUTES:
             exec("self."+key+" = []" ) in locals()
         self.moviesInfo = []#list of dictionaries
             
@@ -146,6 +146,77 @@ class MovieScraper:
         print('\nData stored\n')
         self.moviesInfo.clear()
         #clean data structure
+
+    EXTRA_ATTRIBUTES = [
+        'storyline',
+        'tagline',
+        'mpaa',
+        'countries',
+        'original_language',
+        'budget',
+        'gross',
+    ]
+
+    def find_additional_info_from_imdb(self, soup):
+        extra = {}
+        # storyline
+        storyline_div = soup.find(id="titleStoryLine")
+
+        if storyline_div:
+            storyline_text_div = soup.find(class_="canwrap")
+            if storyline_text_div and storyline_text_div.p and storyline_text_div.p.span:
+                extra['storyline'] = storyline_text_div.p.span.get_text().strip()
+        
+            txt_blocks = soup.find_all(class_='txt-block')
+            if txt_blocks:
+                for txt_block in txt_blocks:    
+                    h4 = txt_block.find('h4')
+                    if not h4:
+                        continue
+
+                    heading = h4.get_text()
+                    if 'Taglines' in heading:
+                        extra['tagline'] = txt_block.find(
+                                                text=True,
+                                                recursive=False
+                                            ).strip()
+                    elif 'Motion Picture Rating' in heading:
+                        if txt_block.span:
+                            extra['mpaa'] = txt_block.span.get_text().strip()
+
+        
+        # details
+        details_div = soup.find(id="titleDetails")
+        if details_div:
+            txt_blocks = soup.find_all(class_='txt-block')
+            if txt_blocks:
+                for txt_block in txt_blocks:    
+                    h4 = txt_block.find('h4')
+                    if not h4:
+                        continue
+
+                    heading = h4.get_text()
+                    if 'Country' in heading:
+                        countries_a = txt_block.find_all('a')
+                        if countries_a:
+                            countries = []
+                            for country_a in countries_a:
+                                countries.append(country_a.get_text().strip())
+                        extra['countries'] = countries
+                    elif 'Language' in heading:
+                        if txt_block.a:
+                            extra['original_language'] = txt_block.a.get_text().strip()
+                    elif 'Budget' in heading:
+                        budget = txt_block.find(text=True, recursive=False)
+                        budget_num = ''.join([c for c in budget if c.isdigit()])
+                        if budget_num:
+                            extra['budget'] = int(budget_num)
+                    elif " Cumulative Worldwide Gross" in heading:
+                        gross = txt_block.find(text=True, recursive=False)
+                        gross_num = ''.join([c for c in gross if c.isdigit()])
+                        if gross_num:
+                            extra['gross'] = int(gross_num)
+        return extra
             
         
     def get_ld_json(self, url: str) -> dict:#this method return parsed info as a dict by scraped page
@@ -156,7 +227,9 @@ class MovieScraper:
         if self.source == "imdb":
             ld_json = soup.find("script", {"type":"application/ld+json"})
             if ld_json is not None:
-                return json.loads(normalize_json_string("".join(ld_json.contents)))
+                json_dict = json.loads(normalize_json_string("".join(ld_json.contents)))
+                json_dict.update(self.find_additional_info_from_imdb(soup))
+                return json_dict
             else:
                 return None
         elif self.source == "mymovies":
@@ -244,14 +317,14 @@ class MovieScraper:
         #print(req_movie)
         
         #miss values manager
-        for key in MovieScraper.Attributes:
+        for key in MovieScraper.Attributes + MovieScraper.EXTRA_ATTRIBUTES:
             if key not in req_movie.keys():
                 req_movie[key]= None
         
         nt = {"source":str(self.source), "movie":{} } #new dict element
         
         #listing attributes separately
-        for key in MovieScraper.Attributes:
+        for key in MovieScraper.Attributes + MovieScraper.EXTRA_ATTRIBUTES:
             #gestire il name nel formato opportuno per ricavare una lista di nomi compatibile rottent e mymovies
             exec("self."+key+".append(req_movie[key])" ) in locals()
             nt["movie"][key] = req_movie[key]      
@@ -310,6 +383,6 @@ if __name__ == "__main__":#test
     
     """scarico da mymovies dalla posizione 0 i successivi 25 film che hanno source == imdb diventano il seed per ricercare i film su mymovies"""
     #a.LoadMyMovieByIMDB(0,25)#!!!mismatch di titoli: i film restituiti da mymovies non sono consistenti con quelli usati come indice (di imdb) !!!
-    a.getMovieFromMyMovie({"title_ita":"labellaelabestia"})
+    print(a.getMovieFromMyMovie({"title_ita":"jojo rabbit"}))
     """leggo i risultati a blocchi di k elementi"""
    # a.read_k_stored_movies(10)
