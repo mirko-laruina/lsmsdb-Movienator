@@ -1,5 +1,5 @@
 import React from 'react'
-
+import { useEffect } from 'react'
 import BasicPage from './BasicPage.js'
 import MyCard from './MyCard.js'
 import {
@@ -9,12 +9,18 @@ import {
 
 
 import Rating from '@material-ui/lab/Rating';
+import Pagination from '@material-ui/lab/Pagination';
 import FilterDisplay from './FilterDisplay.js';
 import Sorting from './Sorting.js';
+import { baseUrl } from './utils.js'
+import axios from 'axios';
+import { BlankPoster } from './blank_poster.png'
 
 const styles = {
     img: {
         paddingRight: '1.5em',
+        width: '140px',
+        maxHeight: '250px',
     },
     genre: {
         marginRight: '0.5em',
@@ -26,58 +32,59 @@ const styles = {
     }
 }
 
-const queryOut = [
-    {
-        "_id": "tt7286456",
-        "title": "Joker",
-        "year": 2019,
-        "poster": "https://picsum.photos/130/180",
-        "genres": ["Crime", "Drama", "Thriller"],
-        "total_rating": 8.87,
-        "user_rating": 7
-    },
-    {
-        "_id": "tt7286456",
-        "title": "Joker",
-        "year": 2019,
-        "poster": "https://picsum.photos/130/179",
-        "genres": ["Crime", "Drama", "Thriller"],
-        "total_rating": 8.87,
-        "user_rating": 7
-    },
-    {
-        "_id": "tt7286456",
-        "title": "Joker",
-        "year": 2019,
-        "poster": "https://picsum.photos/130/181",
-        "genres": ["Crime", "Drama", "Thriller"],
-        "total_rating": 8.87,
-    },
-]
-
 export default function ResultsPage(props) {
     const [filters, setFilters] = React.useState({});
-    const [sortOpt, setSortOpt] = React.useState({})
+    const [sortOpt, setSortOpt] = React.useState({});
+    const [movies, setMovies] = React.useState([]);
+
+    const searchRequest = () => {
+        console.log(filters)
+        console.log(sortOpt)
+        var sorting = {
+            sortBy: sortOpt.sortBy === '0' ? 'date' :
+                sortOpt.sortBy === '1' ? 'rating' : 'title',
+            sortOrder: sortOpt.sortOrder === '0' ? -1 : 1,
+        }
+        console.log(sorting)
+        axios.get(baseUrl + "movie/browse", {
+            params: {
+                ...filters,
+                ...sorting
+            }
+        })
+            .then(function (res) {
+                if (res.data.success) {
+                    setMovies(res.data.response)
+                    console.log(movies)
+                }
+            })
+    }
+
+    useEffect(() => {
+        searchRequest()
+    }, [props.match.params.value, filters, sortOpt]);
 
     return (
         <BasicPage history={props.history}>
             <MyCard style={styles.cardRoot}>
                 <FilterDisplay filters={filters} setFilters={setFilters} />
                 <br />
-                    <Typography variant="h4">Best results for "{props.match.params.value}":</Typography>
+                <Typography variant="h4">Best results for "{props.match.params.value}":</Typography>
                 <Sorting noGroup sortOpt={sortOpt} handler={setSortOpt} />
                 <List>
-                    {queryOut.map((data, index) => (
+                    {movies.map((data, index) => (
                         <div key={index}>
                             <ListItem alignItems="flex-start">
                                 <ListItemAvatar children={
-                                    <img alt={data.title} src={data.poster} style={styles.img} />
+                                    <img alt={data.title}
+                                        src={data.poster ? data.poster : require('./blank_poster.png')}
+                                        style={styles.img} />
                                 }>
                                 </ListItemAvatar>
                                 <ListItemText
                                     primary={
                                         <React.Fragment>
-                                            <h4>{data.title} ({data.year})</h4>
+                                            <h4>{data.title} ({data.runtime})</h4>
                                             {data.genres.map((gen, index) => (
                                                 <Chip key={index} size="small" label={gen} variant="outlined" color="primary" style={styles.genre} />
                                             ))}
@@ -86,6 +93,14 @@ export default function ResultsPage(props) {
                                     primaryTypographyProps={{ variant: 'body2' }}
                                     secondary={
                                         <React.Fragment>
+                                            <br />
+                                            <Typography
+                                                component="span"
+                                                variant="body1"
+                                                color="textPrimary">
+                                                {data.description}
+                                            </Typography>
+                                            <br />
                                             <br />
                                             <Typography
                                                 component="span"
@@ -119,6 +134,7 @@ export default function ResultsPage(props) {
                         </div >
                     ))}
                 </List>
+                <Pagination count={10} />
             </MyCard>
         </BasicPage>
     )

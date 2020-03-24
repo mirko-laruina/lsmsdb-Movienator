@@ -82,7 +82,7 @@ export default function BasicPage(props) {
     const classes = useStyles()
     const [searchValue, setSearchValue] = React.useState("");
     const [openMenu, setOpenMenu] = React.useState(false);
-    const [openLogin, setOpenLogin] = React.useState(true);
+    const [openLogin, setOpenLogin] = React.useState(false);
     const [anchorEl, setAnchorEl] = React.useState(null);
     const [isRegistering, setIsReg] = React.useState(false);
 
@@ -161,7 +161,9 @@ export default function BasicPage(props) {
                                 maxWidth={'lg'}
                                 onClose={() => setOpenLogin(false)}
                             >
-                                <LoginForm isRegistering={isRegistering}/>
+                                <LoginForm
+                                    isRegistering={isRegistering}
+                                    setOpen={setOpenLogin}/>
                             </Dialog>
                         </div>
                 </Toolbar>

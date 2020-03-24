@@ -5,7 +5,7 @@ import Autocomplete from '@material-ui/lab/Autocomplete';
 import MySelect from './MySelect.js';
 
 const groups = ["Country", "Year", "Director", "Actor"];
-const sorts = ["Count", "Rating", "Alphabetic"];
+const sorts = ["Release", "Rating", "Title"];
 const sortOrders = ["Ascending", "Descending"];
 
 
