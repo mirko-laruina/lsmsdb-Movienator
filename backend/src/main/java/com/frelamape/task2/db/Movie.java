@@ -10,12 +10,18 @@ public class Movie {
     private String id;
     private String title;
     private String originalTitle;
+    private String originalLanguage;
     private Integer runtime;
-    private String country;
+    private List<String> countries;
     private Integer year;
     private Date date;
     private String description;
+    private String storyline;
+    private String tagline;
     private String poster;
+    private String mpaa;
+    private int budget;
+    private int gross;
     private List<Character> characters;
     private List<Person> directors;
     private List<String> genres;
@@ -59,12 +65,60 @@ public class Movie {
         this.runtime = runtime;
     }
 
-    public String getCountry() {
-        return country;
+    public List<String> getCountries() {
+        return countries;
     }
 
-    public void setCountry(String country) {
-        this.country = country;
+    public String getOriginalLanguage() {
+        return originalLanguage;
+    }
+
+    public void setOriginalLanguage(String originalLanguage) {
+        this.originalLanguage = originalLanguage;
+    }
+
+    public void setCountries(List<String> countries) {
+        this.countries = countries;
+    }
+
+    public String getStoryline() {
+        return storyline;
+    }
+
+    public void setStoryline(String storyline) {
+        this.storyline = storyline;
+    }
+
+    public String getTagline() {
+        return tagline;
+    }
+
+    public void setTagline(String tagline) {
+        this.tagline = tagline;
+    }
+
+    public String getMpaa() {
+        return mpaa;
+    }
+
+    public void setMpaa(String mpaa) {
+        this.mpaa = mpaa;
+    }
+
+    public int getBudget() {
+        return budget;
+    }
+
+    public void setBudget(int budget) {
+        this.budget = budget;
+    }
+
+    public int getGross() {
+        return gross;
+    }
+
+    public void setGross(int gross) {
+        this.gross = gross;
     }
 
     public Integer getYear() {
@@ -155,11 +209,16 @@ public class Movie {
             Movie movie = new Movie(d.getString("_id"));
             movie.setTitle(d.getString("title"));
             movie.setOriginalTitle(d.getString("original_title"));
+            movie.setOriginalLanguage(d.getString("original_language"));
             movie.setRuntime(BsonAutoCast.asInteger(d, "runtime"));
-            movie.setCountry(d.getString("country"));
+            movie.setCountries(d.getList("countries", String.class));
             movie.setRuntime(BsonAutoCast.asInteger(d, "year"));
             movie.setDate(BsonAutoCast.asDate(d,"date"));
             movie.setDescription(d.getString("description"));
+            movie.setTagline(d.getString("tagline"));
+            movie.setStoryline(d.getString("storyline"));
+            movie.setBudget(BsonAutoCast.asInteger(d, "budget"));
+            movie.setGross(BsonAutoCast.asInteger(d, "gross"));
             movie.setPoster(d.getString("poster"));
             movie.setTotalRating(d.getDouble("total_rating"));
 
