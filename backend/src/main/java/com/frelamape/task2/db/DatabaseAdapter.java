@@ -230,7 +230,7 @@ public class DatabaseAdapter {
         }
 
         movieIterable.sort(sorting)
-                .projection(include("title", "year", "poster", "genres", "total_rating"))
+                .projection(include("title", "year", "poster", "genres", "total_rating", "description"))
                 .skip(n*(page-1))
                 .limit(n);
 

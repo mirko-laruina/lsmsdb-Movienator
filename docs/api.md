@@ -93,6 +93,7 @@ All parameters are optional. Default behaviour is sorting by release date (ascen
         "year": 2019,
         "poster": "https://m.media-amazon.com/images/M/[...].jpg",
         "genres": ["Crime", "Drama", "Thriller"],
+        "description": " In Gotham City, mentally troubled comedian Arthur Fleck is disregarded and mistreated by society. He then embarks on a downward spiral of revolution and bloody crime. This path brings him face-to-face with his alter-ego: the Joker. ",
         "total_rating": 8.87,
         "user_rating": 7 (optional)
     },
