@@ -11,6 +11,8 @@ import { makeStyles } from '@material-ui/core/styles';
 
 import FilterDisplay from './FilterDisplay'
 import Sorting from './Sorting'
+import { countryToFlag } from './utils.js';
+
 
 const data = [
     {
@@ -42,7 +44,7 @@ const data = [
 const useStyles = makeStyles((theme) => (
     {
         tableHead: {
-            backgroundColor: theme.palette.primary.main,
+            backgroundColor: theme.palette.primary.light,
             color: 'white',
             '& th': {
                 color: 'white',
@@ -78,7 +80,7 @@ export default function StatsPage(props) {
                             {data.map(row => (
                                 <TableRow key={row.id}>
                                     <TableCell component="th" scope="row">
-                                        {row.name}
+                                    {countryToFlag(row.id)} {row.name}
                                     </TableCell>
                                     <TableCell align="right">{row.count}</TableCell>
                                     <TableCell align="right">{row.rating}</TableCell>
