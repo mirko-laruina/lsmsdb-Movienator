@@ -2,7 +2,7 @@ import React from 'react';
 import { Link } from 'react-router-dom';
 
 /* Basic imports material-ui */
-import { AppBar, Toolbar, Typography, Container, InputBase, FormControl } from '@material-ui/core';
+import { AppBar, Toolbar, Typography, Container, InputBase, FormControl, Slide, Dialog } from '@material-ui/core';
 
 /* Graphical components material-ui */
 import { Menu, MenuItem, IconButton } from '@material-ui/core';
@@ -12,7 +12,13 @@ import SearchIcon from '@material-ui/icons/Search';
 
 import { fade, makeStyles } from '@material-ui/core/styles';
 
+import MyCard from './MyCard'
+import LoginForm from './LoginForm'
 import './App.css'
+
+const Transition = React.forwardRef(function Transition(props, ref) {
+    return <Slide direction="down" ref={ref} {...props} />;
+});
 
 const useStyles = makeStyles(theme => (
     {
@@ -74,18 +80,23 @@ const useStyles = makeStyles(theme => (
 
 export default function BasicPage(props) {
     const classes = useStyles()
-    const [auth, setAuth] = React.useState(true);
-    const [anchorEl, setAnchorEl] = React.useState(null);
     const [searchValue, setSearchValue] = React.useState("");
-    const open = Boolean(anchorEl);
+    const [openMenu, setOpenMenu] = React.useState(false);
+    const [openLogin, setOpenLogin] = React.useState(true);
+    const [anchorEl, setAnchorEl] = React.useState(null);
+    const [isRegistering, setIsReg] = React.useState(false);
 
-    const handleMenu = event => {
-        setAnchorEl(event.currentTarget);
-    };
+    const loginDialogHandler = (isRegistering) => {
+        setOpenMenu(false);
+        setOpenLogin(true);
+        setIsReg(isRegistering);
+    }
 
-    const handleClose = () => {
-        setAnchorEl(null);
-    };
+    const profilePopupHandler = (evt, state) => {
+        if(evt)
+            setAnchorEl(evt.target);
+        setOpenMenu(state);
+    }
 
     return (
         <div className={classes.root}>
@@ -114,13 +125,12 @@ export default function BasicPage(props) {
                             </FormControl>
                         </form>
                     </div>
-                    {auth && (
                         <div>
                             <IconButton
                                 aria-label="account of current user"
                                 aria-controls="menu-appbar"
                                 aria-haspopup="true"
-                                onClick={handleMenu}
+                                onClick={(evt) => profilePopupHandler(evt, true)}
                                 color="inherit"
                             >
                                 <AccountCircle />
@@ -137,14 +147,23 @@ export default function BasicPage(props) {
                                     vertical: 'top',
                                     horizontal: 'right',
                                 }}
-                                open={open}
-                                onClose={handleClose}
+                                open={openMenu}
+                                onClose={() => profilePopupHandler(null, false)}
                             >
-                                <MenuItem onClick={handleClose}>Profile</MenuItem>
-                                <MenuItem onClick={handleClose}>My account</MenuItem>
+                                <MenuItem onClick={() => loginDialogHandler(false)}>Login</MenuItem>
+                                <MenuItem onClick={() => loginDialogHandler(true)}>Register</MenuItem>
                             </Menu>
+                            <Dialog
+                                TransitionComponent={Transition}
+                                open={openLogin}
+                                PaperComponent={MyCard}
+                                fullWidth={true}
+                                maxWidth={'lg'}
+                                onClose={() => setOpenLogin(false)}
+                            >
+                                <LoginForm isRegistering={isRegistering}/>
+                            </Dialog>
                         </div>
-                    )}
                 </Toolbar>
             </AppBar>
             <Container maxWidth="md" className="wrapper">
