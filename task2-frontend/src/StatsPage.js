@@ -51,6 +51,11 @@ const useStyles = makeStyles((theme) => (
                 fontWeight: 'bold'
             }
         },
+        tableRow:{
+            '&:nth-child(even)': {
+                backgroundColor: theme.palette.divider,
+            }
+        }
     }
 ));
 
@@ -78,7 +83,7 @@ export default function StatsPage(props) {
                         </TableHead>
                         <TableBody>
                             {data.map(row => (
-                                <TableRow key={row.id}>
+                                <TableRow key={row.id} classes={{ root: classes.tableRow }}>
                                     <TableCell component="th" scope="row">
                                     {countryToFlag(row.id)} {row.name}
                                     </TableCell>
