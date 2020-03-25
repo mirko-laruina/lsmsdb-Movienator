@@ -222,7 +222,12 @@ class MovieScraper:
     def get_ld_json(self, url: str) -> dict:#this method return parsed info as a dict by scraped page
         parser = "html.parser"
         req = requests.get(url)
-        soup = BeautifulSoup(req.text, parser)
+        print(req.encoding)
+        if self.source == "mymovies":
+            text = str(req.content, 'UTF-8', errors='replace')
+        else:
+            text = req.text
+        soup = BeautifulSoup(text, parser)
         
         if self.source == "imdb":
             ld_json = soup.find("script", {"type":"application/ld+json"})
