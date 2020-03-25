@@ -86,19 +86,22 @@ All parameters are optional. Default behaviour is sorting by release date (ascen
 
 ### Output
 ```json
-[
-    {
-        "_id": "tt7286456",
-        "title": "Joker",
-        "year": 2019,
-        "poster": "https://m.media-amazon.com/images/M/[...].jpg",
-        "genres": ["Crime", "Drama", "Thriller"],
-        "description": " In Gotham City, mentally troubled comedian Arthur Fleck is disregarded and mistreated by society. He then embarks on a downward spiral of revolution and bloody crime. This path brings him face-to-face with his alter-ego: the Joker. ",
-        "total_rating": 8.87,
-        "user_rating": 7 (optional)
-    },
-    ...
-]
+{
+	"list": [
+		{
+			"_id": "tt7286456",
+			"title": "Joker",
+			"year": 2019,
+			"poster": "https://m.media-amazon.com/images/M/[...].jpg",
+			"genres": ["Crime", "Drama", "Thriller"],
+			"description": " In Gotham City, mentally troubled comedian Arthur Fleck is disregarded and mistreated by society. He then embarks on a downward spiral of revolution and bloody crime. This path brings him face-to-face with his alter-ego: the Joker. ",
+			"total_rating": 8.87,
+			"user_rating": 7 (optional)
+		},
+		...
+	],
+	"totalCount": 51500
+}
 ```
 
 ## `GET /movie/search`
@@ -114,18 +117,21 @@ the overall rating.
 
 ### Output
 ```json
-[
-    {
-        "_id": "tt7286456",
-        "title": "Joker",
-        "year": 2019,
-        "poster": "https://m.media-amazon.com/images/M/[...].jpg",
-        "genres": ["Crime", "Drama", "Thriller"],
-        "total_rating": 8.87,
-        "user_rating": 7 (optional)
-    },
-    ...
-]
+{
+	"list": [
+		{
+			"_id": "tt7286456",
+			"title": "Joker",
+			"year": 2019,
+			"poster": "https://m.media-amazon.com/images/M/[...].jpg",
+			"genres": ["Crime", "Drama", "Thriller"],
+			"total_rating": 8.87,
+			"user_rating": 7 (optional)
+		},
+		...
+	],
+	"totalCount": 5
+}
 ```
 
 ## `GET /movie/<id>`
@@ -236,15 +242,18 @@ Default behaviour is sorting by rating (descending).
 
 ### Output
 ```json
-[
-    {
-        "id": "US",
-        "name": "USA",
-        "count": 500,
-        "rating": 8.87
-    },
-    ...
-]
+{
+	"list": [
+		{
+			"id": "US",
+			"name": "USA",
+			"count": 500,
+			"rating": 8.87
+		},
+		...
+	],
+	"totalCount": 500
+}
 ```
 
 ## `GET /user/<username>`
@@ -300,18 +309,21 @@ NB: only the user herself and admins are allowed.
 
 ### Output
 ```json
-[
-    {
-        "_id": 7286456,
-        "title": "Joker",
-        "year": 2019,
-        "poster": "https://m.media-amazon.com/images/M/[...].jpg",
-        "genres": ["Crime", "Drama", "Thriller"],
-        "total_rating": 8.87,
-        "user_rating": 7
-    },
-    ...
-]
+{
+	"list": [
+		{
+			"_id": 7286456,
+			"title": "Joker",
+			"year": 2019,
+			"poster": "https://m.media-amazon.com/images/M/[...].jpg",
+			"genres": ["Crime", "Drama", "Thriller"],
+			"total_rating": 8.87,
+			"user_rating": 7
+		},
+		...
+	],
+	"totalCount": 5
+}
 ```
 
 ## `POST /user/<username>/rating/<movie_id>`
@@ -369,14 +381,18 @@ NB: only admins are allowed.
 
 ### Output
 ```json
-[
-    {
-        "username": "topolino.hackerino",
-        "movie_id": 7286456,
-        "title": "Joker",
-        "year": 2019,
-        "user_rating": 1
-    },
-    ...
-]
+{
+	"list": [
+		{
+			"username": "topolino.hackerino",
+			"movieId": "tt7286456",
+			"title": "Joker",
+			"year": 2019,
+			"rating": 1,
+			"date": "2020-07-15"
+		},
+		...
+	],
+	"totalCount": 5100
+}
 ```
