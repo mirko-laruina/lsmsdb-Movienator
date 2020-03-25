@@ -9,7 +9,14 @@ import PeopleIcon from '@material-ui/icons/People';
 import TheatersIcon from '@material-ui/icons/Theaters';
 import { countryToFlag, countries } from './utils.js';
 
-const genres = ["Crime", "Drama", "Thriller"];
+const genres = ["Action", "Adult", "Adventure",
+    "Animation", "Biography", "Comedy",
+    "Crime", "Documentary", "Drama",
+    "Family", "Fantasy", "Film-Noir",
+    "History", "Horror", "Music",
+    "Musical", "Mystery", "News",
+    "Reality-TV", "Romance", "Sci-Fi",
+    "Sport", "Thriller", "War", "Western"];
 const years = Array(new Date().getFullYear() - 1800).fill().map((_, i) => (i + 1801).toString()).reverse();
 
 const defaultFilters = {
@@ -23,8 +30,8 @@ const defaultFilters = {
     country: "",
 }
 
-function setIfDef(handler, value){
-    if(typeof value !== 'undefined'){
+function setIfDef(handler, value) {
+    if (typeof value !== 'undefined') {
         handler(value);
     }
 }
@@ -210,7 +217,7 @@ export default function Filter(props) {
                     country: countryValue
                 }
                 Object.keys(supposedFilters).map((key, i) => {
-                    if(supposedFilters[key] != defaultFilters[key]){
+                    if (supposedFilters[key] != defaultFilters[key]) {
                         newFilters[key] = supposedFilters[key]
                     }
                 })
