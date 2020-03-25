@@ -35,17 +35,18 @@ export default function LoginForm(props) {
         axios.post(requestUrl, null, {
             params: postParams
         })
-            .then(function (pkt) {
-                console.log(pkt.data)
-                if (pkt.data.success) {
-                    localStorage.setItem('sessionId', pkt.data.response.sessionId)
-                    localStorage.setItem('is_admin', pkt.data.response.is_admin)
-                    props.setOpen(false)
-                } else {
-                    setErrorMsg("Failed login")
-                }
-                setLoading(false)
-            })
+        .then(function (pkt) {
+            console.log(pkt.data)
+            if (pkt.data.success) {
+                localStorage.setItem('sessionId', pkt.data.response.sessionId)
+                localStorage.setItem('is_admin', pkt.data.response.is_admin)
+                localStorage.setItem('username', username)
+                props.setOpen(false)
+            } else {
+                setErrorMsg("Failed login")
+            }
+            setLoading(false)
+        })
     }
 
     return (

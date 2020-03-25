@@ -85,6 +85,7 @@ export default function BasicPage(props) {
     const [openLogin, setOpenLogin] = React.useState(false);
     const [anchorEl, setAnchorEl] = React.useState(null);
     const [isRegistering, setIsReg] = React.useState(false);
+    const [username, setUsername] = React.useState("");
 
     const loginDialogHandler = (isRegistering) => {
         setOpenMenu(false);
@@ -93,10 +94,37 @@ export default function BasicPage(props) {
     }
 
     const profilePopupHandler = (evt, state) => {
-        if(evt)
+        if (evt)
             setAnchorEl(evt.target);
         setOpenMenu(state);
     }
+
+    const notLoggedMenu = [
+        {
+            label: 'Login',
+            handler: () => loginDialogHandler(false)
+        },
+        {
+            label: 'Register',
+            handler: () => loginDialogHandler(true)
+        }
+    ]
+    const loggedMenu = [
+        {
+            label: 'Logged as '+ username,
+            disabled: true
+        },
+        {
+            label: 'Profile',
+        },
+        {
+            label: 'Browse history',
+        }
+    ]
+
+    React.useEffect(() => {
+        setUsername(window.localStorage.getItem('username'))
+    }, [openLogin])
 
     return (
         <div className={classes.root}>
@@ -125,47 +153,59 @@ export default function BasicPage(props) {
                             </FormControl>
                         </form>
                     </div>
-                        <div>
-                            <IconButton
-                                aria-label="account of current user"
-                                aria-controls="menu-appbar"
-                                aria-haspopup="true"
-                                onClick={(evt) => profilePopupHandler(evt, true)}
-                                color="inherit"
-                            >
-                                <AccountCircle />
-                            </IconButton>
-                            <Menu
-                                id="menu-appbar"
-                                anchorEl={anchorEl}
-                                anchorOrigin={{
-                                    vertical: 'top',
-                                    horizontal: 'right',
-                                }}
-                                keepMounted
-                                transformOrigin={{
-                                    vertical: 'top',
-                                    horizontal: 'right',
-                                }}
-                                open={openMenu}
-                                onClose={() => profilePopupHandler(null, false)}
-                            >
-                                <MenuItem onClick={() => loginDialogHandler(false)}>Login</MenuItem>
-                                <MenuItem onClick={() => loginDialogHandler(true)}>Register</MenuItem>
-                            </Menu>
-                            <Dialog
-                                TransitionComponent={Transition}
-                                open={openLogin}
-                                PaperComponent={MyCard}
-                                fullWidth={true}
-                                maxWidth={'lg'}
-                                onClose={() => setOpenLogin(false)}
-                            >
-                                <LoginForm
-                                    isRegistering={isRegistering}
-                                    setOpen={setOpenLogin}/>
-                            </Dialog>
-                        </div>
+                    <div>
+                        <IconButton
+                            aria-label="account of current user"
+                            aria-controls="menu-appbar"
+                            aria-haspopup="true"
+                            onClick={(evt) => profilePopupHandler(evt, true)}
+                            color="inherit"
+                        >
+                            <AccountCircle />
+                        </IconButton>
+                        <Menu
+                            id="menu-appbar"
+                            anchorEl={anchorEl}
+                            anchorOrigin={{
+                                vertical: 'top',
+                                horizontal: 'right',
+                            }}
+                            keepMounted
+                            transformOrigin={{
+                                vertical: 'top',
+                                horizontal: 'right',
+                            }}
+                            open={openMenu}
+                            onClose={() => profilePopupHandler(null, false)}
+                        >
+                            {
+                                    (!username ? notLoggedMenu : loggedMenu).map((item, i) => {
+                                        return (
+                                            <MenuItem
+                                                key={i}
+                                                disabled={item.disabled}
+                                                onClick={item.handler}
+                                            >
+                                                {item.label}
+                                            </MenuItem>
+                                        )
+                                    })
+                                    
+                            }
+                        </Menu>
+                        <Dialog
+                            TransitionComponent={Transition}
+                            open={openLogin}
+                            PaperComponent={MyCard}
+                            fullWidth={true}
+                            maxWidth={'lg'}
+                            onClose={() => setOpenLogin(false)}
+                        >
+                            <LoginForm
+                                isRegistering={isRegistering}
+                                setOpen={setOpenLogin} />
+                        </Dialog>
+                    </div>
                 </Toolbar>
             </AppBar>
             <Container maxWidth="md" className="wrapper">
