@@ -10,7 +10,6 @@ import {
 
 import Rating from '@material-ui/lab/Rating';
 import Pagination from '@material-ui/lab/Pagination';
-import Skeleton from '@material-ui/lab/Skeleton';
 
 import FilterDisplay from './FilterDisplay.js';
 import Sorting from './Sorting.js';
@@ -35,7 +34,7 @@ const styles = {
     }
 }
 
-export default function ResultsPage(props) {
+export default function BrowsePage(props) {
     const [filters, setFilters] = React.useState({});
     const [sortOpt, setSortOpt] = React.useState({});
     const [movies, setMovies] = React.useState([]);
@@ -48,24 +47,26 @@ export default function ResultsPage(props) {
         console.log(filters)
         console.log(sortOpt)
         var sorting = {
-            sortBy: sortOpt.sortBy === '0' ? 'date' :
+            sortBy: sortOpt.sortBy === '0' ? 'release' :
                 sortOpt.sortBy === '1' ? 'rating' : 'title',
             sortOrder: sortOpt.sortOrder === '0' ? -1 : 1,
         }
-        console.log(sorting)
+        var reqParams = {
+            ...filters,
+            ...sorting,
+            page: currentPage,
+            n: filmPerPage
+        }
+        console.log(reqParams)
         axios.get(baseUrl + "movie/browse", {
-            params: {
-                ...filters,
-                ...sorting,
-                page: pageCount,
-                n: filmPerPage
-            }
+            params: reqParams
         })
             .then(function (res) {
                 if (res.data.success) {
                     setMovies(res.data.response.list)
                     setPageCount(Math.ceil(parseInt(res.data.response.totalCount)/filmPerPage))
                     setLoading(false);
+                    console.log(res.data)
                 }
             })
     }
@@ -84,8 +85,8 @@ export default function ResultsPage(props) {
                 <Sorting noGroup sortOpt={sortOpt} handler={setSortOpt} />
                 <List>
                     {loading ?
-                        [...Array(10)].map(() =>
-                            <FilmListSkeleton />
+                        [...Array(filmPerPage)].map((v, i) =>
+                            <FilmListSkeleton key={i} />
                         )
                         :
                         (movies.length === 0
