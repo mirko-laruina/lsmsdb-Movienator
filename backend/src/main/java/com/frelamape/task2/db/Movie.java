@@ -212,6 +212,7 @@ public class Movie {
             movie.setOriginalLanguage(d.getString("original_language"));
             movie.setRuntime(BsonAutoCast.asInteger(d, "runtime"));
             movie.setCountries(d.getList("countries", String.class));
+            movie.setGenres(d.getList("genres", String.class));
             movie.setRuntime(BsonAutoCast.asInteger(d, "year"));
             movie.setDate(BsonAutoCast.asDate(d,"date"));
             movie.setDescription(d.getString("description"));
@@ -240,13 +241,6 @@ public class Movie {
                     directors.add(Person.Adapter.fromDBObject(doc));
                 }
                 movie.setDirectors(directors);
-            }
-
-
-            Object genresObj = d.get("genres");
-            if (genresObj != null){
-                List<String> genres = (List<String>) genresObj;
-                movie.setGenres(genres);
             }
 
             Object ratingsObj = d.get("ratings");
