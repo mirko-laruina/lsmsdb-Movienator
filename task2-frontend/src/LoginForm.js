@@ -1,12 +1,23 @@
 import React from 'react'
-import { Typography, TextField, Button } from '@material-ui/core'
+import { Typography, TextField, Button, Backdrop, CircularProgress } from '@material-ui/core'
+import { Alert } from '@material-ui/lab'
 import axios from 'axios'
 import { baseUrl } from './utils.js'
+import { makeStyles } from '@material-ui/core/styles';
+
+const useStyles = makeStyles(theme => ({
+    backdrop: {
+        zIndex: theme.zIndex.drawer + 1,
+    },
+}));
 
 export default function LoginForm(props) {
+    const classes = useStyles();
     const [username, setUsername] = React.useState("");
     const [password, setPassword] = React.useState("");
     const [email, setEmail] = React.useState("");
+    const [errorMsg, setErrorMsg] = React.useState("");
+    const [loading, setLoading] = React.useState(false);
 
     const sendRequest = () => {
         var requestUrl = baseUrl
@@ -24,8 +35,16 @@ export default function LoginForm(props) {
         axios.post(requestUrl, null, {
             params: postParams
         })
-            .then(function (response) {
-                console.log(response.data);
+            .then(function (pkt) {
+                console.log(pkt.data)
+                if (pkt.data.success) {
+                    localStorage.setItem('sessionId', pkt.data.response.sessionId)
+                    localStorage.setItem('is_admin', pkt.data.response.is_admin)
+                    props.setOpen(false)
+                } else {
+                    setErrorMsg("Failed login")
+                }
+                setLoading(false)
             })
     }
 
@@ -58,15 +77,21 @@ export default function LoginForm(props) {
                 label="Password"
                 value={password}
                 margin='normal'
+                type="password"
                 onChange={(e) => setPassword(e.target.value)}
             />
+            {
+                errorMsg !== "" &&
+                <Alert severity="error">{errorMsg}</Alert>
+            }
             <br />
             <Button fullWidth
                 color="primary"
                 size="large"
                 variant="outlined"
                 onClick={() => {
-                    props.setOpen(false);
+                    setErrorMsg("");
+                    setLoading(true);
                     sendRequest();
                 }}
             >
@@ -75,6 +100,11 @@ export default function LoginForm(props) {
             <Button fullWidth size="large" color="secondary" onClick={() => props.setOpen(false)}>
                 Cancel
             </Button>
+            <Backdrop
+                className={classes.backdrop}
+                open={loading}>
+                <CircularProgress color="inherit" />
+            </Backdrop>
         </React.Fragment>
     )
 }

@@ -4,7 +4,7 @@ import BasicPage from './BasicPage.js'
 import MyCard from './MyCard.js'
 import {
     List, ListItem, ListItemAvatar, Divider,
-    ListItemText, Typography, Chip
+    ListItemText, Typography, Chip, Grid
 } from '@material-ui/core'
 
 
@@ -14,7 +14,6 @@ import FilterDisplay from './FilterDisplay.js';
 import Sorting from './Sorting.js';
 import { baseUrl } from './utils.js'
 import axios from 'axios';
-import { BlankPoster } from './blank_poster.png'
 
 const styles = {
     img: {
@@ -134,7 +133,14 @@ export default function ResultsPage(props) {
                         </div >
                     ))}
                 </List>
-                <Pagination count={10} />
+                <Grid container justify="center">
+                <Pagination shape="rounded"
+                showFirstButton
+                 showLastButton
+                  color="primary"
+                   size="large"
+                    count={10} />
+                </Grid>
             </MyCard>
         </BasicPage>
     )
