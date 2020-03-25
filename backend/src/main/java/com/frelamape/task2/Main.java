@@ -87,8 +87,22 @@ public class Main {
             Session s = new Session(sid);
             u = dba.getUserFromSession(s);
         }
+        String realSortBy;
+        switch (sortBy){
+            case  "release":
+                realSortBy = "date";
+                break;
+            case  "rating":
+                realSortBy = "total_rating";
+                break;
+            case  "title":
+                realSortBy = "title";
+                break;
+            default:
+                return new Gson().toJson(new BaseResponse(false, "Unrecognized sortBy value: " + sortBy, null));
+        }
 
-        QuerySubset<Movie> querySubset = dba.getMovieList(sortBy, sortOrder, minRating, maxRating, director, actor, country,
+        QuerySubset<Movie> querySubset = dba.getMovieList(realSortBy, sortOrder, minRating, maxRating, director, actor, country,
                                               fromYear, toYear, genre, n, page);
         if (u != null){
             // TODO use a bulk operation
