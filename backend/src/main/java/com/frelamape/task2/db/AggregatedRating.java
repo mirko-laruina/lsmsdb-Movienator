@@ -54,9 +54,9 @@ public class AggregatedRating {
 
             return new AggregatedRating(
                     d.getString("source"),
-                    d.getDouble("avg_rating"),
-                    d.getInteger("count"),
-                    d.getDouble("weight")
+                    BsonAutoCast.asDouble(d, "avgrating"),
+                    BsonAutoCast.asInteger(d, "count"),
+                    BsonAutoCast.asDouble(d, "weight")
             );
         }
     }

@@ -211,6 +211,7 @@ public class Movie {
             movie.setOriginalTitle(d.getString("original_title"));
             movie.setOriginalLanguage(d.getString("original_language"));
             movie.setRuntime(BsonAutoCast.asInteger(d, "runtime"));
+            movie.setYear(BsonAutoCast.asInteger(d, "year"));
             movie.setCountries(d.getList("countries", String.class));
             movie.setGenres(d.getList("genres", String.class));
             movie.setRuntime(BsonAutoCast.asInteger(d, "runtime"));
@@ -221,7 +222,7 @@ public class Movie {
             movie.setBudget(BsonAutoCast.asInteger(d, "budget"));
             movie.setGross(BsonAutoCast.asInteger(d, "gross"));
             movie.setPoster(d.getString("poster"));
-            movie.setTotalRating(d.getDouble("total_rating"));
+            movie.setTotalRating(BsonAutoCast.asDouble(d, "total_rating"));
 
             Object charactersObj = d.get("characters");
             if (charactersObj != null){
