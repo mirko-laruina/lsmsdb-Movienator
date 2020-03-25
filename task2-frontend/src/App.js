@@ -9,8 +9,9 @@ import { CssBaseline, ThemeProvider } from '@material-ui/core';
 import { createMuiTheme } from '@material-ui/core/styles';
 
 import HomePage from './HomePage.js'
-import ResultsPage from './ResultsPage.js'
+import SearchPage from './SearchPage.js'
 import StatsPage from './StatsPage.js'
+import BrowsePage from './BrowsePage'
 
 const theme = createMuiTheme({
   palette: {
@@ -46,8 +47,9 @@ function App() {
       <CssBaseline />
       <Router>
         <Switch>
+          <Route path="/browse" component={BrowsePage} />
           <Route path="/stats/:group/" component={StatsPage} />
-          <Route path="/results/:value" component={ResultsPage} />
+          <Route path="/results/:value" component={SearchPage} />
           <Route path="/" component={HomePage} />
         </Switch>
       </Router>
