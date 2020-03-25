@@ -114,7 +114,9 @@ for movie in movies:
 for movie in movies:
     if movie["title"] is None:
         if movie["original_title"] is None:
-            print(movie["_id"])
+            if movie["title_ita"] is None:
+                print(movie["_id"])
+            movie["title"] = movie["title_ita"]
         movie["title"] = movie["original_title"]
 
 
@@ -144,27 +146,27 @@ except BulkWriteError as bwe:
 # In[23]:
 
 
-requests = []
-for actor in actor_list:
-    requests.append(UpdateOne({"_id": actor["_id"]}, {"$set": actor}, upsert=True))
+# requests = []
+# for actor in actor_list:
+#     requests.append(UpdateOne({"_id": actor["_id"]}, {"$set": actor}, upsert=True))
     
-try:
-    db.actors.bulk_write(requests, ordered=False)
-except BulkWriteError as bwe:
-    print(bwe.details)   
+# try:
+#     db.actors.bulk_write(requests, ordered=False)
+# except BulkWriteError as bwe:
+#     print(bwe.details)   
 
 
 # In[24]:
 
 
-requests = []
-for director in director_list:
-    requests.append(UpdateOne({"_id": director["_id"]}, {"$set": director}, upsert=True))
+# requests = []
+# for director in director_list:
+#     requests.append(UpdateOne({"_id": director["_id"]}, {"$set": director}, upsert=True))
 
-try:
-    db.directors.bulk_write(requests, ordered=False)
-except BulkWriteError as bwe:
-    print(bwe.details)
+# try:
+#     db.directors.bulk_write(requests, ordered=False)
+# except BulkWriteError as bwe:
+#     print(bwe.details)
 
 
 # In[ ]:
