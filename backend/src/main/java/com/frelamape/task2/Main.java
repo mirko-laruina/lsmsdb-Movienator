@@ -386,7 +386,7 @@ public class Main {
         User u = dba.getUserFromSession(s);
 
         if (u != null && u.isAdmin()){
-            List<Rating> ratings = dba.getAllRatings(n, page);
+            QuerySubset<RatingExtended> ratings = dba.getAllRatings(n, page);
             return new Gson().toJson(new BaseResponse(true, null, ratings));
         } else {
             return new Gson().toJson(new BaseResponse(false, "Unauthorized", null));

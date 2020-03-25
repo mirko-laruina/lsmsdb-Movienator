@@ -69,12 +69,24 @@ public class DatabaseAdapter {
         return res.getDeletedCount() == 1;
     }
 
-    public List<Rating> getAllRatings(int n, int page){
-        return Rating.Adapter.fromDBObjectIterable(
-                ratingsCollection
-                        .find()
-                        .skip(n*(page-1))
-                        .limit(n)
+    public QuerySubset<RatingExtended> getAllRatings(int n, int page){
+        List<Rating> ratings = Rating.Adapter.fromDBObjectIterable(ratingsCollection
+                .find()
+                .skip(n*(page-1))
+                .limit(n)
+        );
+        List<RatingExtended> ratingsExtended = new ArrayList<>();
+        for (Rating r: ratings){
+            User u = getUserById(r.getUserId());
+            Movie m = getMovieDetails(r.getMovieId());
+            if (u != null && m != null){
+                ratingsExtended.add(new RatingExtended(m, u, r));
+            }
+        }
+
+        return new QuerySubset<>(
+               ratingsExtended,
+               ratingsCollection.countDocuments()
         );
     }
 
