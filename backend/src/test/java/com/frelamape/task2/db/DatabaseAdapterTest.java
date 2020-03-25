@@ -39,9 +39,9 @@ public class DatabaseAdapterTest {
         Rating rating2 = new Rating(user2.getId(), movie2.getId(), new Date(), 3.0);
         dba.insertRating(rating2);
 
-        List<Rating> ratingList = dba.getUserRatings(user2);
-        Assert.assertEquals(2, ratingList.size());
-        for (Rating r:ratingList){
+        QuerySubset<Rating> ratingList = dba.getUserRatings(user2, 100, 1);
+        Assert.assertEquals(2, ratingList.getList().size());
+        for (Rating r:ratingList.getList()){
             Assert.assertEquals(user2.getId(), r.getUserId());
             if (!r.getMovieId().equals(movie1.getId())) {
                 Assert.assertEquals(movie2.getId(), r.getMovieId());
@@ -54,25 +54,13 @@ public class DatabaseAdapterTest {
 
     @Test
     public void searchMovie() {
-        List<Movie> movies = dba.searchMovie("Tolo", 1, 1);
-        Assert.assertEquals(1, movies.size());
-        Assert.assertEquals(movie2.getId(), movies.get(0).getId());
+        QuerySubset<Movie> movies = dba.searchMovie("Tolo", 1, 1);
+        Assert.assertEquals(1, movies.getList().size());
+        Assert.assertEquals(movie2.getId(), movies.getList().get(0).getId());
 
         movies = dba.searchMovie("Joker", 1, 1);
-        Assert.assertEquals(1, movies.size());
-        Assert.assertEquals(movie1.getId(), movies.get(0).getId());
-    }
-
-    @Test
-    public void searchActor() {
-    }
-
-    @Test
-    public void searchDirector() {
-    }
-
-    @Test
-    public void searchCountry() {
+        Assert.assertEquals(1, movies.getList().size());
+        Assert.assertEquals(movie1.getId(), movies.getList().get(0).getId());
     }
 
     @Test

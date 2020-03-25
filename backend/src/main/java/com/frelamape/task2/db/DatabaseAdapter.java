@@ -4,9 +4,9 @@ import com.mongodb.client.*;
 import com.mongodb.client.model.Projections;
 import com.mongodb.client.model.Sorts;
 import com.mongodb.client.result.DeleteResult;
-import com.mongodb.client.result.UpdateResult;
 import com.mongodb.client.result.InsertOneResult;
-import org.bson.BsonObjectId;
+import com.mongodb.client.result.UpdateResult;
+import org.bson.BsonDocument;
 import org.bson.Document;
 import org.bson.conversions.Bson;
 import org.bson.types.ObjectId;
@@ -36,10 +36,18 @@ public class DatabaseAdapter {
         ratingsCollection = database.getCollection("ratings");
     }
 
+    public boolean updateInternalRating(){
+        return true;
+    }
+
     public boolean insertRating(Rating rating){
         InsertOneResult result = ratingsCollection.insertOne(Rating.Adapter.toDBObject(rating));
 
-        return result.wasAcknowledged() && result.getInsertedId() != null;
+        if (result.wasAcknowledged() && result.getInsertedId() != null){
+            return updateInternalRating();
+        } else{
+            return false;
+        }
     }
 
     public boolean updateRating(Rating rating){
@@ -70,11 +78,15 @@ public class DatabaseAdapter {
         );
     }
 
-    public List<Rating> getUserRatings(User u){
-        return Rating.Adapter.fromDBObjectIterable(
-                ratingsCollection.find(
-                        eq("_id.user_id", u.getId())
-                )
+    public QuerySubset<Rating> getUserRatings(User u, int n, int page){
+        Bson filter = eq("_id.user_id", u.getId());
+        return new QuerySubset<>(
+                Rating.Adapter.fromDBObjectIterable(ratingsCollection
+                        .find(filter)
+                        .skip(n*(page-1))
+                        .limit(n)
+                ),
+                ratingsCollection.countDocuments(filter)
         );
     }
 
@@ -107,6 +119,15 @@ public class DatabaseAdapter {
                 ).first()
         );
         // TODO user statistics
+    }
+
+    public User getUserById(ObjectId userId){
+        User u = User.Adapter.fromDBObject(
+                usersCollection.find(
+                        eq("_id", userId)
+                )
+                .first());
+        return u;
     }
 
     public boolean addSession(User u, Session s){
@@ -174,7 +195,7 @@ public class DatabaseAdapter {
         return result.wasAcknowledged();
     }
 
-    public List<Movie> getMovieList(String sortBy, int sortOrder, double minRating,
+    public QuerySubset<Movie> getMovieList(String sortBy, int sortOrder, double minRating,
                                     double maxRating, String director, String actor,
                                     String country, int fromYear, int toYear, String genre,
                                     int n, int page){
@@ -221,20 +242,26 @@ public class DatabaseAdapter {
             conditions.add(eq("genres", genre));
         }
 
-        FindIterable<Document> movieIterable;
+        Bson filters;
 
         if (!conditions.isEmpty()){
-            movieIterable = moviesCollection.find(and(conditions.toArray(new Bson[]{})));
+            filters = and(conditions.toArray(new Bson[]{}));
+
         } else {
-            movieIterable = moviesCollection.find();
+            filters = new BsonDocument();
         }
 
-        movieIterable.sort(sorting)
+        FindIterable<Document> movieIterable = moviesCollection
+                .find(filters)
+                .sort(sorting)
                 .projection(include("title", "year", "poster", "genres", "total_rating", "description"))
                 .skip(n*(page-1))
                 .limit(n);
 
-        return Movie.Adapter.fromDBObjectIterable(movieIterable);
+        return new QuerySubset<>(
+                Movie.Adapter.fromDBObjectIterable(movieIterable),
+                moviesCollection.countDocuments(filters)
+        );
     }
 
     public Movie getMovieDetails(String id){
@@ -243,15 +270,19 @@ public class DatabaseAdapter {
         );
     }
 
-    public List<Movie> searchMovie(String query, int n, int page){
+    public QuerySubset<Movie> searchMovie(String query, int n, int page){
+        Bson filter = text("\""+ query + "\"");
         FindIterable<Document> movieIterable = moviesCollection
-                .find(text("\""+ query + "\""))
+                .find(filter)
                 .projection(Projections.metaTextScore("score"))
                 .sort(Sorts.metaTextScore("score"))
                 .skip(n*(page-1))
                 .limit(n);
 
-        return Movie.Adapter.fromDBObjectIterable(movieIterable);
+        return new QuerySubset<>(
+                Movie.Adapter.fromDBObjectIterable(movieIterable),
+                moviesCollection.countDocuments(filter)
+        );
     }
 
     public List<Statistics<Statistics.Aggregator>> getStatistics(String groupBy, String sortBy, int sortOrder, int n, int page){
@@ -314,15 +345,18 @@ public class DatabaseAdapter {
             return User.Adapter.fromDBObject(userDocument);
     }
 
-    public List<User> searchUser(String query, int n, int page){
+    public QuerySubset<User> searchUser(String query, int n, int page){
+        Bson filter = text("\""+ query + "\"");
         FindIterable<Document> userIterable = usersCollection
-                .find(text("\""+ query + "\""))
+                .find(filter)
                 .projection(Projections.metaTextScore("score"))
                 .sort(Sorts.metaTextScore("score"))
                 .skip(n*(page-1))
                 .limit(n);
 
-        return User.Adapter.fromDBObjectIterable(userIterable);
+        return new QuerySubset<>(
+                User.Adapter.fromDBObjectIterable(userIterable),
+                usersCollection.countDocuments(filter));
     }
 
     public MongoClient getMongoClient() {

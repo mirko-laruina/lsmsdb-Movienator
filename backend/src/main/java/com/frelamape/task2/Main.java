@@ -9,6 +9,7 @@ import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 
@@ -87,17 +88,17 @@ public class Main {
             u = dba.getUserFromSession(s);
         }
 
-        List<Movie> movies = dba.getMovieList(sortBy, sortOrder, minRating, maxRating, director, actor, country,
+        QuerySubset<Movie> querySubset = dba.getMovieList(sortBy, sortOrder, minRating, maxRating, director, actor, country,
                                               fromYear, toYear, genre, n, page);
         if (u != null){
             // TODO use a bulk operation
-            for (Movie movie:movies){
+            for (Movie movie: querySubset.getList()){
                 Rating r = dba.getUserRating(u, movie);
                 if (r != null && r.getRating() != null)
                     movie.setUserRating(r.getRating());
             }
         }
-        return new Gson().toJson(new BaseResponse(true, null, movies));
+        return new Gson().toJson(new BaseResponse(true, null, querySubset));
     }
 
 
@@ -114,10 +115,10 @@ public class Main {
             u = dba.getUserFromSession(s);
         }
 
-        List<Movie> movies = dba.searchMovie(query, n, page);
+        QuerySubset<Movie> movies = dba.searchMovie(query, n, page);
         if (u != null){
             // TODO use a bulk operation
-            for (Movie movie:movies){
+            for (Movie movie:movies.getList()){
                 Rating r = dba.getUserRating(u, movie);
                 if (r != null && r.getRating() != null)
                     movie.setUserRating(r.getRating());
@@ -245,7 +246,7 @@ public class Main {
         if (u != null && (u.isAdmin() || u.getUsername().equals(username))){
             User u2 = dba.getUserLoginInfo(username);
             if (u2 != null){
-                List<Rating> ratings = dba.getUserRatings(u2);
+                QuerySubset<Rating> ratings = dba.getUserRatings(u2, n, page);
                 return new Gson().toJson(new BaseResponse(true, null, ratings));
             } else {
                 return new Gson().toJson(new BaseResponse(false, "User not found", null));
@@ -364,8 +365,12 @@ public class Main {
         User u = dba.getUserFromSession(s);
 
         if (u != null && u.isAdmin()){
-            List<User> users = dba.searchUser(query, limit, 1);
-            return new Gson().toJson(new BaseResponse(true, null, users));
+            QuerySubset<User> users = dba.searchUser(query, limit, 1);
+            List<String> result = new ArrayList<>();
+            for (User user: users.getList()){
+                result.add(user.getUsername());
+            }
+            return new Gson().toJson(new BaseResponse(true, null, result));
         } else {
             return new Gson().toJson(new BaseResponse(false, "Unauthorized", null));
         }
