@@ -231,15 +231,23 @@ public class DatabaseAdapter {
         }
 
         if (director != null && !director.isEmpty()){
-            conditions.add(regex("directors.id", director));
+            List<Bson> directorConditions = new ArrayList<>();
+            for (String s:director.split(" ")){
+                directorConditions.add(regex("directors.name", s, "i"));
+            }
+            conditions.add(and(directorConditions.toArray(new Bson[]{})));
         }
 
         if (actor  != null && !actor.isEmpty()){
-            conditions.add(regex("actors.actor_id", actor));
+            List<Bson> actorConditions = new ArrayList<>();
+            for (String s:actor.split(" ")){
+                actorConditions.add(regex("actors.actor_name", s, "i"));
+            }
+            conditions.add(and(actorConditions.toArray(new Bson[]{})));
         }
 
         if (country != null && !country.isEmpty()){
-            conditions.add(regex("country", country));
+            conditions.add(eq("country", country));
         }
 
         if (fromYear != -1){

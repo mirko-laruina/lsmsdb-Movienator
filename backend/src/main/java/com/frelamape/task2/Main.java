@@ -69,7 +69,7 @@ public class Main {
     @CrossOrigin
     @RequestMapping(value={"/api/v1/movie/browse"}, method= RequestMethod.GET)
     public @ResponseBody String browseMovies(@RequestParam(value = "sessionId", required = false) String sid,
-                                             @RequestParam(required = false, defaultValue = "date") String sortBy,
+                                             @RequestParam(required = false, defaultValue = "release") String sortBy,
                                              @RequestParam(required = false, defaultValue = "-1") int sortOrder,
                                              @RequestParam(required = false, defaultValue = "-1") double minRating,
                                              @RequestParam(required = false, defaultValue = "-1") double maxRating,
