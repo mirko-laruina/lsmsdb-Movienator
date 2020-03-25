@@ -247,7 +247,7 @@ public class DatabaseAdapter {
         }
 
         if (country != null && !country.isEmpty()){
-            conditions.add(regex("country", country));
+            conditions.add(eq("country", country));
         }
 
         if (fromYear != -1){
