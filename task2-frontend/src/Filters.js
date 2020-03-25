@@ -64,8 +64,7 @@ export default function Filter(props) {
             <Tabs
                 value={currTab}
                 onChange={(evt, v) => setCurrTab(v)}
-                variant="scrollable"
-                scrollButtons="on"
+                variant="fullWidth"
                 indicatorColor="primary"
                 textColor="primary"
                 aria-label="scrollable force tabs example"

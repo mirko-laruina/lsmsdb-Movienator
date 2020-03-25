@@ -88,8 +88,7 @@ export default function HomePage(props) {
         <br />
         <Tabs
           value={0}
-          variant="scrollable"
-          scrollButtons="on"
+          variant="fullWidth"
           aria-label="scrollable force tabs example"
           classes={{
             root: classes.tabsRoot,
