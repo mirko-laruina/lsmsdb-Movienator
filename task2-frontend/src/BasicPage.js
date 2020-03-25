@@ -119,12 +119,19 @@ export default function BasicPage(props) {
         },
         {
             label: 'Browse history',
+        },
+        {
+            label: 'Logout',
+            handler: () => {
+                setOpenMenu(false)
+                window.localStorage.removeItem('username')
+            }
         }
     ]
 
     React.useEffect(() => {
         setUsername(window.localStorage.getItem('username'))
-    }, [openLogin])
+    }, [openLogin, openMenu])
 
     return (
         <div className={classes.root}>
