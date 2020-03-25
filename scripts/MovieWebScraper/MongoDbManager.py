@@ -125,6 +125,7 @@ class MongoManager:
                 
                 if "description" in mm_movie_info:
                     upd_dic["description"] = mm_movie_info["description"]
+                    upd_dic["description_ita"] = mm_movie_info["description"]
                 
                 if "image" in mm_movie_info:
                     upd_dic["poster"] = mm_movie_info["image"][0]["url"]
