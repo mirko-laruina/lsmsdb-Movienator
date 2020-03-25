@@ -222,7 +222,7 @@ public class Movie {
             movie.setBudget(BsonAutoCast.asInteger(d, "budget"));
             movie.setGross(BsonAutoCast.asInteger(d, "gross"));
             movie.setPoster(d.getString("poster"));
-            movie.setTotalRating(d.getDouble("total_rating"));
+            movie.setTotalRating(BsonAutoCast.asDouble(d, "total_rating"));
 
             Object charactersObj = d.get("characters");
             if (charactersObj != null){
