@@ -78,6 +78,16 @@ class MongoManager:
         coll_iterator = self.getMoviesByLastScraped(nrows)
         
         for movie in coll_iterator:
+            # mark movie as scraped to prevent other scrapers to scrape the same
+            # movie
+            self.db['movies'].find_one_and_update({
+                '_id': movie['_id']
+            }, {
+                '$set': {
+                    'last_scraped': datetime.now()
+                }
+            })
+
             print("\n--getting movie--\n")
             #extract movie by source
             #data from mymovies
