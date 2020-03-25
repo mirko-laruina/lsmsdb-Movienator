@@ -196,10 +196,10 @@ class MongoManager:
             pprint(movie_upd)
 
             rating_sum = sum([r['avgrating']*r['weight'] for r in movie_upd['ratings']])
-            weight_sum = sum([r['weight'] for r in movie_upd['ratings']])
+            denominator = len(movie_upd['ratings'])
             
-            if weight_sum != 0:
-                total_rating = rating_sum/weight_sum
+            if denominator != 0:
+                total_rating = rating_sum/denominator
 
                 self.db["movies"].find_one_and_update({
                         '_id': movie['_id']
