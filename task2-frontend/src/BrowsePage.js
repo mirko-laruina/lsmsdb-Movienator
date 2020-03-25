@@ -42,6 +42,7 @@ export default function ResultsPage(props) {
     const [pageCount, setPageCount] = React.useState(0);
     const [currentPage, setCurrentPage] = React.useState(1);
     const [loading, setLoading] = React.useState(true);
+    const filmPerPage = 10;
 
     const searchRequest = () => {
         console.log(filters)
@@ -56,19 +57,21 @@ export default function ResultsPage(props) {
             params: {
                 ...filters,
                 ...sorting,
-                page: pageCount
+                page: pageCount,
+                n: filmPerPage
             }
         })
             .then(function (res) {
                 if (res.data.success) {
                     setMovies(res.data.response.list)
-                    setPageCount(parseInt(res.data.response.totalCount))
+                    setPageCount(Math.ceil(parseInt(res.data.response.totalCount)/filmPerPage))
                     setLoading(false);
                 }
             })
     }
 
     useEffect(() => {
+        setLoading(true)
         searchRequest()
     }, [filters, sortOpt, pageCount, currentPage]);
 
