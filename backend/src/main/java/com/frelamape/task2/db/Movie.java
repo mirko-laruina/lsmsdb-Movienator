@@ -211,6 +211,7 @@ public class Movie {
             movie.setOriginalTitle(d.getString("original_title"));
             movie.setOriginalLanguage(d.getString("original_language"));
             movie.setRuntime(BsonAutoCast.asInteger(d, "runtime"));
+            movie.setYear(BsonAutoCast.asInteger(d, "year"));
             movie.setCountries(d.getList("countries", String.class));
             movie.setGenres(d.getList("genres", String.class));
             movie.setRuntime(BsonAutoCast.asInteger(d, "runtime"));
