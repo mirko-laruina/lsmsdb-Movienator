@@ -11,7 +11,11 @@ public class BsonAutoCast {
         try{
             return d.getInteger(key);
         } catch (ClassCastException e){
-            return Integer.parseInt(d.getString(key));
+            try{
+                return Integer.parseInt(d.getString(key));
+            } catch (NumberFormatException e2){
+                return null;
+            }
         }
     }
 
