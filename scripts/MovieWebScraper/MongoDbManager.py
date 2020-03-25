@@ -10,6 +10,8 @@ from pymongo import MongoClient
 from pprint import pprint
 from config import mongo_uri, mongo_db
 
+from datetime import datetime
+
 class MongoManager:
     
     server_ip = "127.0.0.0"
@@ -76,14 +78,12 @@ class MongoManager:
             #data from imdb
             """aggiungere dati di imdb per film con stesso id"""
             im_movie_info = scrape.LoadMovie(movie["_id"])
+
+            pprint(im_movie_info)
+            pprint(mm_movie_info)
             
             #updatedinfo
-            upd_dic ={}
-            #load rates
-            upd_dic["ratings"] = []
-            if "ratings" in movie.keys():
-                for rate in movie["ratings"]:
-                    upd_dic["ratings"].append(rate)
+            upd_dic ={'ratings':[]}
                     
             #mymovie data manager
             if (mm_movie_info == None):
@@ -91,103 +91,101 @@ class MongoManager:
             else:
                 print(mm_movie_info)
                 if ("ratings" in movie.keys()):
-                    yetthere = False
-                    #if the movie info already update skip movie
-                    for rate in movie["ratings"]:
-                        if rate["source"]=="MyMovies":
-                            yetthere = True
-                    if not yetthere:
-                        #append new rate
-                        mm_movie_aggr_info = mm_movie_info["movie"]["aggregateRating"]
-                        if (mm_movie_aggr_info != None):
-                           if (mm_movie_aggr_info["ratingValue"] != ''):
-                                ratepoints =float(mm_movie_aggr_info["ratingValue"])*2
-                                newrate = {"source":"MyMovies","avgrating":ratepoints,"count":mm_movie_aggr_info["ratingCount"],"weight":1}
-                                upd_dic["ratings"].append(newrate)
-                 
-                   
-                    
+                    #append new rate
+                    mm_movie_aggr_info = mm_movie_info["movie"]["aggregateRating"]
+                    if (mm_movie_aggr_info != None):
+                        if (mm_movie_aggr_info["ratingValue"] != ''):
+                            ratepoints = float(mm_movie_aggr_info["ratingValue"])
+                            newrate = {
+                                "source": "MyMovies",
+                                "avgrating": ratepoints,
+                                "count": mm_movie_aggr_info["ratingCount"], 
+                                "weight": 1,
+                                "last_update": datetime.now()
+                            }
+                            upd_dic["ratings"].append(newrate)
                 
-                #update diffs on mongodb
-                mm_movie_info = mm_movie_info["movie"]
-                upd_dic["genres"] = []
-                
-                if (mm_movie_info["datePublished"] != None):
-                    upd_dic["date"]= mm_movie_info["datePublished"]
-                
-                if (mm_movie_info["genre"] != None):
-                    upd_dic["genres"].append(str(mm_movie_info["genre"]))
-                
-                if (mm_movie_info["description"] != None):
+                if "description" in mm_movie_info:
                     upd_dic["description"] = mm_movie_info["description"]
                 
-                if (mm_movie_info["image"] != None):
+                if "image" in mm_movie_info:
                     upd_dic["poster"] = mm_movie_info["image"][0]["url"]
                 
             #imdb data manager
             if (im_movie_info ==None):
                 print("\nnessun contenuto imdb da aggiornare\n")
             else:
-                
-                
-                if ("ratings" in movie.keys()):
-                    yetthere = False
-                    #if the movie info already update skip movie
-                    for rate in movie["ratings"]:
-                        if rate["source"]=="IMDb":
-                            yetthere = True
-                    if not yetthere:
-                        #append new rate
-                        im_movie_aggr_info = im_movie_info["movie"]["aggregateRating"]
-                        if (im_movie_aggr_info !=None):
-                            if (im_movie_aggr_info["ratingValue"] != ''):
-                                ratepoints =float(im_movie_aggr_info["ratingValue"])
-                                newrate = {"source":"IMDb","avgrating":ratepoints,"count":im_movie_aggr_info["ratingCount"],"weight":1}
-                                upd_dic["ratings"].append(newrate)
+                #append new rate
+                im_movie_aggr_info = im_movie_info["movie"]["aggregateRating"]
+                if (im_movie_aggr_info !=None):
+                    if (im_movie_aggr_info["ratingValue"] != ''):
+                        ratepoints =float(im_movie_aggr_info["ratingValue"])
+                        newrate = {
+                            "source":"IMDb",
+                            "avgrating": ratepoints,
+                            "count": im_movie_aggr_info["ratingCount"],
+                            "weight": 0.5,
+                            "last_update": datetime.now()
+                        }
+                        upd_dic["ratings"].append(newrate)
                 
                 #update diffs on mongodb
                 im_movie_info = im_movie_info["movie"]
-                if ("genres" not in upd_dic.keys()):
-                    upd_dic["genres"] = []
-                    if str(type(im_movie_info["genre"])) == "<class 'list'>":
-                        for gen in im_movie_info["genre"]:
-                            upd_dic["genres"].append(str(gen))
-                    else:
-                        upd_dic["genres"].append(str(im_movie_info["genre"]))
-                else:
-                    if im_movie_info["genre"] not in upd_dic["genres"]:
-                        if str(type(im_movie_info["genre"])) == "<class 'list'>":
-                            for gen in im_movie_info["genre"]:
-                                upd_dic["genres"].append(str(gen))
-                        else:
-                            upd_dic["genres"].append(str(im_movie_info["genre"]))
                 
-                if ("date" not in upd_dic.keys()):
-                    upd_dic["date"] = im_movie_info["datePublished"]
-                else:
-                    if (upd_dic["date"]==""):
-                        upd_dic["datePublished"] = im_movie_info["datePublished"]
-                
-                
-                if ("description" not in upd_dic.keys()):
+                # IMDb overrides mymovies result
+                if "description" in im_movie_info and im_movie_info['description']:
                     upd_dic["description"] = im_movie_info["description"]
-                else:
-                    if (upd_dic["description"]==""):
-                        upd_dic["description"] = im_movie_info["description"]
-                        
-                if ("poster" not in upd_dic.keys()):
-                    upd_dic["poster"] = im_movie_info["image"]
-                else:
-                    if (upd_dic["poster"]==""):
-                        upd_dic["poster"] = im_movie_info["image"]
-                upd_dic["poster"] = im_movie_info["image"]
 
+                if "image" in im_movie_info and im_movie_info['image']:
+                    upd_dic["poster"] = im_movie_info["image"]
+                        
                 for attribute in ms.MovieScraper.EXTRA_ATTRIBUTES:    
                     if im_movie_info[attribute]:
                         upd_dic[attribute] = im_movie_info[attribute]
             
-            #load updated movie
-            self.db["movies"].find_one_and_update(movie,{'$set':upd_dic})
+            pprint(upd_dic)
+            
+            #load updated movie ratings
+            for rating in upd_dic['ratings']:
+                self.db["movies"].find_one_and_update({
+                    '_id': movie['_id'],
+                    'ratings.source': rating['source']
+                },
+                {
+                    '$set': {
+                        'ratings.$': rating
+                    }
+                })
+            
+            del upd_dic['ratings']
+
+            # update other info
+            self.db["movies"].find_one_and_update({
+                    '_id': movie['_id']
+                }, {
+                    '$set': upd_dic
+            })
+
+            # update total_rating
+            movie_upd = self.db["movies"].find_one({
+                    '_id': movie['_id']
+                }, 
+                projection = ['ratings']
+            )
+
+            pprint(movie_upd)
+
+            total_rating = sum([r['avgrating']*r['weight'] for r in movie_upd['ratings']])
+            self.db["movies"].find_one_and_update({
+                    '_id': movie['_id']
+                }, 
+                {
+                    '$set': {
+                        'total_rating': total_rating
+                    }
+                }
+            )
+
             print("\n---movie updated---")
         
         #update index
