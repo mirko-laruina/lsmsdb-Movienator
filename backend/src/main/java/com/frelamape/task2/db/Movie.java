@@ -213,7 +213,7 @@ public class Movie {
             movie.setRuntime(BsonAutoCast.asInteger(d, "runtime"));
             movie.setCountries(d.getList("countries", String.class));
             movie.setGenres(d.getList("genres", String.class));
-            movie.setRuntime(BsonAutoCast.asInteger(d, "year"));
+            movie.setRuntime(BsonAutoCast.asInteger(d, "runtime"));
             movie.setDate(BsonAutoCast.asDate(d,"date"));
             movie.setDescription(d.getString("description"));
             movie.setTagline(d.getString("tagline"));
