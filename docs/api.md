@@ -77,7 +77,7 @@ All parameters are optional. Default behaviour is sorting by release date (ascen
  - maxRating: maximum rating (included)
  - director: director name (or part of)
  - actor: actor name (or part of)
- - country: country name (or part of)
+ - country: country name
  - fromYear: minimum release year (included)
  - toYear: maximum release year (included)
  - genre: genre that the movie must contain
@@ -233,7 +233,7 @@ Default behaviour is sorting by rating (descending).
  - maxRating: maximum rating (included)
  - director: director name (or part of)
  - actor: actor name (or part of)
- - country: country name (or part of)
+ - country: country name
  - fromYear: minimum release year (included)
  - toYear: maximum release year (included)
  - genre: genre that the movie must contain
