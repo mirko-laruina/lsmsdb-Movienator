@@ -52,6 +52,13 @@ class MongoManager:
         else:
             return self.db[CollName].find().skip(skipN).limit(limn)#returns a cursor
     
+    def getMoviesByLastScraped(self, limn=0):
+        queryset = self.db["movies"].find().sort([('last_scraped', 1)])
+        if limn == 0:
+            return queryset
+        else:
+            return queryset.limit(limn)
+    
     """"""""""""""
     
     def UpdateMongoMovies(self,coll_name,nrows=20):#make use of indxes file
@@ -60,14 +67,15 @@ class MongoManager:
         if mysource_p == None :
             raise Exception("Sorry, requested source not available")
         
-        #recupero l'indice
-        try:
-            f=open("UpdateIndex.txt", "r")
-            skipIdx=int(f.read())
-        except OSError as oe:
-            skipIdx = 0
+        # #recupero l'indice
+        # try:
+        #     f=open("UpdateIndex.txt", "r")
+        #     skipIdx=int(f.read())
+        # except OSError as oe:
+        #     skipIdx = 0
         
-        coll_iterator = self.getCollection(coll_name,nrows,skipIdx)####
+        # coll_iterator = self.getCollection(coll_name,nrows,skipIdx)####
+        coll_iterator = self.getMoviesByLastScraped(nrows)
         
         for movie in coll_iterator:
             print("\n--getting movie--\n")
@@ -159,6 +167,7 @@ class MongoManager:
             
             del upd_dic['ratings']
 
+            upd_dic['last_scraped'] = datetime.now()
             # update other info
             self.db["movies"].find_one_and_update({
                     '_id': movie['_id']
@@ -184,8 +193,6 @@ class MongoManager:
                 self.db["movies"].find_one_and_update({
                         '_id': movie['_id']
                     }, 
-                }, 
-                    }, 
                     {
                         '$set': {
                             'total_rating': total_rating
@@ -195,12 +202,12 @@ class MongoManager:
 
             print("\n---movie updated---")
         
-        #update index
-        print("\nupdate effettuato\n")
-        skipIdx+=nrows
-        f=open("UpdateIndex.txt", "w")
-        f.write(str(skipIdx))
-        f.close()
+        # #update index
+        # print("\nupdate effettuato\n")
+        # skipIdx+=nrows
+        # f=open("UpdateIndex.txt", "w")
+        # f.write(str(skipIdx))
+        # f.close()
         
          
 if __name__ == "__main__":#test
