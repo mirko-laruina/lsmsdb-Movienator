@@ -49,7 +49,7 @@ function App() {
         <Switch>
           <Route path="/browse" component={BrowsePage} />
           <Route path="/stats/:group/" component={StatsPage} />
-          <Route path="/results/:value" component={SearchPage} />
+          <Route path="/results/:query" component={SearchPage} />
           <Route path="/" component={HomePage} />
         </Switch>
       </Router>
