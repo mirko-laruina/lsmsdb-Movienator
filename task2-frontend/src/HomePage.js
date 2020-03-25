@@ -3,7 +3,7 @@ import { Link } from 'react-router-dom';
 
 /* Graphical components material-ui */
 import {
-  FormControl, OutlinedInput, InputAdornment, Tabs, Tab, IconButton, Typography
+  FormControl, OutlinedInput, InputAdornment, Tabs, Tab, IconButton, Typography, Button, Grid
 } from '@material-ui/core';
 /* Icon material-ui */
 import CameraRollIcon from '@material-ui/icons/CameraRoll';
@@ -54,9 +54,23 @@ export default function HomePage(props) {
           </Typography>
       </MyCard>
       <MyCard>
-        <h2>Search a movie</h2>
+        <Grid container>
+          <Grid item xs={9}>
+            <Typography variant="h4" component='h2'>Search a movie</Typography>
+          </Grid>
+          <Grid item xs={3}>
+            <Button
+              fullWidth
+              variant="outlined"
+              color="primary"
+              size="large"
+              to="/browse"
+              component={Link}>
+              Browse all</Button>
+          </Grid>
+        </Grid>
         <br />
-        <form onSubmit={() => { props.history.push('/results/'+searchValue) }}>
+        <form onSubmit={() => { props.history.push('/results/' + searchValue) }}>
           <FormControl fullWidth variant="outlined">
             <OutlinedInput
               id="search-home"
@@ -69,7 +83,7 @@ export default function HomePage(props) {
                     type="submit"
                     className={classes.iconButton}
                     aria-label="search"
-                    >
+                  >
                     <SearchIcon />
                   </IconButton>
                 </InputAdornment>
@@ -82,9 +96,10 @@ export default function HomePage(props) {
             />
           </FormControl>
         </form>
+        <br />
       </MyCard>
       <MyCard>
-        <h2>Explore statistics</h2>
+        <Typography variant="h4" component='h2'>Explore statistics</Typography>
         <br />
         <Tabs
           value={0}
