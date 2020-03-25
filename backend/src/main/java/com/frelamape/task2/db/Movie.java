@@ -20,8 +20,8 @@ public class Movie {
     private String tagline;
     private String poster;
     private String mpaa;
-    private int budget;
-    private int gross;
+    private Integer budget;
+    private Integer gross;
     private List<Character> characters;
     private List<Person> directors;
     private List<String> genres;
@@ -105,19 +105,19 @@ public class Movie {
         this.mpaa = mpaa;
     }
 
-    public int getBudget() {
+    public Integer getBudget() {
         return budget;
     }
 
-    public void setBudget(int budget) {
+    public void setBudget(Integer budget) {
         this.budget = budget;
     }
 
-    public int getGross() {
+    public Integer getGross() {
         return gross;
     }
 
-    public void setGross(int gross) {
+    public void setGross(Integer gross) {
         this.gross = gross;
     }
 
