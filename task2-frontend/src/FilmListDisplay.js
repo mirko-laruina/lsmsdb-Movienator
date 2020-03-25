@@ -1,6 +1,7 @@
 import React from 'react'
-import {List, ListItem, ListItemAvatar, ListItemText, Typography, Divider, Chip} from '@material-ui/core'
-import {Rating} from '@material-ui/lab'
+import {Link} from 'react-router-dom'
+import { List, ListItem, ListItemAvatar, ListItemText, Typography, Divider, Chip } from '@material-ui/core'
+import { Rating } from '@material-ui/lab'
 
 import FilmListSkeleton from './FilmListSkeleton'
 
@@ -31,7 +32,7 @@ export default function FilmListDisplay(props) {
                 ||
                 props.array.map((data, index) => (
                     <div key={index}>
-                        <ListItem alignItems="flex-start">
+                        <ListItem component={Link} to={"/movie/"+data.id} alignItems="flex-start">
                             <ListItemAvatar children={
                                 <img alt={data.title}
                                     src={data.poster ? data.poster : require('./blank_poster.png')}
@@ -65,7 +66,7 @@ export default function FilmListDisplay(props) {
                                             color="textPrimary"
                                         >
                                             Average rating {data.total_rating}/10
-                                </Typography>
+                                        </Typography>
                                         <br />
                                         <Rating name="avg-rating" value={data.total_rating / 2} max={5} precision={0.1} readOnly />
                                         <br />
