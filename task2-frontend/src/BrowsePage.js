@@ -28,35 +28,35 @@ export default function BrowsePage(props) {
     const [loading, setLoading] = React.useState(true);
     const filmPerPage = 10;
 
-    const browseRequest = () => {
-        console.log(filters)
-        console.log(sortOpt)
-        var sorting = {
-            sortBy: sortOpt.sortBy === '0' ? 'release' :
-                sortOpt.sortBy === '1' ? 'rating' : 'title',
-            sortOrder: sortOpt.sortOrder === '0' ? -1 : 1,
-        }
-        var reqParams = {
-            ...filters,
-            ...sorting,
-            page: currentPage,
-            n: filmPerPage
-        }
-        console.log(reqParams)
-        axios.get(baseUrl + "movie/browse", {
-            params: reqParams
-        })
-            .then(function (res) {
-                if (res.data.success) {
-                    setMovies(res.data.response.list)
-                    setPageCount(Math.ceil(parseInt(res.data.response.totalCount) / filmPerPage))
-                    setLoading(false);
-                    console.log(res.data)
-                }
-            })
-    }
-
     useEffect(() => {
+        const browseRequest = () => {
+            console.log(filters)
+            console.log(sortOpt)
+            var sorting = {
+                sortBy: sortOpt.sortBy === '0' ? 'release' :
+                    sortOpt.sortBy === '1' ? 'rating' : 'title',
+                sortOrder: sortOpt.sortOrder === '0' ? -1 : 1,
+            }
+            var reqParams = {
+                ...filters,
+                ...sorting,
+                page: currentPage,
+                n: filmPerPage
+            }
+            console.log(reqParams)
+            axios.get(baseUrl + "movie/browse", {
+                params: reqParams
+            })
+                .then(function (res) {
+                    if (res.data.success) {
+                        setMovies(res.data.response.list)
+                        setPageCount(Math.ceil(parseInt(res.data.response.totalCount) / filmPerPage))
+                        setLoading(false);
+                        console.log(res.data)
+                    }
+                })
+        }
+        
         setLoading(true)
         browseRequest()
     }, [filters, sortOpt, pageCount, currentPage]);

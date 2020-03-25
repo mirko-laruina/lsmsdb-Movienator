@@ -39,7 +39,6 @@ const MyTab = withStyles({
 export default function HomePage(props) {
   const classes = useStyles()
   const [searchValue, setSearch] = React.useState("")
-  const backUrl = '/results/'
   return (
     <BasicPage history={props.history}>
       <MyCard>

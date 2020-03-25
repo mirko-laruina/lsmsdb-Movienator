@@ -217,9 +217,10 @@ export default function Filter(props) {
                     country: countryValue
                 }
                 Object.keys(supposedFilters).map((key, i) => {
-                    if (supposedFilters[key] != defaultFilters[key]) {
+                    if (supposedFilters[key] !== defaultFilters[key]) {
                         newFilters[key] = supposedFilters[key]
                     }
+                    return null;
                 })
                 props.handler(newFilters)
                 props.setOpen(false)
