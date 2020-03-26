@@ -65,10 +65,10 @@ export default function FilmListDisplay(props) {
                                             variant="body1"
                                             color="textPrimary"
                                         >
-                                            Average rating {data.total_rating}/10
+                                            Average rating {data.totalRating}/5
                                         </Typography>
                                         <br />
-                                        <Rating name="avg-rating" value={data.total_rating / 2} max={5} precision={0.1} readOnly />
+                                        <Rating name="avg-rating" value={data.totalRating} max={5} precision={0.1} readOnly />
                                         <br />
                                         {
                                             !data.user_rating ? null :
@@ -78,10 +78,10 @@ export default function FilmListDisplay(props) {
                                                         variant="body1"
                                                         color="textPrimary"
                                                     >
-                                                        Your rating {data.user_rating}/10
+                                                        Your rating {data.user_rating}/5
                                                                             </Typography>
                                                     <br />
-                                                    <Rating name="user-rating" value={data.user_rating / 2} max={5} precision={0.5} />
+                                                    <Rating name="user-rating" value={data.user_rating} max={5} precision={0.5} />
                                                 </React.Fragment>
                                         }
                                     </React.Fragment>

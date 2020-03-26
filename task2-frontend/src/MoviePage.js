@@ -1,10 +1,12 @@
 import React, { useEffect } from 'react'
 
+import { Rating } from '@material-ui/lab'
+import { Typography, Grid, Chip } from '@material-ui/core'
+import axios from 'axios'
+
+import { baseUrl } from './utils'
 import BasicPage from './BasicPage'
 import MyCard from './MyCard'
-import { Typography, Grid, Chip } from '@material-ui/core'
-import { baseUrl } from './utils'
-import axios from 'axios'
 import FilmListSkeleton from './FilmListSkeleton'
 
 const input = {
@@ -75,7 +77,7 @@ const styles = {
 }
 
 const months = new Array('January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December')
-const getDate = function(stringDate){
+const getDate = function (stringDate) {
     var date = new Date(stringDate)
     var print_date = months[date.getMonth()] + " " + date.getDate() + ", " + date.getFullYear()
     return print_date
@@ -83,6 +85,17 @@ const getDate = function(stringDate){
 
 export default function MoviePage(props) {
     const [movie, setMovie] = React.useState(null)
+
+    const genGenreChips = (movie) => {
+        return movie.genres.map((gen, index) => (
+            <Chip
+                key={index}
+                label={gen}
+                variant="outlined"
+                color="primary"
+                style={styles.genre} />
+        ))
+    }
 
     useEffect(() => {
         var url = baseUrl + 'movie/' + props.match.params.id
@@ -103,6 +116,7 @@ export default function MoviePage(props) {
                         :
                         <>
                             <br />
+
                             <Typography
                                 variant="h3"
                                 component="h1"
@@ -124,14 +138,25 @@ export default function MoviePage(props) {
                                         style={styles.img} />
                                 </Grid>
                                 <Grid item xs={8}>
-                                    {movie.genres.map((gen, index) => (
-                                        <Chip key={index} label={gen} variant="outlined" color="primary" style={styles.genre} />
-                                    ))}
-                                    <br />
+                                    {movie.totalRating ?
+                                        <Grid container>
+                                            <Grid item xs={8}>
+                                                {genGenreChips(movie)}
+                                            </Grid>
+                                            <Grid item xs={4}>
+                                                <Rating name="avg-rating" size="large" value={movie.totalRating} max={5} precision={0.1} readOnly />
+                                            </Grid>
+                                        </Grid>
+                                        :
+                                        <React.Fragment>
+                                        {genGenreChips(movie)}
+                                        <br />
+                                        </React.Fragment>
+                                    }
                                     <br />
                                     {movie.description &&
                                         <Typography
-                                            variant="h6"
+                                            variant="body1"
                                             component="p"
                                         >
                                             {movie.description}
@@ -141,7 +166,7 @@ export default function MoviePage(props) {
                                     }
                                     {movie.directors.length !== 0 &&
                                         <Typography
-                                            variant="h6"
+                                            variant="body1"
                                             component="p"
                                         >
                                             <b>Directed by</b>: {movie.directors.map((dir, i) => {
@@ -154,14 +179,14 @@ export default function MoviePage(props) {
                                         </Typography>
                                     }
                                     <Typography
-                                        variant="h6"
+                                        variant="body1"
                                         component="p"
                                     >
                                         <b>Runtime</b>: {Math.floor(movie.runtime / 60)}h {movie.runtime % 60}m
                                     </Typography>
                                     {movie.characters.length !== 0 &&
                                         <Typography
-                                            variant="h6"
+                                            variant="body1"
                                             component="p"
                                         >
                                             <b>Starring</b>: {movie.characters.map((char, i) => {
@@ -178,7 +203,7 @@ export default function MoviePage(props) {
                                     {
                                         movie.date &&
                                         <Typography
-                                            variant="h6"
+                                            variant="body1"
                                             component="p"
                                         >
                                             <b>Released on</b>: {getDate(movie.date)}
@@ -189,6 +214,6 @@ export default function MoviePage(props) {
                         </>
                 }
             </MyCard>
-        </BasicPage>
+        </BasicPage >
     )
 }
