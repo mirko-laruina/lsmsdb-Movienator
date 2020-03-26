@@ -1,13 +1,14 @@
 import React, { useEffect } from 'react'
-
+import { withStyles } from '@material-ui/core/styles'
 import { Rating } from '@material-ui/lab'
-import { Typography, Grid, Chip } from '@material-ui/core'
+import { Typography, Grid, Chip, Divider } from '@material-ui/core'
 import axios from 'axios'
 
 import { baseUrl } from './utils'
 import BasicPage from './BasicPage'
 import MyCard from './MyCard'
 import MoviePageSkeleton from './MoviePageSkeleton'
+import FavoriteIcon from '@material-ui/icons/Favorite'
 
 const styles = {
     cardRoot: {
@@ -26,6 +27,7 @@ const styles = {
 const months = ['January', 'February', 'March', 'April',
     'May', 'June', 'July', 'August', 'September',
     'October', 'November', 'December']
+
 const getDate = function (stringDate) {
     var date = new Date(stringDate)
     var print_date = months[date.getMonth()] + " " + date.getDate() + ", " + date.getFullYear()
@@ -45,6 +47,47 @@ export default function MoviePage(props) {
                 style={styles.genre} />
         ))
     }
+
+    const displayRatings = (ratings) => {
+        let len = ratings.length
+        movie.ratings.map((rating, i) => {
+            if (rating.source === 'user' && len > 0) {
+                len -= 1
+            }
+            if (rating.source === 'internal') {
+                movie.ratings[i].source = 'Movienator'
+            }
+        })
+        return movie.ratings.map((rating, i) => {
+            if (rating.source === 'user') {
+                return
+            }
+            else return (
+                <Grid item xs={12 / len} key={i}>
+                    <Typography variant="h6" component="h3">
+                        {rating.source} {rating.avgRating}/5
+                </Typography>
+                    <Rating
+                        name={rating.source + "-rating"}
+                        size="large"
+                        value={rating.avgRating}
+                        max={5}
+                        precision={0.1}
+                        readOnly
+                    />
+                </Grid>
+            )
+        })
+    }
+
+    const StyledRating = withStyles({
+        iconFilled: {
+            color: '#ff6d75',
+        },
+        iconHover: {
+            color: '#ff3d47',
+        },
+    })(Rating);
 
     useEffect(() => {
         var url = baseUrl + 'movie/' + props.match.params.id
@@ -92,7 +135,7 @@ export default function MoviePage(props) {
                                             <Grid item xs={8}>
                                                 {genGenreChips(movie)}
                                             </Grid>
-                                            <Grid item xs={4}>
+                                            <Grid item xs={4} align="right">
                                                 <Rating name="avg-rating" size="large" value={movie.totalRating} max={5} precision={0.1} readOnly />
                                             </Grid>
                                         </Grid>
@@ -103,6 +146,7 @@ export default function MoviePage(props) {
                                         </React.Fragment>
                                     }
                                     <br />
+
                                     {movie.description &&
                                         <Typography
                                             variant="body1"
@@ -112,6 +156,31 @@ export default function MoviePage(props) {
                                             <br />
                                             <br />
                                         </Typography>
+                                    }
+                                    {   window.localStorage.getItem('username') &&
+                                        <Grid container spacing={1} direction="row" alignContent="center">
+                                            <Grid item>
+                                                <Typography
+                                                    variant="body1"
+                                                    component="p"
+                                                >
+                                                    <b>Your rating</b>:
+                                            </Typography>
+                                            </Grid>
+                                            <Grid item>
+                                                <StyledRating
+                                                    name="user-rating"
+                                                    defaultValue={
+                                                        movie.ratings.filter((rating, i) => {
+                                                            if(rating.source == "user")
+                                                                return rating.avgRating
+                                                        })
+                                                    }
+                                                    precision={0.5}
+                                                    icon={<FavoriteIcon fontSize="inherit" />}
+                                                />
+                                            </Grid>
+                                        </Grid>
                                     }
                                     {movie.directors.length !== 0 &&
                                         <Typography
@@ -142,7 +211,7 @@ export default function MoviePage(props) {
                                         >
                                             <b>Starring</b>: {movie.characters.map((char, i) => {
                                                 var actor = char.actor.name
-                                                if(char.name){
+                                                if (char.name) {
                                                     actor += " (" + char.name + ")"
                                                 }
                                                 if (i !== 0) {
@@ -163,6 +232,8 @@ export default function MoviePage(props) {
                                             <b>Released on</b>: {getDate(movie.date)}
                                         </Typography>
                                     }
+                                    <br />
+
                                 </Grid>
                             </Grid>
                             <br />
@@ -189,23 +260,7 @@ export default function MoviePage(props) {
                                     <br />
                                     <Grid container align="center">
                                         {
-                                            movie.ratings.map((rating, i) => {
-                                                return (
-                                                    <Grid item xs={12 / movie.ratings.length} key={i}>
-                                                        <Typography variant="h6" component="h3">
-                                                            {rating.source} {rating.avgRating}/5
-                                                        </Typography>
-                                                        <Rating
-                                                            name={rating.source + "-rating"}
-                                                            size="large"
-                                                            value={rating.avgRating}
-                                                            max={5}
-                                                            precision={0.1}
-                                                            readOnly
-                                                        />
-                                                    </Grid>
-                                                )
-                                            })
+                                            displayRatings(movie.ratings)
                                         }
                                     </Grid>
                                     <br />
