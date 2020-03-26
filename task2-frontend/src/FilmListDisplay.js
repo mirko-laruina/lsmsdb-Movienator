@@ -65,7 +65,7 @@ export default function FilmListDisplay(props) {
                                             variant="body1"
                                             color="textPrimary"
                                         >
-                                            Average rating {data.totalRating}/5
+                                            Average rating {Math.round(data.totalRating*10)/10}/5
                                         </Typography>
                                         <br />
                                         <Rating name="avg-rating" value={data.totalRating} max={5} precision={0.1} readOnly />
