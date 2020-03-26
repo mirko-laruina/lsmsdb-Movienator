@@ -7,7 +7,7 @@ import axios from 'axios'
 import { baseUrl } from './utils'
 import BasicPage from './BasicPage'
 import MyCard from './MyCard'
-import FilmListSkeleton from './FilmListSkeleton'
+import MoviePageSkeleton from './MoviePageSkeleton'
 
 const styles = {
     cardRoot: {
@@ -61,7 +61,7 @@ export default function MoviePage(props) {
             <MyCard style={styles.cardRoot}>
                 {
                     !movie ?
-                        <FilmListSkeleton />
+                        <MoviePageSkeleton />
                         :
                         <>
                             <br />
@@ -141,7 +141,10 @@ export default function MoviePage(props) {
                                             component="p"
                                         >
                                             <b>Starring</b>: {movie.characters.map((char, i) => {
-                                                var actor = char.actor.name + " (" + char.name + ")"
+                                                var actor = char.actor.name
+                                                if(char.name){
+                                                    actor += " (" + char.name + ")"
+                                                }
                                                 if (i !== 0) {
                                                     actor = ", " + actor
                                                 }
