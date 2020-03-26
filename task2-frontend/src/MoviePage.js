@@ -149,8 +149,8 @@ export default function MoviePage(props) {
                                         </Grid>
                                         :
                                         <React.Fragment>
-                                        {genGenreChips(movie)}
-                                        <br />
+                                            {genGenreChips(movie)}
+                                            <br />
                                         </React.Fragment>
                                     }
                                     <br />
@@ -211,9 +211,104 @@ export default function MoviePage(props) {
                                     }
                                 </Grid>
                             </Grid>
+                            <br />
+                            {movie.storyline &&
+                                <>
+                                    <Typography
+                                        variant="h4" component="h2">
+                                        Storyline
+                                    </Typography>
+                                    <br />
+                                    <Typography variant="body1" component="p">
+                                        {movie.storyline}
+                                    </Typography>
+                                    <br />
+                                </>
+                            }
+                                                        {
+                                movie.ratings && movie.ratings.length !== 0 &&
+                                <React.Fragment>
+                                    <Typography
+                                        variant="h4" component="h2">
+                                        Ratings
+                                    </Typography>
+                                    <br />
+                                    <Grid container align="center">
+                                        {
+                                            movie.ratings.map((rating, i) => {
+                                                return (
+                                                    <Grid item xs={12 / movie.ratings.length} key={i}>
+                                                        <Typography variant="h6" component="h3">
+                                                            {rating.source} {rating.avgRating}/5
+                                                        </Typography>
+                                                        <Rating
+                                                            name={rating.source + "-rating"}
+                                                            size="large"
+                                                            value={rating.avgRating}
+                                                            max={5}
+                                                            precision={0.1}
+                                                            readOnly
+                                                        />
+                                                    </Grid>
+                                                )
+                                            })
+                                        }
+                                    </Grid>
+                                    <br />
+                                </React.Fragment>
+                            }
+                            {((movie.countries && movie.countries.length !== 0) ||
+                                movie.originalTitle ||
+                                movie.originalLanguage ||
+                                movie.mpaa) &&
+                                <>
+                                    < Typography
+                                        variant="h4" component="h2">
+                                        Additional details
+                                </Typography>
+                                    {movie.countries && movie.countries.length !== 0 &&
+                                        <Typography
+                                            variant="body1"
+                                            component="p"
+                                        >
+                                            {
+                                                movie.countries.length === 1 &&
+                                                <React.Fragment>
+                                                    <b>Country</b>: {movie.countries[0]}
+                                                </React.Fragment>
+                                            }
+                                            {
+                                                movie.countries.length > 1 &&
+                                                <React.Fragment>
+                                                    <b>Countries</b>: {movie.countries.map((country, i) => {
+                                                        if (i === 0) {
+                                                            return country
+                                                        }
+                                                        return ", " + country
+                                                    })}
+                                                </React.Fragment>
+                                            }
+                                        </Typography>
+                                    }
+                                    {
+                                        movie.originalTitle &&
+                                        <Typography variant="body1" component="p">
+                                            <b>Original title</b>: {movie.originalTitle}
+                                        </Typography>
+                                    }
+                                    {
+                                        movie.originalLanguage &&
+                                        <Typography variant="body1" component="p">
+                                            <b>Original language</b>: {movie.originalLanguage}
+                                        </Typography>
+                                    }
+                                </>
+                            }
+
                         </>
                 }
             </MyCard>
+            <br />
         </BasicPage >
     )
 }
