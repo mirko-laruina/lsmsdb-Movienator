@@ -1,4 +1,4 @@
-import React from 'react';
+import React, {useEffect} from 'react';
 import {
   BrowserRouter as Router,
   Switch,
@@ -42,6 +42,10 @@ const theme = createMuiTheme({
 });
 
 function App() {
+  useEffect(() => {
+    document.title = "Movienator"
+  }, [])
+  
   //NOTICE: root route has to be the last route, otherwise it will match all the paths
   return (
     <ThemeProvider theme={theme}>
