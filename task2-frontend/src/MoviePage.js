@@ -127,12 +127,14 @@ export default function MoviePage(props) {
                                             })}
                                         </Typography>
                                     }
-                                    <Typography
-                                        variant="body1"
-                                        component="p"
-                                    >
-                                        <b>Runtime</b>: {Math.floor(movie.runtime / 60)}h {movie.runtime % 60}m
-                                    </Typography>
+                                    {movie.runtime &&
+                                        <Typography
+                                            variant="body1"
+                                            component="p"
+                                        >
+                                            <b>Runtime</b>: {Math.floor(movie.runtime / 60)}h {movie.runtime % 60}m
+                                        </Typography>
+                                    }
                                     {movie.characters.length !== 0 &&
                                         <Typography
                                             variant="body1"
