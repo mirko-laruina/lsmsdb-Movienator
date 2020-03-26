@@ -42,6 +42,7 @@ export default function LoginForm(props) {
                 localStorage.setItem('is_admin', pkt.data.response.is_admin)
                 localStorage.setItem('username', username)
                 props.setOpen(false)
+                window.location.reload()
             } else {
                 setErrorMsg("Failed login")
             }

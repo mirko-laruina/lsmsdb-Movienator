@@ -107,13 +107,13 @@ export default function BasicPage(props) {
             params: {
                 sessionId: sid
             }
-        }).then(() => {
-            // Since the user wants to be disconnected
-            // we can remove the infos anyway
-            localStorage.removeItem('sessionId');
-            localStorage.removeItem('username');
-            localStorage.removeItem('is_admin');
         })
+        // Since the user wants to be disconnected
+        // we can remove the infos anyway
+        localStorage.removeItem('sessionId');
+        localStorage.removeItem('username');
+        localStorage.removeItem('is_admin');
+        window.location.reload()
     }
 
     const notLoggedMenu = [
@@ -142,7 +142,6 @@ export default function BasicPage(props) {
             handler: () => {
                 setOpenMenu(false)
                 logoutRequest()
-                window.localStorage.removeItem('username')
             }
         }
     ]
