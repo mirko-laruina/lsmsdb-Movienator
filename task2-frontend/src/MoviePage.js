@@ -9,59 +9,6 @@ import BasicPage from './BasicPage'
 import MyCard from './MyCard'
 import FilmListSkeleton from './FilmListSkeleton'
 
-const input = {
-    "_id": "tt7286456",
-    "title": "Joker",
-    "original_title": "Joker",
-    "runtime": 122,
-    "countries": ["USA", "Canada"],
-    "original_language": "English",
-    "year": 2019,
-    "date": "2019-10-04",
-    "description": "In Gotham City, mentally troubled comedian [...]",
-    "storyline": "Joker centers around an origin of the iconic arch [...]",
-    "tagline": "Put on a happy face.",
-    "poster": "https://m.media-amazon.com/images/M/MV5BOTQ2ZTIwODMtMTFiNS00Njk0LWExNzEtZGFmOGY2OGY0YjQyXkEyXkFqcGdeQXVyMTQ3Njg3MQ@@._V1_.jpg",
-    "mpaa": "Rated R for strong bloody violence, disturbing behavior, [...]",
-    "budget": 55000000,
-    "gross": 1074251311,
-    "characters": [
-        {
-            "name": "Joker",
-            "actor_name": "Joaquin Phoenix",
-            "actor_id": "nm0001618"
-        },
-    ],
-    "directors": [
-        {
-            "id": "nm0680846",
-            "name": "Todd Phillips",
-        }
-    ],
-    "genres": ["Crime", "Drama", "Thriller"],
-    "ratings": [
-        {
-            "source": "internal",
-            "avgrating": 9,
-            "count": 100,
-            "weight": 2
-        },
-        {
-            "source": "IMDb",
-            "avgrating": 8.6,
-            "count": 628981,
-            "weight": 1
-        },
-        {
-            "source": "user",
-            "avgrating": 7,
-            "count": 1,
-            "weight": 0
-        },
-    ],
-    "total_rating": 8.87
-}
-
 const styles = {
     cardRoot: {
         padding: '1em 3em',
@@ -76,7 +23,9 @@ const styles = {
     }
 }
 
-const months = new Array('January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December')
+const months = ['January', 'February', 'March', 'April',
+    'May', 'June', 'July', 'August', 'September',
+    'October', 'November', 'December']
 const getDate = function (stringDate) {
     var date = new Date(stringDate)
     var print_date = months[date.getMonth()] + " " + date.getDate() + ", " + date.getFullYear()
@@ -225,7 +174,7 @@ export default function MoviePage(props) {
                                     <br />
                                 </>
                             }
-                                                        {
+                            {
                                 movie.ratings && movie.ratings.length !== 0 &&
                                 <React.Fragment>
                                     <Typography
