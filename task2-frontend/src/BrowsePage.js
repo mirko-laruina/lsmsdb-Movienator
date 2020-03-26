@@ -30,8 +30,13 @@ export default function BrowsePage(props) {
 
     useEffect(() => {
         const browseRequest = () => {
-            console.log(filters)
-            console.log(sortOpt)
+            if( typeof(sortOpt.sortBy) === 'undefined'
+                ||
+                typeof(sortOpt.sortOrder) === 'undefined'){
+                    //sortOpt isn't updated by the child component yet
+                    //we should NOT do any request
+                return
+            }
             var sorting = {
                 sortBy: sortOpt.sortBy === '0' ? 'release' :
                     sortOpt.sortBy === '1' ? 'rating' : 'title',
@@ -43,7 +48,7 @@ export default function BrowsePage(props) {
                 page: currentPage,
                 n: filmPerPage
             }
-            console.log(reqParams)
+
             axios.get(baseUrl + "movie/browse", {
                 params: reqParams
             })
@@ -59,7 +64,7 @@ export default function BrowsePage(props) {
         
         setLoading(true)
         browseRequest()
-    }, [filters, sortOpt, pageCount, currentPage]);
+    }, [filters, sortOpt, currentPage]);
 
     return (
         <BasicPage history={props.history}>

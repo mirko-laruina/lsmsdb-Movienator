@@ -5,13 +5,13 @@ import MySelect from './MySelect.js';
 
 const groups = ["Country", "Year", "Director", "Actor"];
 const sorts = ["Release", "Rating", "Title"];
-const sortOrders = ["Ascending", "Descending"];
+const sortOrders = ["Descending", "Ascending"];
 
 
 export default function Sorting(props) {
-    const [sortByValue, setSortBy] = React.useState(0);
-    const [groupByValue, setGroupBy] = React.useState(0);
-    const [sortOrderValue, setSortOrder] = React.useState(0);
+    const [sortByValue, setSortBy] = React.useState('0');
+    const [groupByValue, setGroupBy] = React.useState('0');
+    const [sortOrderValue, setSortOrder] = React.useState('0');
     const handler = props.handler;
 
     useEffect(() => {
