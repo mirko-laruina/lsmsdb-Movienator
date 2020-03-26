@@ -15,6 +15,8 @@ import { fade, makeStyles } from '@material-ui/core/styles';
 import MyCard from './MyCard'
 import LoginForm from './LoginForm'
 import './App.css'
+import { baseUrl } from './utils'
+import axios from 'axios';
 
 const Transition = React.forwardRef(function Transition(props, ref) {
     return <Slide direction="down" ref={ref} {...props} />;
@@ -99,6 +101,21 @@ export default function BasicPage(props) {
         setOpenMenu(state);
     }
 
+    const logoutRequest = () => {
+        let sid = localStorage.getItem('sessionId');
+        axios.post(baseUrl + "auth/logout", null, {
+            params: {
+                sessionId: sid
+            }
+        }).then(() => {
+            // Since the user wants to be disconnected
+            // we can remove the infos anyway
+            localStorage.removeItem('sessionId');
+            localStorage.removeItem('username');
+            localStorage.removeItem('is_admin');
+        })
+    }
+
     const notLoggedMenu = [
         {
             label: 'Login',
@@ -111,7 +128,7 @@ export default function BasicPage(props) {
     ]
     const loggedMenu = [
         {
-            label: 'Logged as '+ username,
+            label: 'Logged as ' + username,
             disabled: true
         },
         {
@@ -124,6 +141,7 @@ export default function BasicPage(props) {
             label: 'Logout',
             handler: () => {
                 setOpenMenu(false)
+                logoutRequest()
                 window.localStorage.removeItem('username')
             }
         }
@@ -186,18 +204,18 @@ export default function BasicPage(props) {
                             onClose={() => profilePopupHandler(null, false)}
                         >
                             {
-                                    (!username ? notLoggedMenu : loggedMenu).map((item, i) => {
-                                        return (
-                                            <MenuItem
-                                                key={i}
-                                                disabled={item.disabled}
-                                                onClick={item.handler}
-                                            >
-                                                {item.label}
-                                            </MenuItem>
-                                        )
-                                    })
-                                    
+                                (!username ? notLoggedMenu : loggedMenu).map((item, i) => {
+                                    return (
+                                        <MenuItem
+                                            key={i}
+                                            disabled={item.disabled}
+                                            onClick={item.handler}
+                                        >
+                                            {item.label}
+                                        </MenuItem>
+                                    )
+                                })
+
                             }
                         </Menu>
                         <Dialog
