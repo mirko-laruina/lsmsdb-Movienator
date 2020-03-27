@@ -87,9 +87,12 @@ export default function FilmListDisplay(props) {
                                                     color="textPrimary"
                                                 >
                                                     Your rating {data.userRating ? data.userRating : 0}/5
-                                                                            </Typography>
+                                                </Typography>
                                                 <br />
-                                                <UserRating movieId={data.id} rating={data.userRating} readOnly/>
+                                                <UserRating
+                                                    movieId={data.id}
+                                                    rating={data.userRating}
+                                                    readOnly/>
                                             </React.Fragment>
                                         }
                                     </React.Fragment>

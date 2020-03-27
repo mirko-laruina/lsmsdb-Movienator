@@ -62,16 +62,15 @@ export default function MoviePage(props) {
                 return
             }
             else {
-                rating.avgRating = rating.avgRating * rating.weight
                 return (
                     <Grid item xs={12 / len} key={i}>
                         <Typography variant="h6" component="h3">
-                            {rating.source} {rating.avgRating}/5
+                            {rating.source} {rating.avgRating * rating.weight}/5
                         </Typography>
                         <Rating
                             name={rating.source + "-rating"}
                             size="large"
-                            value={rating.avgRating}
+                            value={rating.avgRating * rating.weight}
                             max={5}
                             precision={0.1}
                             readOnly
@@ -88,7 +87,6 @@ export default function MoviePage(props) {
         if (localStorage.getItem('username')) {
             params.sessionId = localStorage.getItem('sessionId')
         }
-        console.log(params)
         axios.get(url, { params: params }).then((data) => {
             if (data.data.success) {
                 setMovie(data.data.response)
@@ -165,7 +163,10 @@ export default function MoviePage(props) {
                                             </Typography>
                                             </Grid>
                                             <Grid item>
-                                                <UserRating movieId={movie.id} rating={movie.userRating} />
+                                                <UserRating 
+                                                    movieId={movie.id}
+                                                    rating={movie.userRating}
+                                                    showDelete />
                                             </Grid>
                                         </Grid>
                                     }

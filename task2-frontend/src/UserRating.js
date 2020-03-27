@@ -2,10 +2,14 @@ import React from 'react'
 import { withStyles } from '@material-ui/core/styles'
 import { Rating } from '@material-ui/lab'
 import FavoriteIcon from '@material-ui/icons/Favorite'
+import {Typography, Link as MaterialLink } from '@material-ui/core'
+import DeleteForeverIcon from '@material-ui/icons/DeleteForever';
+
 import axios from 'axios'
 import { baseUrl } from './utils'
 export default function UserRating(props) {
     const [userRatedNow, setUserRatedNow] = React.useState(null)
+    const [deletedNow, setDeletedNow] = React.useState(false)
 
     const ratingHandler = (movie, value) => {
         let url = baseUrl + 'movie/' + movie + '/rating'
@@ -17,7 +21,21 @@ export default function UserRating(props) {
         }).then((pkt) => {
             if (pkt.data.success) {
                 setUserRatedNow(value)
+                setDeletedNow(false)
             }
+        })
+    }
+
+
+    const deleteRating = (movie) => {
+        let url = baseUrl + 'movie/' + movie + '/rating'
+        let params = {}
+        if (localStorage.getItem('username')) {
+            params.sessionId = localStorage.getItem('sessionId')
+        }
+        axios.delete(url, { params: params }).then((data) => {
+            setUserRatedNow(false)
+            setDeletedNow(true)
         })
     }
 
@@ -31,17 +49,36 @@ export default function UserRating(props) {
     })(Rating);
 
     return (
-        <StyledRating
-            name="user-rating"
-            defaultValue={0}
-            value={userRatedNow ? userRatedNow :
-                props.rating ? props.rating : 0}
-            readOnly={props.readOnly}
-            onChange={(e, value) => {
-                ratingHandler(props.movieId, value)
-            }}
-            precision={0.5}
-            icon={<FavoriteIcon fontSize="inherit" />}
-        />
+        <React.Fragment>
+            <StyledRating
+                name="user-rating"
+                defaultValue={0}
+                value={deletedNow ? 0:
+                    userRatedNow ? userRatedNow :
+                    props.rating ? props.rating : 0}
+                readOnly={props.readOnly}
+                onChange={(e, value) => {
+                    ratingHandler(props.movieId, value)
+                }}
+                precision={0.5}
+                icon={<FavoriteIcon fontSize="inherit" />}
+            />
+            {
+                props.showDelete &&
+                !deletedNow &&
+                (userRatedNow || props.rating) &&
+                <MaterialLink href="#" onClick={() => deleteRating(props.movieId)}>
+                    <Typography
+                        variant="body2"
+                        display="inline"
+                    >
+                        {' '}<DeleteForeverIcon style={{
+                            padding: '0.1em',
+                            fontSize: '1.5em'
+                        }} />
+                    </Typography>
+                </MaterialLink>
+            }
+        </React.Fragment>
     )
 }
