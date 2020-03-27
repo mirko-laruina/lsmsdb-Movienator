@@ -4,7 +4,7 @@ import { List, ListItem, ListItemAvatar, ListItemText, Typography, Divider, Chip
 import { Rating } from '@material-ui/lab'
 import UserRating from './UserRating'
 
-import FilmListSkeleton from './FilmListSkeleton'
+import FilmListSkeleton from './MovieListSkeleton'
 
 const styles = {
     img: {

@@ -5,7 +5,7 @@ import MyCard from './MyCard.js'
 import { Typography, Grid, FormControl, InputBase } from '@material-ui/core'
 import SearchIcon from '@material-ui/icons/Search'
 import Pagination from '@material-ui/lab/Pagination';
-import FilmListDisplay from './FilmListDisplay'
+import FilmListDisplay from './MovieListDisplay'
 
 import { baseUrl } from './utils.js'
 import axios from 'axios';

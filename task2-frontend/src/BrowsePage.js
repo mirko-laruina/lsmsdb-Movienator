@@ -8,7 +8,7 @@ import Pagination from '@material-ui/lab/Pagination';
 
 import FilterDisplay from './FilterDisplay.js';
 import Sorting from './Sorting.js';
-import FilmListDisplay from './FilmListDisplay'
+import FilmListDisplay from './MovieListDisplay'
 
 import { baseUrl } from './utils.js'
 import axios from 'axios';
