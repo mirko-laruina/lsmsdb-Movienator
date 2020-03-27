@@ -131,11 +131,11 @@ export default function Filter(props) {
                         </Typography>
                             <Typography align="center">
                                 <Rating name="min-rating"
-                                    value={minRating / 2}
-                                    onChange={(event, value) => setminRating(value * 2)}
-                                    onChangeActive={(event, value) => setMinTempRat(value * 2)}
+                                    value={minRating}
+                                    onChange={(event, value) => setminRating(value)}
+                                    onChangeActive={(event, value) => setMinTempRat(value)}
                                     max={5}
-                                    precision={0.05}
+                                    precision={0.1}
                                     size="large"
                                 />
                             </Typography>
@@ -146,11 +146,11 @@ export default function Filter(props) {
                     </Typography>
                             <Typography align="center">
                                 <Rating name="max-rating"
-                                    value={maxRating / 2}
-                                    onChange={(event, value) => setmaxRating(value * 2)}
-                                    onChangeActive={(event, value) => setMaxTempRat(value * 2)}
+                                    value={maxRating}
+                                    onChange={(event, value) => setmaxRating(value)}
+                                    onChangeActive={(event, value) => setMaxTempRat(value)}
                                     max={5}
-                                    precision={0.05}
+                                    precision={0.1}
                                     size="large"
                                 />
                             </Typography>
@@ -217,9 +217,10 @@ export default function Filter(props) {
                     country: countryValue
                 }
                 Object.keys(supposedFilters).map((key, i) => {
-                    if (supposedFilters[key] != defaultFilters[key]) {
+                    if (supposedFilters[key] !== defaultFilters[key]) {
                         newFilters[key] = supposedFilters[key]
                     }
+                    return null;
                 })
                 props.handler(newFilters)
                 props.setOpen(false)

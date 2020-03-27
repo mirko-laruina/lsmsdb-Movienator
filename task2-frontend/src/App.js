@@ -1,4 +1,4 @@
-import React from 'react';
+import React, {useEffect} from 'react';
 import {
   BrowserRouter as Router,
   Switch,
@@ -12,6 +12,7 @@ import HomePage from './HomePage.js'
 import SearchPage from './SearchPage.js'
 import StatsPage from './StatsPage.js'
 import BrowsePage from './BrowsePage'
+import MoviePage from './MoviePage'
 
 const theme = createMuiTheme({
   palette: {
@@ -41,6 +42,10 @@ const theme = createMuiTheme({
 });
 
 function App() {
+  useEffect(() => {
+    document.title = "Movienator"
+  }, [])
+  
   //NOTICE: root route has to be the last route, otherwise it will match all the paths
   return (
     <ThemeProvider theme={theme}>
@@ -50,6 +55,7 @@ function App() {
           <Route path="/browse" component={BrowsePage} />
           <Route path="/stats/:group/" component={StatsPage} />
           <Route path="/results/:query" component={SearchPage} />
+          <Route path="/movie/:id" component={MoviePage} />
           <Route path="/" component={HomePage} />
         </Switch>
       </Router>

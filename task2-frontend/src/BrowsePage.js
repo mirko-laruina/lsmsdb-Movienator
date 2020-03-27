@@ -28,38 +28,43 @@ export default function BrowsePage(props) {
     const [loading, setLoading] = React.useState(true);
     const filmPerPage = 10;
 
-    const browseRequest = () => {
-        console.log(filters)
-        console.log(sortOpt)
-        var sorting = {
-            sortBy: sortOpt.sortBy === '0' ? 'release' :
-                sortOpt.sortBy === '1' ? 'rating' : 'title',
-            sortOrder: sortOpt.sortOrder === '0' ? -1 : 1,
-        }
-        var reqParams = {
-            ...filters,
-            ...sorting,
-            page: currentPage,
-            n: filmPerPage
-        }
-        console.log(reqParams)
-        axios.get(baseUrl + "movie/browse", {
-            params: reqParams
-        })
-            .then(function (res) {
-                if (res.data.success) {
-                    setMovies(res.data.response.list)
-                    setPageCount(Math.ceil(parseInt(res.data.response.totalCount) / filmPerPage))
-                    setLoading(false);
-                    console.log(res.data)
-                }
-            })
-    }
-
     useEffect(() => {
+        const browseRequest = () => {
+            if( typeof(sortOpt.sortBy) === 'undefined'
+                ||
+                typeof(sortOpt.sortOrder) === 'undefined'){
+                    //sortOpt isn't updated by the child component yet
+                    //we should NOT do any request
+                return
+            }
+            var sorting = {
+                sortBy: sortOpt.sortBy === '0' ? 'release' :
+                    sortOpt.sortBy === '1' ? 'rating' : 'title',
+                sortOrder: sortOpt.sortOrder === '0' ? -1 : 1,
+            }
+            var reqParams = {
+                ...filters,
+                ...sorting,
+                page: currentPage,
+                n: filmPerPage
+            }
+
+            axios.get(baseUrl + "movie/browse", {
+                params: reqParams
+            })
+                .then(function (res) {
+                    if (res.data.success) {
+                        setMovies(res.data.response.list)
+                        setPageCount(Math.ceil(parseInt(res.data.response.totalCount) / filmPerPage))
+                        setLoading(false);
+                        console.log(res.data)
+                    }
+                })
+        }
+        
         setLoading(true)
         browseRequest()
-    }, [filters, sortOpt, pageCount, currentPage]);
+    }, [filters, sortOpt, currentPage]);
 
     return (
         <BasicPage history={props.history}>

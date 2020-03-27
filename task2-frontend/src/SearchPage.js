@@ -2,12 +2,9 @@ import React from 'react'
 import { useEffect } from 'react'
 import BasicPage from './BasicPage.js'
 import MyCard from './MyCard.js'
-import { Typography, Grid, FormControl, InputBase, TextField } from '@material-ui/core'
+import { Typography, Grid, FormControl, InputBase } from '@material-ui/core'
 import SearchIcon from '@material-ui/icons/Search'
 import Pagination from '@material-ui/lab/Pagination';
-
-import FilterDisplay from './FilterDisplay.js';
-import Sorting from './Sorting.js';
 import FilmListDisplay from './FilmListDisplay'
 
 import { baseUrl } from './utils.js'
@@ -28,28 +25,28 @@ export default function BrowsePage(props) {
     const [queryValue, setQueryValue] = React.useState(props.match.params.query);
     const filmPerPage = 10;
 
-    const searchRequest = () => {
-        axios.get(baseUrl + "movie/search", {
-            params: {
-                query: queryValue,
-                n: filmPerPage,
-                page: currentPage
-            }
-        })
-            .then(function (res) {
-                if (res.data.success) {
-                    setMovies(res.data.response.list)
-                    setPageCount(Math.ceil(parseInt(res.data.response.totalCount) / filmPerPage))
-                    setLoading(false);
-                    console.log(res.data)
+    useEffect(() => {
+        const searchRequest = () => {
+            axios.get(baseUrl + "movie/search", {
+                params: {
+                    query: queryValue,
+                    n: filmPerPage,
+                    page: currentPage
                 }
             })
-    }
+                .then(function (res) {
+                    if (res.data.success) {
+                        setMovies(res.data.response.list)
+                        setPageCount(Math.ceil(parseInt(res.data.response.totalCount) / filmPerPage))
+                        setLoading(false);
+                        console.log(res.data)
+                    }
+                })
+        }
 
-    useEffect(() => {
         setLoading(true)
         searchRequest()
-    }, [pageCount, currentPage, props.match.params.query]);
+    }, [pageCount, currentPage, props.match.params.query, queryValue]);
 
     return (
         <BasicPage history={props.history}>

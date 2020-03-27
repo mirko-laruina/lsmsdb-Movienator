@@ -1,6 +1,7 @@
 import React from 'react'
-import {List, ListItem, ListItemAvatar, ListItemText, Typography, Divider, Chip} from '@material-ui/core'
-import {Rating} from '@material-ui/lab'
+import { Link } from 'react-router-dom'
+import { List, ListItem, ListItemAvatar, ListItemText, Typography, Divider, Chip } from '@material-ui/core'
+import { Rating } from '@material-ui/lab'
 
 import FilmListSkeleton from './FilmListSkeleton'
 
@@ -31,7 +32,7 @@ export default function FilmListDisplay(props) {
                 ||
                 props.array.map((data, index) => (
                     <div key={index}>
-                        <ListItem alignItems="flex-start">
+                        <ListItem component={Link} to={"/movie/" + data.id} alignItems="flex-start">
                             <ListItemAvatar children={
                                 <img alt={data.title}
                                     src={data.poster ? data.poster : require('./blank_poster.png')}
@@ -59,16 +60,20 @@ export default function FilmListDisplay(props) {
                                         </Typography>
                                         <br />
                                         <br />
-                                        <Typography
-                                            component="span"
-                                            variant="body1"
-                                            color="textPrimary"
-                                        >
-                                            Average rating {data.total_rating}/10
-                                </Typography>
-                                        <br />
-                                        <Rating name="avg-rating" value={data.total_rating / 2} max={5} precision={0.1} readOnly />
-                                        <br />
+                                        {data.totalRating &&
+                                            <React.Fragment>
+                                            <Typography
+                                                component="span"
+                                                variant="body1"
+                                                color="textPrimary"
+                                            >
+                                                Average rating {Math.round(data.totalRating * 10) / 10}/5
+                                            </Typography>
+                                            <br />
+                                            <Rating name="avg-rating" value={data.totalRating} max={5} precision={0.1} readOnly />
+                                            <br />
+                                            </React.Fragment>
+                                        }
                                         {
                                             !data.user_rating ? null :
                                                 <React.Fragment>
@@ -77,10 +82,10 @@ export default function FilmListDisplay(props) {
                                                         variant="body1"
                                                         color="textPrimary"
                                                     >
-                                                        Your rating {data.user_rating}/10
+                                                        Your rating {data.user_rating}/5
                                                                             </Typography>
                                                     <br />
-                                                    <Rating name="user-rating" value={data.user_rating / 2} max={5} precision={0.5} />
+                                                    <Rating name="user-rating" value={data.user_rating} max={5} precision={0.5} />
                                                 </React.Fragment>
                                         }
                                     </React.Fragment>
