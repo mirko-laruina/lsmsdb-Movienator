@@ -13,6 +13,7 @@ import SearchPage from './SearchPage.js'
 import StatsPage from './StatsPage.js'
 import BrowsePage from './BrowsePage'
 import MoviePage from './MoviePage'
+import ProfilePage from './ProfilePage'
 
 const theme = createMuiTheme({
   palette: {
@@ -53,6 +54,7 @@ function App() {
       <Router>
         <Switch>
           <Route path="/browse" component={BrowsePage} />
+          <Route path="/profile" component={ProfilePage} />
           <Route path="/stats/:group/" component={StatsPage} />
           <Route path="/results/:query" component={SearchPage} />
           <Route path="/movie/:id" component={MoviePage} />

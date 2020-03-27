@@ -133,6 +133,9 @@ export default function BasicPage(props) {
         },
         {
             label: 'Profile',
+            handler: () => {
+                props.history.push('/profile')
+            }
         },
         {
             label: 'Browse history',
