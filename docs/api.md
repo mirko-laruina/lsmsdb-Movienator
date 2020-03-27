@@ -30,7 +30,7 @@ password=<plain_text_password>
 ```json
 {
     "sessionId": "<sessionId>",
-    "is_admin": false
+    "isAdmin": false
 }
 ```
 
@@ -95,8 +95,8 @@ All parameters are optional. Default behaviour is sorting by release date (ascen
 			"poster": "https://m.media-amazon.com/images/M/[...].jpg",
 			"genres": ["Crime", "Drama", "Thriller"],
 			"description": " In Gotham City, mentally troubled comedian Arthur Fleck is disregarded and mistreated by society. He then embarks on a downward spiral of revolution and bloody crime. This path brings him face-to-face with his alter-ego: the Joker. ",
-			"total_rating": 8.87,
-			"user_rating": 7 (optional)
+			"totalRating": 8.87,
+			"userRating": 7 (optional)
 		},
 		...
 	],
@@ -125,8 +125,8 @@ the overall rating.
 			"year": 2019,
 			"poster": "https://m.media-amazon.com/images/M/[...].jpg",
 			"genres": ["Crime", "Drama", "Thriller"],
-			"total_rating": 8.87,
-			"user_rating": 7 (optional)
+			"totalRating": 8.87,
+			"userRating": 7 (optional)
 		},
 		...
 	],
@@ -145,10 +145,10 @@ array.
 {
 	"_id": "tt7286456",
 	"title": "Joker",
-	"original_title": "Joker",
+	"originalTitle": "Joker",
 	"runtime": 122,
 	"countries": ["USA", "Canada"],
-	"original_language": "English",
+	"originalLanguage": "English",
 	"year": 2019,
 	"date": "2019-10-04",
 	"description": "In Gotham City, mentally troubled comedian [...]",
@@ -185,16 +185,11 @@ array.
 			"avgrating": 8.6,
 			"count": 628981,
 			"weight": 1
-		},
-		{
-			"source": "user",
-			"avgrating": 7,
-			"count": 1,
-			"weight": 0
-		},
+		}
 		...
 	],
-	"total_rating": 8.87
+	"totalRating": 8.87,
+	"userRating": 7
 }
 ```
 
@@ -245,10 +240,12 @@ Default behaviour is sorting by rating (descending).
 {
 	"list": [
 		{
-			"id": "US",
-			"name": "USA",
-			"count": 500,
-			"rating": 8.87
+			"aggregator":{
+				"id": "US",
+				"name": "USA"
+			},
+			"movieCount": 500,
+			"avgRating": 8.87
 		},
 		...
 	],
@@ -269,27 +266,33 @@ NB: only the user himself and admins are allowed.
     "email": "joker@dccomics.com",
     "favourite_actors": [
 		{
-			"id": "nm0001618",
-			"name": "Joaquin Phoenix",
-			"avg_rating": 7.5,
-			"rating_count": 2
+			"aggregator": {
+				"id": "nm0001618",
+				"name": "Joaquin Phoenix"
+			}
+			"avgRating": 7.5,
+			"ratingCount": 2
 		},
 		...
 	],
 	"favourite_directors": [
 		{
-			"id": "nm0680846",
-			"name": "Todd Phillips",
-			"avg_rating": 7.7,
-			"rating_count": 4
+			"aggregator": {
+				"id": "nm0680846",
+				"name": "Todd Phillips"
+			}
+			"avgRating": 7.7,
+			"ratingCount": 4
 		},
 		...
 	],
 	"favourite_genres": [
 		{
-			"name": "Crime",
-			"avg_rating": 7.1,
-			"rating_count": 4
+			"aggregator": {
+				"name": "Crime"
+			}
+			"avgRating": 7.1,
+			"ratingCount": 4
 		},
 		...
 	],
@@ -317,8 +320,8 @@ NB: only the user herself and admins are allowed.
 			"year": 2019,
 			"poster": "https://m.media-amazon.com/images/M/[...].jpg",
 			"genres": ["Crime", "Drama", "Thriller"],
-			"total_rating": 8.87,
-			"user_rating": 7
+			"totalRating": 8.87,
+			"userRating": 7
 		},
 		...
 	],
