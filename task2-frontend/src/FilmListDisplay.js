@@ -52,6 +52,8 @@ export default function FilmListDisplay(props) {
                                 secondary={
                                     <React.Fragment>
                                         <br />
+                                        {data.description &&
+                                            <React.Fragment>
                                         <Typography
                                             component="span"
                                             variant="body1"
@@ -60,6 +62,8 @@ export default function FilmListDisplay(props) {
                                         </Typography>
                                         <br />
                                         <br />
+                                            </React.Fragment>
+                                        }
                                         {data.totalRating &&
                                             <React.Fragment>
                                             <Typography
