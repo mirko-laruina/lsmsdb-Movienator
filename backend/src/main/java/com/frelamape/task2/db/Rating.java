@@ -8,7 +8,7 @@ import java.util.Date;
 import java.util.List;
 
 public class Rating {
-    private ObjectId userId;
+    private transient ObjectId userId;
     private String movieId;
     private Date date;
     private Double rating;
