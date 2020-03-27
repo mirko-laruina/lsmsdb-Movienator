@@ -7,14 +7,15 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class User {
-    private ObjectId id;
+    private transient ObjectId id;
     private String username;
-    private String password;
+    private transient String password;
     private String email;
     private Boolean isAdmin;
     private List<Statistics<Statistics.Aggregator>> favouriteActors = new ArrayList<>();
     private List<Statistics<Statistics.Aggregator>> favouriteDirectors = new ArrayList<>();
     private List<Statistics<Statistics.Aggregator>> favouriteGenres = new ArrayList<>();
+    private transient List<Session> sessions = new ArrayList<>();
 
     public User(String username) {
         this.username = username;
