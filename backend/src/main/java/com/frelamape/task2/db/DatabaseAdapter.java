@@ -161,11 +161,14 @@ public class DatabaseAdapter {
         }
     }
 
+    /**
+     * TODO: rewrite using aggregations
+     */
     private List<RatingExtended> fillRatingExtended(List<Rating> ratings){
         List<RatingExtended> ratingsExtended = new ArrayList<>();
         for (Rating r: ratings){
-            User u = getUserById(r.getUserId());
-            Movie m = getMovieDetails(r.getMovieId());
+            User u = getUserById(r.getUserId(), "username");
+            Movie m = getMovieDetails(r.getMovieId(), "title", "year", "total_rating");
             if (u != null && m != null){
                 ratingsExtended.add(new RatingExtended(m, u, r));
             }
@@ -284,12 +287,22 @@ public class DatabaseAdapter {
         return u;
     }
 
-    public User getUserById(ObjectId userId){
-        User u = User.Adapter.fromDBObject(
-                usersCollection.find(
+    public User getUserById(ObjectId userId, String... fields){
+        Document document;
+
+        if (fields.length != 0){
+            document = usersCollection
+                    .find(
                         eq("_id", userId)
-                )
-                .first());
+                    ).projection(include(fields))
+                    .first();
+        } else {
+            document = usersCollection
+                    .find(
+                        eq("_id", userId)
+                    ).first();
+        }
+        User u = User.Adapter.fromDBObject(document);
         return u;
     }
 
@@ -435,10 +448,19 @@ public class DatabaseAdapter {
         );
     }
 
-    public Movie getMovieDetails(String id){
-        return Movie.Adapter.fromDBObject(
-                moviesCollection.find(eq("_id", id)).first()
-        );
+    public Movie getMovieDetails(String id, String... fields){
+        Document document;
+        if (fields.length != 0) {
+            document = moviesCollection
+                    .find(eq("_id", id))
+                    .projection(include(fields))
+                    .first();
+        } else{
+            document = moviesCollection
+                    .find(eq("_id", id))
+                    .first();
+        }
+        return Movie.Adapter.fromDBObject(document);
     }
 
     public QuerySubset<Movie> searchMovie(String query, int n, int page){
