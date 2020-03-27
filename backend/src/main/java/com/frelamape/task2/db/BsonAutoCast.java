@@ -12,10 +12,14 @@ public class BsonAutoCast {
         try{
             return d.getInteger(key);
         } catch (ClassCastException e){
-            try{
-                return Integer.parseInt(d.getString(key));
-            } catch (NumberFormatException e2){
-                return null;
+            try {
+                return d.getDouble(key).intValue();
+            } catch (ClassCastException e2){
+                try{
+                    return Integer.parseInt(d.getString(key));
+                } catch (NumberFormatException e3){
+                    return null;
+                }
             }
         }
     }

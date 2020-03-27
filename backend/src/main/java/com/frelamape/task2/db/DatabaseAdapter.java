@@ -1,10 +1,9 @@
 package com.frelamape.task2.db;
 
 import com.mongodb.MongoWriteException;
+import com.mongodb.bulk.BulkWriteResult;
 import com.mongodb.client.*;
-import com.mongodb.client.model.Projections;
-import com.mongodb.client.model.Sorts;
-import com.mongodb.client.model.UpdateOptions;
+import com.mongodb.client.model.*;
 import com.mongodb.client.result.DeleteResult;
 import com.mongodb.client.result.InsertOneResult;
 import com.mongodb.client.result.UpdateResult;
@@ -14,6 +13,7 @@ import org.bson.conversions.Bson;
 import org.bson.types.ObjectId;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Date;
 import java.util.List;
 
@@ -38,8 +38,81 @@ public class DatabaseAdapter {
         ratingsCollection = database.getCollection("ratings");
     }
 
-    public boolean updateInternalRating(){
-        return true;
+    public boolean updateTotalRating(String movieId){
+        Movie m = getMovieDetails(movieId);
+
+        if (!m.getRatings().isEmpty()) {
+            double sum = 0;
+            for (AggregatedRating r : m.getRatings()) {
+                sum += r.getAvgRating() * r.getWeight();
+            }
+            double totalRating = sum/m.getRatings().size();
+            UpdateResult result = moviesCollection.updateOne(
+                    eq("_id", movieId),
+                    set("total_rating", totalRating)
+            );
+            return result.wasAcknowledged();
+        } else{
+            return true;
+        }
+
+    }
+
+    public boolean updateInternalRating(String movieId){
+        AggregateIterable<Document> iterable = ratingsCollection.aggregate(
+                Arrays.asList(
+                        Aggregates.match(eq("_id.movie_id", movieId)),
+                        Aggregates.group(
+                                "$_id.movie_id",
+                                Accumulators.sum("total", "$rating"),
+                                Accumulators.sum("count", 1)
+                        )
+
+                )
+        );
+
+        Document doc = iterable.first();
+        if (doc == null){
+            return false;
+        }
+        Double total = BsonAutoCast.asDouble(doc, "total");
+        Integer count = BsonAutoCast.asInteger(doc, "count");
+
+        if (total == null)
+            total = 0.0;
+        if (count == null)
+            count = 0;
+
+        double avgrating;
+
+        if (count != 0) {
+            avgrating = total / count;
+            AggregatedRating rating = new AggregatedRating(
+                    "internal",
+                    avgrating,
+                    count,
+                    1.0,
+                    new Date()
+            );
+            BulkWriteResult result = moviesCollection.bulkWrite(Arrays.asList(
+                    new UpdateOneModel<>(
+                            eq("_id", movieId),
+                            pull("ratings", eq("source", "internal"))
+                    ),
+                    new UpdateOneModel<>(
+                            eq("_id", movieId),
+                            push("ratings", AggregatedRating.Adapter.toDBObject(rating))
+                    )
+            ));
+
+            if (result.wasAcknowledged()){
+                return updateTotalRating(movieId);
+            } else{
+                return false;
+            }
+        } else {
+            return true;
+        }
     }
 
     /**
@@ -66,7 +139,7 @@ public class DatabaseAdapter {
         );
 
         if (result.wasAcknowledged()){
-            if (updateInternalRating()){
+            if (updateInternalRating(rating.getMovieId())){
                 return result.getUpsertedId() != null ? 0 : 1;
             } else {
                 return -20;
@@ -76,23 +149,16 @@ public class DatabaseAdapter {
         }
     }
 
-    public boolean updateRating(Rating rating){
-        UpdateResult res = ratingsCollection.updateOne(
-                and(eq("_id.movie_id", rating.getMovieId()),
-                        eq("_id.user_id", rating.getUserId())),
-                combine(set("date", rating.getDate()),
-                        set("rating", rating.getRating())
-                )
-        );
-        return res.getMatchedCount() == 1;
-    }
-
     public boolean deleteRating(Rating rating){
         DeleteResult res = ratingsCollection.deleteOne(
                 and(eq("_id.movie_id", rating.getMovieId()),
                         eq("_id.user_id", rating.getUserId()))
         );
-        return res.getDeletedCount() == 1;
+        if (res.wasAcknowledged() && res.getDeletedCount() == 1){
+            return updateInternalRating(rating.getMovieId());
+        } else {
+            return false;
+        }
     }
 
     public QuerySubset<RatingExtended> getAllRatings(int n, int page){
