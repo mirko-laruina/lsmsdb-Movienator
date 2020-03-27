@@ -3,7 +3,7 @@ import { Rating } from '@material-ui/lab'
 import { Typography, Grid, Chip } from '@material-ui/core'
 import axios from 'axios'
 
-import { baseUrl } from './utils'
+import { baseUrl, getDate } from './utils'
 import BasicPage from './BasicPage'
 import MyCard from './MyCard'
 import UserRating from './UserRating'
@@ -21,16 +21,6 @@ const styles = {
         marginRight: '0.5em',
         fontWeight: 'bold',
     }
-}
-
-const months = ['January', 'February', 'March', 'April',
-    'May', 'June', 'July', 'August', 'September',
-    'October', 'November', 'December']
-
-const getDate = function (stringDate) {
-    var date = new Date(stringDate)
-    var print_date = months[date.getMonth()] + " " + date.getDate() + ", " + date.getFullYear()
-    return print_date
 }
 
 export default function MoviePage(props) {

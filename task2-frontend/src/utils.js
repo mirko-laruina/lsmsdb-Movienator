@@ -6,6 +6,16 @@ export function countryToFlag(isoCode) {
         : isoCode;
 }
 
+const months = ['January', 'February', 'March', 'April',
+    'May', 'June', 'July', 'August', 'September',
+    'October', 'November', 'December']
+
+export const getDate = function (stringDate) {
+    var date = new Date(stringDate)
+    var print_date = months[date.getMonth()] + " " + date.getDate() + ", " + date.getFullYear()
+    return print_date
+}
+
 export const countries = [
     { code: 'AD', label: 'Andorra', phone: '376' },
     { code: 'AE', label: 'United Arab Emirates', phone: '971' },
