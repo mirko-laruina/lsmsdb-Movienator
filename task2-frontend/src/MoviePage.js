@@ -1,14 +1,13 @@
 import React, { useEffect } from 'react'
-import { withStyles } from '@material-ui/core/styles'
 import { Rating } from '@material-ui/lab'
-import { Typography, Grid, Chip, Divider } from '@material-ui/core'
+import { Typography, Grid, Chip } from '@material-ui/core'
 import axios from 'axios'
 
 import { baseUrl } from './utils'
 import BasicPage from './BasicPage'
 import MyCard from './MyCard'
+import UserRating from './UserRating'
 import MoviePageSkeleton from './MoviePageSkeleton'
-import FavoriteIcon from '@material-ui/icons/Favorite'
 
 const styles = {
     cardRoot: {
@@ -62,38 +61,36 @@ export default function MoviePage(props) {
             if (rating.source === 'user') {
                 return
             }
-            else return (
-                <Grid item xs={12 / len} key={i}>
-                    <Typography variant="h6" component="h3">
-                        {rating.source} {rating.avgRating}/5
-                </Typography>
-                    <Rating
-                        name={rating.source + "-rating"}
-                        size="large"
-                        value={rating.avgRating}
-                        max={5}
-                        precision={0.1}
-                        readOnly
-                    />
-                </Grid>
-            )
+            else {
+                rating.avgRating = rating.avgRating * rating.weight
+                return (
+                    <Grid item xs={12 / len} key={i}>
+                        <Typography variant="h6" component="h3">
+                            {rating.source} {rating.avgRating}/5
+                        </Typography>
+                        <Rating
+                            name={rating.source + "-rating"}
+                            size="large"
+                            value={rating.avgRating}
+                            max={5}
+                            precision={0.1}
+                            readOnly
+                        />
+                    </Grid>
+                )
+            }
         })
     }
 
-    const StyledRating = withStyles({
-        iconFilled: {
-            color: '#ff6d75',
-        },
-        iconHover: {
-            color: '#ff3d47',
-        },
-    })(Rating);
-
     useEffect(() => {
-        var url = baseUrl + 'movie/' + props.match.params.id
-        axios.get(url).then((data) => {
+        let url = baseUrl + 'movie/' + props.match.params.id
+        let params = {}
+        if (localStorage.getItem('username')) {
+            params.sessionId = localStorage.getItem('sessionId')
+        }
+        console.log(params)
+        axios.get(url, { params: params }).then((data) => {
             if (data.data.success) {
-                console.log(data.data.response)
                 setMovie(data.data.response)
             }
         })
@@ -157,7 +154,7 @@ export default function MoviePage(props) {
                                             <br />
                                         </Typography>
                                     }
-                                    {   window.localStorage.getItem('username') &&
+                                    {window.localStorage.getItem('username') &&
                                         <Grid container spacing={1} direction="row" alignContent="center">
                                             <Grid item>
                                                 <Typography
@@ -168,17 +165,7 @@ export default function MoviePage(props) {
                                             </Typography>
                                             </Grid>
                                             <Grid item>
-                                                <StyledRating
-                                                    name="user-rating"
-                                                    defaultValue={
-                                                        movie.ratings.filter((rating, i) => {
-                                                            if(rating.source == "user")
-                                                                return rating.avgRating
-                                                        })
-                                                    }
-                                                    precision={0.5}
-                                                    icon={<FavoriteIcon fontSize="inherit" />}
-                                                />
+                                                <UserRating movieId={movie.id} rating={movie.userRating} />
                                             </Grid>
                                         </Grid>
                                     }
