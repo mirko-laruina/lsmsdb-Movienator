@@ -161,11 +161,14 @@ public class DatabaseAdapter {
         }
     }
 
+    /**
+     * TODO: rewrite using aggregations
+     */
     private List<RatingExtended> fillRatingExtended(List<Rating> ratings){
         List<RatingExtended> ratingsExtended = new ArrayList<>();
         for (Rating r: ratings){
-            User u = getUserById(r.getUserId());
-            Movie m = getMovieDetails(r.getMovieId());
+            User u = getUserById(r.getUserId(), "username");
+            Movie m = getMovieDetails(r.getMovieId(), "title", "year", "total_rating");
             if (u != null && m != null){
                 ratingsExtended.add(new RatingExtended(m, u, r));
             }
@@ -224,20 +227,82 @@ public class DatabaseAdapter {
     }
 
     public User getUserProfile(String username){
-        return User.Adapter.fromDBObject(
+        User u = User.Adapter.fromDBObject(
                 usersCollection.find(
                         eq("username", username)
                 ).first()
         );
-        // TODO user statistics
+
+        if (u == null){
+            return null;
+        }
+
+        final int FIELD_NAME = 0;
+        final int GROUPBY_ID = 1;
+        final int GROUPBY_NAME = 2;
+
+        String[] actors = new String[]{"movies.characters", "$movies.characters.actor_id", "$movies.characters.actor_name"};
+        String[] directors = new String[]{"movies.directors", "$movies.directors.id", "$movies.directors.name"};
+        String[] genres = new String[]{"movies.genres", "$movies.genres", "$movies.genres"};
+
+        for (String[] field:new String[][]{actors, directors, genres}) {
+            AggregateIterable<Document> iterable = ratingsCollection.aggregate(Arrays.asList(
+                    Aggregates.match(
+                            eq("_id.user_id", u.getId())
+                    ),
+                    Aggregates.lookup(
+                            "movies",
+                            "_id.movie_id",
+                            "_id",
+                            "movies"
+                    ),
+                    Aggregates.project(
+                            include(
+                                    "rating",
+                                    "movies._id",
+                                    field[FIELD_NAME]
+                            )
+                    ),
+                    Aggregates.unwind("$movies"),
+                    Aggregates.unwind("$" + field[FIELD_NAME]),
+                    Aggregates.group(
+                            field[GROUPBY_ID],
+                            Accumulators.first("name", field[GROUPBY_NAME]),
+                            Accumulators.avg("avg_rating", "$rating"),
+                            Accumulators.avg("movie_count", 1)
+                    ),
+                    Aggregates.sort(descending("rating")),
+                    Aggregates.limit(3)
+            ));
+
+            if (field == actors){
+                u.setFavouriteActors(Statistics.Adapter.fromDBObjectIterable(iterable, Person.class));
+            } else if (field == directors){
+                u.setFavouriteDirectors(Statistics.Adapter.fromDBObjectIterable(iterable, Person.class));
+            } else if (field == genres){
+                u.setFavouriteGenres(Statistics.Adapter.fromDBObjectIterable(iterable, Genre.class));
+            }
+        }
+
+        return u;
     }
 
-    public User getUserById(ObjectId userId){
-        User u = User.Adapter.fromDBObject(
-                usersCollection.find(
+    public User getUserById(ObjectId userId, String... fields){
+        Document document;
+
+        if (fields.length != 0){
+            document = usersCollection
+                    .find(
                         eq("_id", userId)
-                )
-                .first());
+                    ).projection(include(fields))
+                    .first();
+        } else {
+            document = usersCollection
+                    .find(
+                        eq("_id", userId)
+                    ).first();
+        }
+        User u = User.Adapter.fromDBObject(document);
         return u;
     }
 
@@ -383,10 +448,19 @@ public class DatabaseAdapter {
         );
     }
 
-    public Movie getMovieDetails(String id){
-        return Movie.Adapter.fromDBObject(
-                moviesCollection.find(eq("_id", id)).first()
-        );
+    public Movie getMovieDetails(String id, String... fields){
+        Document document;
+        if (fields.length != 0) {
+            document = moviesCollection
+                    .find(eq("_id", id))
+                    .projection(include(fields))
+                    .first();
+        } else{
+            document = moviesCollection
+                    .find(eq("_id", id))
+                    .first();
+        }
+        return Movie.Adapter.fromDBObject(document);
     }
 
     public QuerySubset<Movie> searchMovie(String query, int n, int page){
