@@ -2,6 +2,7 @@ import React from 'react'
 import { Link } from 'react-router-dom'
 import { List, ListItem, ListItemAvatar, ListItemText, Typography, Divider, Chip } from '@material-ui/core'
 import { Rating } from '@material-ui/lab'
+import UserRating from './UserRating'
 
 import FilmListSkeleton from './FilmListSkeleton'
 
@@ -52,41 +53,44 @@ export default function FilmListDisplay(props) {
                                 secondary={
                                     <React.Fragment>
                                         <br />
-                                        <Typography
-                                            component="span"
-                                            variant="body1"
-                                            color="textPrimary">
-                                            {data.description}
-                                        </Typography>
-                                        <br />
-                                        <br />
-                                        {data.totalRating &&
+                                        {data.description &&
                                             <React.Fragment>
                                             <Typography
                                                 component="span"
                                                 variant="body1"
-                                                color="textPrimary"
-                                            >
-                                                Average rating {Math.round(data.totalRating * 10) / 10}/5
+                                                color="textPrimary">
+                                                {data.description}
                                             </Typography>
                                             <br />
-                                            <Rating name="avg-rating" value={data.totalRating} max={5} precision={0.1} readOnly />
                                             <br />
                                             </React.Fragment>
                                         }
-                                        {
-                                            !data.user_rating ? null :
-                                                <React.Fragment>
-                                                    <Typography
-                                                        component="span"
-                                                        variant="body1"
-                                                        color="textPrimary"
-                                                    >
-                                                        Your rating {data.user_rating}/5
+                                        {data.totalRating &&
+                                            <React.Fragment>
+                                                <Typography
+                                                    component="span"
+                                                    variant="body1"
+                                                    color="textPrimary"
+                                                >
+                                                    Average rating {Math.round(data.totalRating * 10) / 10}/5
+                                            </Typography>
+                                                <br />
+                                                <Rating name="avg-rating" value={data.totalRating} max={5} precision={0.1} readOnly />
+                                                <br />
+                                            </React.Fragment>
+                                        }
+                                        {   data.userRating &&
+                                            <React.Fragment>
+                                                <Typography
+                                                    component="span"
+                                                    variant="body1"
+                                                    color="textPrimary"
+                                                >
+                                                    Your rating {data.userRating ? data.userRating : 0}/5
                                                                             </Typography>
-                                                    <br />
-                                                    <Rating name="user-rating" value={data.user_rating} max={5} precision={0.5} />
-                                                </React.Fragment>
+                                                <br />
+                                                <UserRating movieId={data.id} rating={data.userRating} readOnly/>
+                                            </React.Fragment>
                                         }
                                     </React.Fragment>
                                 }

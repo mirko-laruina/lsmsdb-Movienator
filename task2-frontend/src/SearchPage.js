@@ -26,14 +26,16 @@ export default function BrowsePage(props) {
     const filmPerPage = 10;
 
     useEffect(() => {
+        let params = {
+            query: queryValue,
+            n: filmPerPage,
+            page: currentPage,
+        }
+        if(localStorage.getItem('username')){
+            params.sessionId = localStorage.getItem('sessionId')
+        }
         const searchRequest = () => {
-            axios.get(baseUrl + "movie/search", {
-                params: {
-                    query: queryValue,
-                    n: filmPerPage,
-                    page: currentPage
-                }
-            })
+            axios.get(baseUrl + "movie/search", { params: params })
                 .then(function (res) {
                     if (res.data.success) {
                         setMovies(res.data.response.list)
