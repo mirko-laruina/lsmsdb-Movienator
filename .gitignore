@@ -8,3 +8,6 @@ idee_task2.md
 /backend/.idea
 deployment/
 backup/
+.idea/modules.xml
+.idea/Movienator.iml
+.idea/vcs.xml
