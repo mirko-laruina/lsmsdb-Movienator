@@ -47,7 +47,7 @@ export default function MostLikedTable(props) {
                                 {row.aggregator.name}
                             </TableCell>
                             <TableCell align="right">{Math.round(row.avgRating*100)/100}</TableCell>
-                            <TableCell align="right">{Math.round(row.movieCount*100)/100}</TableCell>
+                            <TableCell align="right">{row.movieCount}</TableCell>
                         </TableRow>
                     ))}
                 </TableBody>
