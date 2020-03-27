@@ -38,7 +38,7 @@ public class DatabaseAdapter {
         ratingsCollection = database.getCollection("ratings");
     }
 
-    public boolean updateTotalRating(String movieId){
+    private boolean updateTotalRating(String movieId){
         Movie m = getMovieDetails(movieId);
 
         if (!m.getRatings().isEmpty()) {
@@ -58,7 +58,7 @@ public class DatabaseAdapter {
 
     }
 
-    public boolean updateInternalRating(String movieId){
+    private boolean updateInternalRating(String movieId){
         AggregateIterable<Document> iterable = ratingsCollection.aggregate(
                 Arrays.asList(
                         Aggregates.match(eq("_id.movie_id", movieId)),
@@ -161,12 +161,7 @@ public class DatabaseAdapter {
         }
     }
 
-    public QuerySubset<RatingExtended> getAllRatings(int n, int page){
-        List<Rating> ratings = Rating.Adapter.fromDBObjectIterable(ratingsCollection
-                .find()
-                .skip(n*(page-1))
-                .limit(n)
-        );
+    private List<RatingExtended> fillRatingExtended(List<Rating> ratings){
         List<RatingExtended> ratingsExtended = new ArrayList<>();
         for (Rating r: ratings){
             User u = getUserById(r.getUserId());
@@ -176,20 +171,32 @@ public class DatabaseAdapter {
             }
         }
 
+        return ratingsExtended;
+    }
+
+    public QuerySubset<RatingExtended> getAllRatings(int n, int page){
+        List<Rating> ratings = Rating.Adapter.fromDBObjectIterable(ratingsCollection
+                .find()
+                .skip(n*(page-1))
+                .limit(n)
+        );
+
         return new QuerySubset<>(
-               ratingsExtended,
+                fillRatingExtended(ratings),
                ratingsCollection.countDocuments()
         );
     }
 
-    public QuerySubset<Rating> getUserRatings(User u, int n, int page){
+    public QuerySubset<RatingExtended> getUserRatings(User u, int n, int page){
         Bson filter = eq("_id.user_id", u.getId());
+        List<Rating> ratings = Rating.Adapter.fromDBObjectIterable(ratingsCollection
+                .find(filter)
+                .skip(n*(page-1))
+                .limit(n)
+        );
+
         return new QuerySubset<>(
-                Rating.Adapter.fromDBObjectIterable(ratingsCollection
-                        .find(filter)
-                        .skip(n*(page-1))
-                        .limit(n)
-                ),
+                fillRatingExtended(ratings),
                 ratingsCollection.countDocuments(filter)
         );
     }

@@ -263,7 +263,7 @@ public class Main {
         if (u != null && (u.isAdmin() || u.getUsername().equals(username))){
             User u2 = dba.getUserLoginInfo(username);
             if (u2 != null){
-                QuerySubset<Rating> ratings = dba.getUserRatings(u2, n, page);
+                QuerySubset<RatingExtended> ratings = dba.getUserRatings(u2, n, page);
                 return new Gson().toJson(new BaseResponse(true, null, ratings));
             } else {
                 return new Gson().toJson(new BaseResponse(false, "User not found", null));

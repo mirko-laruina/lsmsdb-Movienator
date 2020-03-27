@@ -39,7 +39,7 @@ public class DatabaseAdapterTest {
         Rating rating2 = new Rating(user2.getId(), movie2.getId(), new Date(), 3.0);
         dba.insertRating(rating2);
 
-        QuerySubset<Rating> ratingList = dba.getUserRatings(user2, 100, 1);
+        QuerySubset<RatingExtended> ratingList = dba.getUserRatings(user2, 100, 1);
         Assert.assertEquals(2, ratingList.getList().size());
         for (Rating r:ratingList.getList()){
             Assert.assertEquals(user2.getId(), r.getUserId());
