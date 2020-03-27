@@ -8,7 +8,7 @@ import Pagination from '@material-ui/lab/Pagination';
 
 import FilterDisplay from './FilterDisplay.js';
 import Sorting from './Sorting.js';
-import FilmListDisplay from './MovieListDisplay'
+import MovieListDisplay from './MovieListDisplay'
 
 import { baseUrl } from './utils.js'
 import axios from 'axios';
@@ -77,7 +77,7 @@ export default function BrowsePage(props) {
                 <br />
                 <Typography variant="h4">Browse movies</Typography>
                 <Sorting noGroup sortOpt={sortOpt} handler={setSortOpt} />
-                <FilmListDisplay
+                <MovieListDisplay
                     loading={loading}
                     numFilm={filmPerPage}
                     array={movies}

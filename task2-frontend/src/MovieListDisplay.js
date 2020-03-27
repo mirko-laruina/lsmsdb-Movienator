@@ -18,7 +18,7 @@ const styles = {
         padding: '0px',
     },
 }
-export default function FilmListDisplay(props) {
+export default function MovieListDisplay(props) {
 
     return (
         <List>
@@ -42,6 +42,7 @@ export default function FilmListDisplay(props) {
                             </ListItemAvatar>
                             <ListItemText
                                 primary={
+                                    data.genres &&
                                     <React.Fragment>
                                         <h4>{data.title} ({data.year})</h4>
                                         {data.genres.map((gen, index) => (
