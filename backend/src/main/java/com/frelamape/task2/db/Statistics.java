@@ -63,8 +63,8 @@ public class Statistics<T extends Statistics.Aggregator> {
             aggregator.fromDBObject(d);
             return new Statistics(
                     aggregator,
-                    d.getDouble("avg_rating"),
-                    d.getInteger("movie_count")
+                    BsonAutoCast.asDouble(d, "avg_rating"),
+                    BsonAutoCast.asInteger(d, "movie_count")
             );
         }
 

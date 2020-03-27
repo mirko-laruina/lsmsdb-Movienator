@@ -12,10 +12,9 @@ public class User {
     private String password;
     private String email;
     private Boolean isAdmin;
-    private List<Statistics<Person>> ratedActors = new ArrayList<>();
-    private List<Statistics<Person>> ratedDirectors = new ArrayList<>();
-    private List<Statistics<Genre>> ratedGenres = new ArrayList<>();
-    private List<Session> sessions = new ArrayList<>();
+    private List<Statistics<Statistics.Aggregator>> favouriteActors = new ArrayList<>();
+    private List<Statistics<Statistics.Aggregator>> favouriteDirectors = new ArrayList<>();
+    private List<Statistics<Statistics.Aggregator>> favouriteGenres = new ArrayList<>();
 
     public User(String username) {
         this.username = username;
@@ -63,28 +62,28 @@ public class User {
         isAdmin = admin;
     }
 
-    public List<Statistics<Person>> getRatedActors() {
-        return ratedActors;
+    public List<Statistics<Statistics.Aggregator>> getFavouriteActors() {
+        return favouriteActors;
     }
 
-    public void setRatedActors(List<Statistics<Person>> ratedActors) {
-        this.ratedActors = ratedActors;
+    public void setFavouriteActors(List<Statistics<Statistics.Aggregator>> favouriteActors) {
+        this.favouriteActors = favouriteActors;
     }
 
-    public List<Statistics<Person>> getRatedDirectors() {
-        return ratedDirectors;
+    public List<Statistics<Statistics.Aggregator>> getFavouriteDirectors() {
+        return favouriteDirectors;
     }
 
-    public void setRatedDirectors(List<Statistics<Person>> ratedDirectors) {
-        this.ratedDirectors = ratedDirectors;
+    public void setFavouriteDirectors(List<Statistics<Statistics.Aggregator>> favouriteDirectors) {
+        this.favouriteDirectors = favouriteDirectors;
     }
 
-    public List<Statistics<Genre>> getRatedGenres() {
-        return ratedGenres;
+    public List<Statistics<Statistics.Aggregator>> getFavouriteGenres() {
+        return favouriteGenres;
     }
 
-    public void setRatedGenres(List<Statistics<Genre>> ratedGenres) {
-        this.ratedGenres = ratedGenres;
+    public void setFavouriteGenres(List<Statistics<Statistics.Aggregator>> favouriteGenres) {
+        this.favouriteGenres = favouriteGenres;
     }
 
     public List<Session> getSessions() {
@@ -120,40 +119,40 @@ public class User {
             Object ratedActorObj = d.get("rated_actors");
             if (ratedActorObj != null){
                 List<Document> actorDocs = (List<Document>) ratedActorObj;
-                List<Statistics<Person>> actors = new ArrayList<>();
+                List<Statistics<Statistics.Aggregator>> actors = new ArrayList<>();
                 for (Document actorDocument:actorDocs){
                     actors.add(Statistics.Adapter.fromDBObject(
                             actorDocument,
                             Person.class
                     ));
                 }
-                user.setRatedActors(actors);
+                user.setFavouriteActors(actors);
             }
 
             Object ratedDirectorObj = d.get("rated_actors");
             if (ratedDirectorObj != null){
                 List<Document> directorDocs = (List<Document>) ratedDirectorObj;
-                List<Statistics<Person>> directors = new ArrayList<>();
+                List<Statistics<Statistics.Aggregator>> directors = new ArrayList<>();
                 for (Document directorDocument:directorDocs){
                     directors.add(Statistics.Adapter.fromDBObject(
                             directorDocument,
                             Person.class
                     ));
                 }
-                user.setRatedDirectors(directors);
+                user.setFavouriteDirectors(directors);
             }
 
             Object ratedGenreObj = d.get("rated_genres");
             if (ratedGenreObj != null){
                 List<Document> genreDocs = (List<Document>) ratedGenreObj;
-                List<Statistics<Genre>> genres = new ArrayList<>();
+                List<Statistics<Statistics.Aggregator>> genres = new ArrayList<>();
                 for (Document genreDocument:genreDocs){
                     genres.add(Statistics.Adapter.fromDBObject(
                             genreDocument,
                             Genre.class
                     ));
                 }
-                user.setRatedGenres(genres);
+                user.setFavouriteGenres(genres);
             }
 
             Object sessionsObj = d.get("sessions");
