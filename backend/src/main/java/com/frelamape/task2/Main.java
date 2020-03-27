@@ -176,11 +176,14 @@ public class Main {
 
         Movie movie = dba.getMovieDetails(movieId);
         Rating rating = new Rating(u, movie, ratingValue);
-        boolean result = dba.insertRating(rating);
-        if (result){
-            return new Gson().toJson(new BaseResponse(true, null, null));
-        } else {
-            return new Gson().toJson(new BaseResponse(false, null, null));
+        int result = dba.insertRating(rating);
+        switch (result){
+            case 0:
+                return new Gson().toJson(new BaseResponse(true, "Rating added", null));
+            case 1:
+                return new Gson().toJson(new BaseResponse(true, "Rating updated", null));
+            default:
+                return new Gson().toJson(new BaseResponse(false, "Unknown error inserting rating", null));
         }
     }
 
@@ -306,11 +309,15 @@ public class Main {
             User u2 = dba.getUserLoginInfo(username);
             if (u2 != null){
                 Rating rating = new Rating(u2, new Movie(movieId), ratingVal);
-                boolean result = dba.insertRating(rating);
-                if (result)
-                    return new Gson().toJson(new BaseResponse(true, null, null));
-                else
-                    return new Gson().toJson(new BaseResponse(false, "Error inserting rating", null));
+                int result = dba.insertRating(rating);
+                switch (result) {
+                    case 0:
+                        return new Gson().toJson(new BaseResponse(true, "Rating added", null));
+                    case 1:
+                        return new Gson().toJson(new BaseResponse(true, "Rating updated", null));
+                    default:
+                        return new Gson().toJson(new BaseResponse(false, "Unkonwn error inserting rating", null));
+                }
             } else {
                 return new Gson().toJson(new BaseResponse(false, "User not found", null));
             }

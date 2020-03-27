@@ -1,8 +1,10 @@
 package com.frelamape.task2.db;
 
+import com.mongodb.MongoWriteException;
 import com.mongodb.client.*;
 import com.mongodb.client.model.Projections;
 import com.mongodb.client.model.Sorts;
+import com.mongodb.client.model.UpdateOptions;
 import com.mongodb.client.result.DeleteResult;
 import com.mongodb.client.result.InsertOneResult;
 import com.mongodb.client.result.UpdateResult;
@@ -40,13 +42,37 @@ public class DatabaseAdapter {
         return true;
     }
 
-    public boolean insertRating(Rating rating){
-        InsertOneResult result = ratingsCollection.insertOne(Rating.Adapter.toDBObject(rating));
+    /**
+     * Inserts a rating.
+     *
+     * @param rating the rating to be inserted
+     * @return 0 rating was added
+     *         1 rating was updated
+     *         -10 if unknown error
+     *         -20 if unknown error in rating update
+     */
+    public int insertRating(Rating rating){
+        Document ratingBson = Rating.Adapter.toDBObject(rating);
+        UpdateOptions options = new UpdateOptions();
+        options.upsert(true);
 
-        if (result.wasAcknowledged() && result.getInsertedId() != null){
-            return updateInternalRating();
+        UpdateResult result = ratingsCollection.updateOne(
+                 eq("_id", ratingBson.get("_id")),
+                 combine(
+                         set("rating", rating.getRating()),
+                         set("date", rating.getDate())
+                 ),
+                 options
+        );
+
+        if (result.wasAcknowledged()){
+            if (updateInternalRating()){
+                return result.getUpsertedId() != null ? 0 : 1;
+            } else {
+                return -20;
+            }
         } else{
-            return false;
+            return -10;
         }
     }
 
