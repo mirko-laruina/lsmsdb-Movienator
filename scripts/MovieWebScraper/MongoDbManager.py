@@ -6,7 +6,7 @@ Created on Thu Feb  6 16:13:41 2020
 """
 
 import MovieScraper as ms
-from pymongo import MongoClient
+from pymongo import MongoClient, UpdateOne
 from pprint import pprint
 from config import mongo_uri, mongo_db
 
@@ -165,16 +165,27 @@ class MongoManager:
             pprint(upd_dic)
             
             #load updated movie ratings
+            operations = []
             for rating in upd_dic['ratings']:
-                self.db["movies"].find_one_and_update({
-                    '_id': movie['_id'],
-                    'ratings.source': rating['source']
-                },
-                {
-                    '$set': {
-                        'ratings.$': rating
-                    }
-                })
+                operations += [
+                    UpdateOne(
+                        {'_id': movie['_id']},
+                        {'$pull': {
+                            "ratings": {
+                                "source": rating['source']
+                            }
+                        }}
+                    ),
+                    UpdateOne(
+                        {'_id': movie['_id']},
+                        {'$push': {
+                            "ratings": rating
+                        }}
+                    ),
+                ]
+                
+            if operations:
+                self.db['movies'].bulk_write(operations)
             
             del upd_dic['ratings']
 
