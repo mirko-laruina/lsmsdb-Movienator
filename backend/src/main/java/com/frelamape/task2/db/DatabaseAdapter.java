@@ -413,7 +413,7 @@ public class DatabaseAdapter {
         if (actor  != null && !actor.isEmpty()){
             List<Bson> actorConditions = new ArrayList<>();
             for (String s:actor.split(" ")){
-                actorConditions.add(regex("actors.actor_name", s, "i"));
+                actorConditions.add(regex("characters.actor_name", s, "i"));
             }
             conditions.add(and(actorConditions.toArray(new Bson[]{})));
         }
