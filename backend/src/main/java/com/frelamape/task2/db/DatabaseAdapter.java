@@ -111,7 +111,15 @@ public class DatabaseAdapter {
                 return false;
             }
         } else {
-            return true;
+            UpdateResult result = moviesCollection.updateOne(
+                    eq("_id", movieId),
+                    pull("ratings", eq("source", "internal"))
+            );
+            if (result.wasAcknowledged()){
+                return updateTotalRating(movieId);
+            } else{
+                return false;
+            }
         }
     }
 
