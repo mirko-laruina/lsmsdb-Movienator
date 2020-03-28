@@ -1,5 +1,4 @@
 import React from 'react'
-import MyCard from './MyCard'
 import BasicPage from './BasicPage'
 
 import {
@@ -66,7 +65,6 @@ export default function StatsPage(props) {
 
     return (
         <BasicPage history={props.history}>
-            <MyCard>
                 <FilterDisplay filters={filters} setFilters={setFilters} />
                 <br />
                 <Typography variant="h4">Best film by  {props.match.params.group}</Typography>
@@ -94,7 +92,6 @@ export default function StatsPage(props) {
                         </TableBody>
                     </Table>
                 </TableContainer>
-            </MyCard>
         </BasicPage>
     )
 }

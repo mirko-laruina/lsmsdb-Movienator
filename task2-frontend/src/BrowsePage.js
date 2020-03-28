@@ -1,8 +1,7 @@
 import React from 'react'
 import { useEffect } from 'react'
 import BasicPage from './BasicPage.js'
-import MyCard from './MyCard.js'
-import { Typography, Grid} from '@material-ui/core'
+import { Typography, Grid } from '@material-ui/core'
 
 import Pagination from '@material-ui/lab/Pagination';
 
@@ -12,12 +11,6 @@ import MovieListDisplay from './MovieListDisplay'
 
 import { baseUrl } from './utils.js'
 import axios from 'axios';
-
-const styles = {
-    cardRoot: {
-        padding: '1em 3em',
-    }
-}
 
 export default function BrowsePage(props) {
     const [filters, setFilters] = React.useState({});
@@ -30,11 +23,11 @@ export default function BrowsePage(props) {
 
     useEffect(() => {
         const browseRequest = () => {
-            if( typeof(sortOpt.sortBy) === 'undefined'
+            if (typeof (sortOpt.sortBy) === 'undefined'
                 ||
-                typeof(sortOpt.sortOrder) === 'undefined'){
-                    //sortOpt isn't updated by the child component yet
-                    //we should NOT do any request
+                typeof (sortOpt.sortOrder) === 'undefined') {
+                //sortOpt isn't updated by the child component yet
+                //we should NOT do any request
                 return
             }
             var sorting = {
@@ -49,7 +42,7 @@ export default function BrowsePage(props) {
                 n: filmPerPage
             }
 
-            if(localStorage.getItem('username')){
+            if (localStorage.getItem('username')) {
                 reqParams.sessionId = localStorage.getItem('sessionId')
             }
 
@@ -65,34 +58,32 @@ export default function BrowsePage(props) {
                     }
                 })
         }
-        
+
         setLoading(true)
         browseRequest()
     }, [filters, sortOpt, currentPage]);
 
     return (
         <BasicPage history={props.history}>
-            <MyCard style={styles.cardRoot}>
-                <FilterDisplay filters={filters} setFilters={setFilters} />
-                <br />
-                <Typography variant="h4">Browse movies</Typography>
-                <Sorting noGroup sortOpt={sortOpt} handler={setSortOpt} />
-                <MovieListDisplay
-                    loading={loading}
-                    numFilm={filmPerPage}
-                    array={movies}
-                />
-               <Grid container justify="center">
-                    <Pagination shape="rounded"
-                        showFirstButton
-                        showLastButton
-                        color="primary"
-                        size="large"
-                        count={pageCount}
-                        page={currentPage}
-                        onChange={(e, v) => setCurrentPage(v)} />
-                </Grid>
-            </MyCard>
+            <FilterDisplay filters={filters} setFilters={setFilters} />
+            <br />
+            <Typography variant="h4">Browse movies</Typography>
+            <Sorting noGroup sortOpt={sortOpt} handler={setSortOpt} />
+            <MovieListDisplay
+                loading={loading}
+                numFilm={filmPerPage}
+                array={movies}
+            />
+            <Grid container justify="center">
+                <Pagination shape="rounded"
+                    showFirstButton
+                    showLastButton
+                    color="primary"
+                    size="large"
+                    count={pageCount}
+                    page={currentPage}
+                    onChange={(e, v) => setCurrentPage(v)} />
+            </Grid>
         </BasicPage >
     )
 }

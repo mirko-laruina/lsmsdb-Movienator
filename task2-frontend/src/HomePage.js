@@ -40,7 +40,7 @@ export default function HomePage(props) {
   const classes = useStyles()
   const [searchValue, setSearch] = React.useState("")
   return (
-    <BasicPage history={props.history}>
+    <BasicPage noCard history={props.history}>
       <MyCard>
         <br />
         <Typography

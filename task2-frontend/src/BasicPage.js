@@ -78,6 +78,9 @@ const useStyles = makeStyles(theme => (
                 },
             },
         },
+        cardRoot: {
+            padding: '1em 3em',
+        }
     }));
 
 export default function BasicPage(props) {
@@ -249,7 +252,14 @@ export default function BasicPage(props) {
                 </Toolbar>
             </AppBar>
             <Container maxWidth="md" className="wrapper">
-                {props.children}
+                {props.noCard ?
+                    props.children
+                    :
+                    <MyCard className={classes.cardRoot}>
+                        {props.children}
+                    </MyCard>
+                }
+                <br />
             </Container>
         </div>
     );
