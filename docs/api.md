@@ -34,6 +34,19 @@ password=<plain_text_password>
 }
 ```
 
+## `POST /auth/password`
+Changes the password of the currenlty logged-in user.
+
+NB: session ID is required.
+
+### Input
+```
+password=<plain_text_password>
+```
+
+### Output
+None, just success/failure.
+
 ## `POST /auth/logout`
 Logs the user out, terminating his session.
 
