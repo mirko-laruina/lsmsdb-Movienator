@@ -220,7 +220,17 @@ export default function BasicPage(props) {
                                         </MenuItem>
                                     )
                                 })
-
+                            }
+                            {
+                                (username && localStorage.getItem('is_admin') === 'true' &&
+                                    <MenuItem
+                                        onClick={() => {
+                                            props.history.push('/admin')
+                                        }}
+                                    >
+                                        Admin control panel
+                                    </MenuItem>
+                                )
                             }
                         </Menu>
                         <Dialog

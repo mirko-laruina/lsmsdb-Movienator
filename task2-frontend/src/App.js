@@ -15,6 +15,7 @@ import BrowsePage from './BrowsePage'
 import MoviePage from './MoviePage'
 import ProfilePage from './ProfilePage'
 import HistoryPage from './HistoryPage'
+import ControlPanel from './ControlPanel'
 
 const theme = createMuiTheme({
   palette: {
@@ -57,6 +58,7 @@ function App() {
           <Route path="/browse" component={BrowsePage} />
           <Route path="/profile" component={ProfilePage} />
           <Route path="/history" component={HistoryPage} />
+          <Route path="/admin" component={ControlPanel} />
           <Route path="/stats/:group/" component={StatsPage} />
           <Route path="/results/:query" component={SearchPage} />
           <Route path="/movie/:id" component={MoviePage} />

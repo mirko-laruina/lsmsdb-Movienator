@@ -65,7 +65,6 @@ export default function HistoryPage(props) {
                         !loading &&
                         <React.Fragment>
                             <HistoryTable
-                                subject='Movie'
                                 data={movies}
                             />
                             <br />

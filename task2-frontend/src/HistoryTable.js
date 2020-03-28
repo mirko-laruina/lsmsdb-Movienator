@@ -39,7 +39,10 @@ export default function HistoryTable(props) {
             <Table className={classes.table} aria-label="caption table">
                 <TableHead classes={{ root: classes.tableHead }}>
                     <TableRow>
-                        <TableCell>{props.subject}</TableCell>
+                        {props.adminView &&
+                            <TableCell>Username</TableCell>
+                        }
+                        <TableCell>Movie</TableCell>
                         <TableCell align="center">Year</TableCell>
                         <TableCell align="center">Rating</TableCell>
                         <TableCell align="center">Rated on</TableCell>
@@ -48,17 +51,22 @@ export default function HistoryTable(props) {
                 <TableBody>
                     {props.data && props.data.map((row, i) => (
                         <TableRow key={i} classes={{ root: classes.tableRow }}>
-                            <TableCell component="th" scope="row">
-                                {row.title}
-                            </TableCell>
+                            {props.adminView &&
+                                <TableCell component="th" scope="row">
+                                    {row.username}
+                                </TableCell>
+                            }
+                            <TableCell align="left">{row.title}</TableCell>
                             <TableCell align="center">{row.year}</TableCell>
                             <TableCell align="center">
                                 <UserRating
                                     showDelete
+                                    readOnly={props.readOnly}
                                     rating={row.rating}
+                                    user={props.adminView ? row.username : false}
                                     movieId={row.movieId}
                                     delete />
-                                </TableCell>
+                            </TableCell>
                             <TableCell align="center">{getDate(row.date)}</TableCell>
                         </TableRow>
                     ))}

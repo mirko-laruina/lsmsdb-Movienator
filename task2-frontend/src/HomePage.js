@@ -87,7 +87,6 @@ export default function HomePage(props) {
                   </IconButton>
                 </InputAdornment>
               }
-              aria-describedby="outlined-weight-helper-text"
               inputProps={{
                 'aria-label': 'weight',
               }}

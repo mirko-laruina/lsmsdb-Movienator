@@ -28,7 +28,12 @@ export default function UserRating(props) {
 
 
     const deleteRating = (movie) => {
-        let url = baseUrl + 'movie/' + movie + '/rating'
+        let url
+        if(props.user){
+            url = baseUrl + 'user/' + props.user + '/rating/' + movie
+        } else {
+            url = baseUrl + 'movie/' + movie + '/rating'
+        }
         let params = {}
         if (localStorage.getItem('username')) {
             params.sessionId = localStorage.getItem('sessionId')
