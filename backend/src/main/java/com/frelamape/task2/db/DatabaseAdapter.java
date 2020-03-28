@@ -419,7 +419,7 @@ public class DatabaseAdapter {
         }
 
         if (country != null && !country.isEmpty()){
-            conditions.add(eq("country", country));
+            conditions.add(eq("countries", country));
         }
 
         if (fromYear != -1){
