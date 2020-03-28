@@ -1,10 +1,7 @@
 import React, { useEffect } from 'react'
-import { makeStyles } from '@material-ui/core/styles';
 import { Pagination } from '@material-ui/lab'
 import BasicPage from './BasicPage'
 import MyCard from './MyCard'
-import MovieListDisplay from './MovieListDisplay'
-import MostLikedTable from './MostLikedTable'
 import HistoryTable from './HistoryTable'
 import { baseUrl } from './utils'
 import { Typography, Grid } from '@material-ui/core'

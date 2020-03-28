@@ -7,7 +7,10 @@ import TableContainer from '@material-ui/core/TableContainer';
 import TableHead from '@material-ui/core/TableHead';
 import TableRow from '@material-ui/core/TableRow';
 import Paper from '@material-ui/core/Paper';
-import {getDate} from './utils'
+import { getDate } from './utils'
+
+import UserRating from './UserRating'
+
 
 const useStyles = makeStyles((theme) => (
     {
@@ -19,7 +22,7 @@ const useStyles = makeStyles((theme) => (
                 fontWeight: 'bold'
             },
         },
-        tableRow:{
+        tableRow: {
             '&:nth-child(even)': {
                 backgroundColor: theme.palette.divider,
             }
@@ -37,8 +40,9 @@ export default function HistoryTable(props) {
                 <TableHead classes={{ root: classes.tableHead }}>
                     <TableRow>
                         <TableCell>{props.subject}</TableCell>
-                        <TableCell align="right">Year</TableCell>
-                        <TableCell align="right">Rated on</TableCell>
+                        <TableCell align="center">Year</TableCell>
+                        <TableCell align="center">Rating</TableCell>
+                        <TableCell align="center">Rated on</TableCell>
                     </TableRow>
                 </TableHead>
                 <TableBody>
@@ -47,8 +51,15 @@ export default function HistoryTable(props) {
                             <TableCell component="th" scope="row">
                                 {row.title}
                             </TableCell>
-                            <TableCell align="right">{row.year}</TableCell>
-                            <TableCell align="right">{getDate(row.date)}</TableCell>
+                            <TableCell align="center">{row.year}</TableCell>
+                            <TableCell align="center">
+                                <UserRating
+                                    showDelete
+                                    rating={row.rating}
+                                    movieId={row.movieId}
+                                    delete />
+                                </TableCell>
+                            <TableCell align="center">{getDate(row.date)}</TableCell>
                         </TableRow>
                     ))}
                 </TableBody>

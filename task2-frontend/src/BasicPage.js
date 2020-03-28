@@ -138,7 +138,7 @@ export default function BasicPage(props) {
             }
         },
         {
-            label: 'Browse history',
+            label: 'Rating history',
             handler: () => {
                 props.history.push('/history')
             }
