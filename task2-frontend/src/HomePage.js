@@ -98,7 +98,7 @@ export default function HomePage(props) {
         <br />
       </MyCard>
       <MyCard>
-        <Typography variant="h4" component='h2'>Explore statistics</Typography>
+        <Typography variant="h4" component='h2'>Explore movie statistics</Typography>
         <br />
         <Tabs
           value={0}

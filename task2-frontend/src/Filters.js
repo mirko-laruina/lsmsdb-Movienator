@@ -65,7 +65,7 @@ export default function Filter(props) {
             <Typography
                 variant="h3"
                 align="center">
-                Filters
+                Filter Movies
             </Typography>
             <br />
             <Tabs

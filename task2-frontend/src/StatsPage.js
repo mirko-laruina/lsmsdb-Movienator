@@ -16,9 +16,9 @@ import { countryToFlag } from './utils.js';
 
 const data = [
     {
-        "id": "US",
-        "name": "USA",
-        "count": 500,
+        "id": "IT",
+        "name": "ITA",
+        "count": 550,
         "rating": 8.87
     },
     {
