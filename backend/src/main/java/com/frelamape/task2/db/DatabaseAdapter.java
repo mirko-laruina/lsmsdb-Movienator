@@ -269,9 +269,9 @@ public class DatabaseAdapter {
                             field[GROUPBY_ID],
                             Accumulators.first("name", field[GROUPBY_NAME]),
                             Accumulators.avg("avg_rating", "$rating"),
-                            Accumulators.avg("movie_count", 1)
+                            Accumulators.sum("movie_count", 1)
                     ),
-                    Aggregates.sort(descending("rating")),
+                    Aggregates.sort(descending("avg_rating")),
                     Aggregates.limit(3)
             ));
 
