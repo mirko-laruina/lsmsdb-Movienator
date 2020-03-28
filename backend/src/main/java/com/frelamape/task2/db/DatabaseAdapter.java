@@ -279,7 +279,7 @@ public class DatabaseAdapter {
                             Accumulators.avg("avg_rating", "$rating"),
                             Accumulators.sum("movie_count", 1)
                     ),
-                    Aggregates.sort(descending("avg_rating")),
+                    Aggregates.sort(descending("avg_rating", "movie_count")),
                     Aggregates.limit(3)
             ));
 
