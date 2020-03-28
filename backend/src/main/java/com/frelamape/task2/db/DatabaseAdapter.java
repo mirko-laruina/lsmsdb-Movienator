@@ -517,6 +517,15 @@ public class DatabaseAdapter {
         }
     }
 
+    public boolean editUserPassword(User u){
+        UpdateResult result = usersCollection.updateOne(
+                eq("username", u.getUsername()),
+                set("password", u.getPassword())
+        );
+
+        return result.getModifiedCount() != 0;
+    }
+
     public boolean banUser(User u){
         // NB: User must contain ID
 
