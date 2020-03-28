@@ -1,0 +1,48 @@
+# Example for finding user preferred ratings
+db.ratings.aggregate([ 
+    { 
+        $match: {
+            "_id.user_id": ObjectId("5e7a74ceea26cb1fcf0e5d71")
+        }
+    }, 
+    { 
+        $lookup: { 
+            from: "movies", 
+            localField: "_id.movie_id", 
+            foreignField: "_id", 
+            as: "movies"
+        }
+    }, 
+    {
+        $project: {
+            "rating": 1,
+            "movies._id": 1,
+            "movies.directors": 1
+        }
+    },
+    { 
+        $unwind: "$movies"
+    }, 
+    { 
+        $unwind: "$movies.directors"
+    }, 
+    { 
+        $group: { 
+            _id: "$movies.directors.id", 
+            name: {
+                $first: "$movies.directors.name"
+            },
+            rating: {
+                $avg : "$rating"
+            }
+        }
+    }, 
+    {
+        $sort: {
+            rating: -1
+        }
+    }, 
+    {
+        $limit: 3
+    }
+])
