@@ -111,7 +111,15 @@ public class DatabaseAdapter {
                 return false;
             }
         } else {
-            return true;
+            UpdateResult result = moviesCollection.updateOne(
+                    eq("_id", movieId),
+                    pull("ratings", eq("source", "internal"))
+            );
+            if (result.wasAcknowledged()){
+                return updateTotalRating(movieId);
+            } else{
+                return false;
+            }
         }
     }
 
@@ -271,7 +279,7 @@ public class DatabaseAdapter {
                             Accumulators.avg("avg_rating", "$rating"),
                             Accumulators.sum("movie_count", 1)
                     ),
-                    Aggregates.sort(descending("avg_rating")),
+                    Aggregates.sort(descending("avg_rating", "movie_count")),
                     Aggregates.limit(3)
             ));
 
@@ -405,13 +413,13 @@ public class DatabaseAdapter {
         if (actor  != null && !actor.isEmpty()){
             List<Bson> actorConditions = new ArrayList<>();
             for (String s:actor.split(" ")){
-                actorConditions.add(regex("actors.actor_name", s, "i"));
+                actorConditions.add(regex("characters.actor_name", s, "i"));
             }
             conditions.add(and(actorConditions.toArray(new Bson[]{})));
         }
 
         if (country != null && !country.isEmpty()){
-            conditions.add(eq("country", country));
+            conditions.add(eq("countries", country));
         }
 
         if (fromYear != -1){
@@ -507,6 +515,15 @@ public class DatabaseAdapter {
         } else{
             return null;
         }
+    }
+
+    public boolean editUserPassword(User u){
+        UpdateResult result = usersCollection.updateOne(
+                eq("username", u.getUsername()),
+                set("password", u.getPassword())
+        );
+
+        return result.getModifiedCount() != 0;
     }
 
     public boolean banUser(User u){

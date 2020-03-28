@@ -34,6 +34,19 @@ public class Main {
     }
 
     @CrossOrigin
+    @RequestMapping(value={"/api/v1/auth/password"}, method= RequestMethod.POST)
+    public @ResponseBody String changePassword(@RequestParam(value = "sessionId") String sid,
+                                      @RequestParam("password") String password){
+        Session s = new Session(sid);
+        User u = dba.getUserFromSession(s);
+        u.setPassword(password);
+
+        boolean result = dba.editUserPassword(u);
+        
+        return new Gson().toJson(new BaseResponse(result, null, null));
+    }
+
+    @CrossOrigin
     @RequestMapping(value={"/api/v1/auth/register"}, method= RequestMethod.POST)
     public @ResponseBody String register(@RequestParam("username") String username,
                                          @RequestParam("password") String password,
