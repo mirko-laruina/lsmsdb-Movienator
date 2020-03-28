@@ -67,6 +67,7 @@ export default function ControlPanel(props) {
                     />
                 </FormControl>
             </form>
+            <br />
             <Typography
                 component="h2"
                 variant="h4" >
