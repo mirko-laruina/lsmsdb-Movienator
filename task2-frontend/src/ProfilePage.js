@@ -1,6 +1,7 @@
 import React, { useEffect } from 'react'
 import { Link } from 'react-router-dom'
-import { Grid, Button } from '@material-ui/core'
+import { Grid, Button, TextField } from '@material-ui/core'
+import Alert from '@material-ui/lab/Alert'
 import RestrictedPage from './RestrictedPage'
 import { baseUrl } from './utils'
 import { Typography } from '@material-ui/core'
@@ -13,8 +14,32 @@ export default function ProfilePage(props) {
     const [admin, setAdmin] = React.useState(false)
     const [user, setUser] = React.useState(props.match.params.username)
     const [loading, setLoading] = React.useState(true)
+    const [newPassword, setNewPassword] = React.useState("")
+    const [errorPw, setErrorPw] = React.useState(false)
+    const [isUserSelf, setIsUserSelf] = React.useState(false)
+
+    const changePassword = () => {
+        axios.post(baseUrl + "/auth/password", null, {
+            params: {
+                sessionId: localStorage.getItem('sessionId'),
+                password: newPassword
+            }
+        }).then((data) => {
+            if (data.data.success) {
+                window.location.reload()
+            } else {
+                setErrorPw(true)
+            }
+        })
+        setErrorPw(false)
+    }
 
     useEffect(() => {
+        setIsUserSelf(
+            !props.match.params.username
+            ||
+            props.match.params.username === localStorage.getItem('username')
+        )
         let reqUser = localStorage.getItem('username')
         if (!reqUser) {
             //not logged in
@@ -74,7 +99,7 @@ export default function ProfilePage(props) {
 
             {
                 loading ?
-                    <ProfilePageSkeleton />
+                    <ProfilePageSkeleton showPw={isUserSelf}/>
                     :
                     <React.Fragment>
                         <Typography variant="h3" component="h1">
@@ -121,11 +146,11 @@ export default function ProfilePage(props) {
                                     color="primary"
                                     component={Link}
                                     to={
-                                        admin === 'false' || !props.match.params.username 
-                                        ?
-                                        "/history"
-                                        :
-                                        "/history/" + props.match.params.username
+                                        admin === 'false' || !props.match.params.username
+                                            ?
+                                            "/history"
+                                            :
+                                            "/history/" + props.match.params.username
                                     }
                                 >
                                     Rating history
@@ -159,6 +184,40 @@ export default function ProfilePage(props) {
                             subject='Genre'
                             data={infos.favouriteGenres}
                         />
+                        <br />
+                        <br />
+                        {
+                            isUserSelf
+                            &&
+                            <React.Fragment>
+                                <Typography variant="h4" component='h2'>
+                                    Change password
+                                </Typography>
+                                {
+                                    errorPw &&
+                                    <Alert size="small" severity="error">
+                                        Password change failed
+                                    </Alert>
+                                }
+                                <TextField
+                                    variant="outlined"
+                                    label="New password"
+                                    value={newPassword}
+                                    type="password"
+                                    margin="normal"
+                                    onChange={(e) => setNewPassword(e.target.value)}
+                                />
+                                <br />
+                                <Button
+                                    variant="contained"
+                                    size="large"
+                                    color="primary"
+                                    onClick={changePassword}
+                                >
+                                    Change password
+                                </Button>
+                            </React.Fragment>
+                        }
                     </React.Fragment>
             }
         </RestrictedPage>

@@ -49,6 +49,19 @@ export default function ProfilePage(props) {
             <Skeleton />
             <Skeleton />
             <Skeleton />
+            <br />
+            {
+                props.showPw &&
+                <React.Fragment>
+                    <Typography variant="h4" component='h2'>
+                        Change password
+                    </Typography>
+                    <br />
+                    <Skeleton />
+                    <Skeleton />
+                    <Skeleton />
+                </React.Fragment>
+            }
         </React.Fragment>
     )
 }
