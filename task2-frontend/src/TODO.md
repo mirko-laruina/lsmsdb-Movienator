@@ -2,7 +2,7 @@
 * [x] History and profile skeleton
 * [x] Code cleanup
 * [x] Add delete button to history page
-* [ ] Add change password
+* [x] Add change password
 * [x] Fix country filter
 * [x] Fix rating filter range (out of 5 instead of 10)
 * [x] Error messages in profile pages when not auth/diff user
