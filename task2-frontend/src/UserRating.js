@@ -2,16 +2,20 @@ import React from 'react'
 import { withStyles } from '@material-ui/core/styles'
 import { Rating } from '@material-ui/lab'
 import FavoriteIcon from '@material-ui/icons/Favorite'
-import {Typography, Link as MaterialLink } from '@material-ui/core'
+import { Typography, Link as MaterialLink } from '@material-ui/core'
 import DeleteForeverIcon from '@material-ui/icons/DeleteForever';
+
+import MyBackdrop from './MyBackdrop'
 
 import axios from 'axios'
 import { baseUrl } from './utils'
 export default function UserRating(props) {
     const [userRatedNow, setUserRatedNow] = React.useState(null)
     const [deletedNow, setDeletedNow] = React.useState(false)
+    const [loading, setLoading] = React.useState(false)
 
     const ratingHandler = (movie, value) => {
+        setLoading(true)
         let url = baseUrl + 'movie/' + movie + '/rating'
         axios.put(url, null, {
             params: {
@@ -22,14 +26,16 @@ export default function UserRating(props) {
             if (pkt.data.success) {
                 setUserRatedNow(value)
                 setDeletedNow(false)
+                setLoading(false)
             }
         })
     }
 
 
     const deleteRating = (movie) => {
+        setLoading(true)
         let url
-        if(props.user){
+        if (props.user) {
             url = baseUrl + 'user/' + props.user + '/rating/' + movie
         } else {
             url = baseUrl + 'movie/' + movie + '/rating'
@@ -41,6 +47,7 @@ export default function UserRating(props) {
         axios.delete(url, { params: params }).then((data) => {
             setUserRatedNow(false)
             setDeletedNow(true)
+            window.location.reload()
         })
     }
 
@@ -58,9 +65,9 @@ export default function UserRating(props) {
             <StyledRating
                 name="user-rating"
                 defaultValue={0}
-                value={deletedNow ? 0:
+                value={deletedNow ? 0 :
                     userRatedNow ? userRatedNow :
-                    props.rating ? props.rating : 0}
+                        props.rating ? props.rating : 0}
                 readOnly={props.readOnly}
                 onChange={(e, value) => {
                     ratingHandler(props.movieId, value)
@@ -84,6 +91,9 @@ export default function UserRating(props) {
                     </Typography>
                 </MaterialLink>
             }
+            <MyBackdrop
+                open={loading}>
+            </MyBackdrop>
         </React.Fragment>
     )
 }

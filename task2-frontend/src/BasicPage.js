@@ -5,7 +5,7 @@ import { Link } from 'react-router-dom';
 import { AppBar, Toolbar, Typography, Container, InputBase, FormControl, Slide, Dialog } from '@material-ui/core';
 
 /* Graphical components material-ui */
-import { Menu, MenuItem, IconButton } from '@material-ui/core';
+import { Menu, MenuItem, IconButton, Button } from '@material-ui/core';
 /* Icon material-ui */
 import AccountCircle from '@material-ui/icons/AccountCircle';
 import SearchIcon from '@material-ui/icons/Search';
@@ -80,6 +80,11 @@ const useStyles = makeStyles(theme => (
         },
         cardRoot: {
             padding: '1em 3em',
+        },
+        browseButton: {
+            color: theme.palette.primary.main,
+            marginLeft: '1em',
+            padding: '0.35em 1.5em'
         }
     }));
 
@@ -149,7 +154,6 @@ export default function BasicPage(props) {
         {
             label: 'Logout',
             handler: () => {
-                setOpenMenu(false)
                 logoutRequest()
             }
         }
@@ -166,6 +170,7 @@ export default function BasicPage(props) {
                     <Typography className={classes.title} variant="h6" noWrap to="/" component={Link}>
                         Movienator
                     </Typography>
+
                     <div className={classes.search}>
                         <div className={classes.searchIcon}>
                             <SearchIcon />
@@ -185,6 +190,16 @@ export default function BasicPage(props) {
                                 />
                             </FormControl>
                         </form>
+                    </div>
+                    <div>
+                        <Button
+                            variant="contained"
+                            className={classes.browseButton}
+                            size="normal"
+                            to="/browse"
+                            component={Link}>
+                            Browse all
+                        </Button>
                     </div>
                     <div>
                         <IconButton
@@ -217,7 +232,10 @@ export default function BasicPage(props) {
                                         <MenuItem
                                             key={i}
                                             disabled={item.disabled}
-                                            onClick={item.handler}
+                                            onClick={() => {
+                                                setOpenMenu(false)
+                                                item.handler()
+                                            }}
                                         >
                                             {item.label}
                                         </MenuItem>
@@ -241,7 +259,7 @@ export default function BasicPage(props) {
                             open={openLogin}
                             PaperComponent={MyCard}
                             fullWidth={true}
-                            maxWidth={'lg'}
+                            maxWidth={'xs'}
                             onClose={() => setOpenLogin(false)}
                         >
                             <LoginForm

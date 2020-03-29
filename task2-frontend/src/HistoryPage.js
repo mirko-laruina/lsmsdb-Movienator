@@ -1,13 +1,14 @@
 import React, { useEffect } from 'react'
+import {Link} from 'react-router-dom'
 import { Pagination } from '@material-ui/lab'
-import BasicPage from './BasicPage'
+import RestrictedPage from './RestrictedPage'
 import HistoryTable from './HistoryTable'
+import HistoryPageSkeleton from './HistoryPageSkeleton'
 import { baseUrl } from './utils'
-import { Typography, Grid } from '@material-ui/core'
+import { Typography, Grid, Button } from '@material-ui/core'
 import axios from 'axios'
 
 export default function HistoryPage(props) {
-    const [authorized, setAuthorized] = React.useState(false)
     const [movies, setMovies] = React.useState([]);
     const [pageCount, setPageCount] = React.useState(0);
     const [currentPage, setCurrentPage] = React.useState(1);
@@ -16,14 +17,11 @@ export default function HistoryPage(props) {
 
 
     useEffect(() => {
-        if (!localStorage.getItem('username')) {
-            //not logged in
-            return;
-        }
         setLoading(true)
-        setAuthorized(true)
         let url = baseUrl + "/user/"
-            + localStorage.getItem('username')
+            + (props.match.params.username ?
+                props.match.params.username :
+                localStorage.getItem('username'))
             + '/ratings'
         axios.get(url, {
             params: {
@@ -43,21 +41,50 @@ export default function HistoryPage(props) {
 
 
     return (
-        <BasicPage history={props.history}>
-            <Typography variant="h3" component="h1">
-                Rating history
-                </Typography>
+        <RestrictedPage
+            history={props.history}
+            customAuthorization={() => {
+                return localStorage.getItem('is_admin') === 'true'
+                    || localStorage.getItem('username') === props.match.params.username
+                    || (localStorage.getItem('username') && !props.match.params.username)
+            }}
+        >
+
+            <Grid container>
+                <Grid item xs={9}>
+                    <Typography variant="h3" component="h1">
+                        {
+                            props.match.params.username ?
+                                "Rating history for " + props.match.params.username :
+                                "Rating history"
+                        }
+                    </Typography>
+                </Grid>
+                <Grid item xs={3}>
+                    {
+                        localStorage.getItem('is_admin') === 'true' &&
+                        <Button fullWidth
+                            variant="outlined"
+                            size="large"
+                            color="primary"
+                            component={Link}
+                            to={!props.match.params.username ?
+                                "/profile":
+                                "/profile/"+props.match.params.username}>
+                            Profile page
+                        </Button>
+                    }
+                </Grid>
+            </Grid>
             <br />
             {
-                !authorized ?
-                    <Typography variant="body1" component='p'>
-                        You need to be logged in to access this page.
-                        </Typography>
+                loading ?
+                    <HistoryPageSkeleton />
                     :
-                    !loading &&
                     <React.Fragment>
                         <HistoryTable
                             data={movies}
+                            user={props.match.params.username}
                         />
                         <br />
                         <Grid container justify="center">
@@ -74,6 +101,6 @@ export default function HistoryPage(props) {
 
             }
             <br />
-        </BasicPage>
+        </RestrictedPage>
     )
 }

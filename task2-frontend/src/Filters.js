@@ -21,7 +21,7 @@ const years = Array(new Date().getFullYear() - 1800).fill().map((_, i) => (i + 1
 
 const defaultFilters = {
     minRating: 0,
-    maxRating: 10,
+    maxRating: 5,
     genre: "",
     fromYear: "",
     toYear: "",
@@ -39,7 +39,7 @@ function setIfDef(handler, value) {
 export default function Filter(props) {
     const [minRating, setminRating] = React.useState(0);
     const [minTempRat, setMinTempRat] = React.useState(-1);
-    const [maxRating, setmaxRating] = React.useState(10);
+    const [maxRating, setmaxRating] = React.useState(5);
     const [maxTempRat, setMaxTempRat] = React.useState(-1);
     const [currTab, setCurrTab] = React.useState(0);
     const [genreValue, setGenre] = React.useState("");
@@ -127,7 +127,7 @@ export default function Filter(props) {
                     <Grid container>
                         <Grid item xs={6}>
                             <Typography variant="body1" align="center">
-                                Minimum rating: {minTempRat >= 0 ? minTempRat : minRating}/10
+                                Minimum rating: {minTempRat >= 0 ? minTempRat : minRating}/5
                         </Typography>
                             <Typography align="center">
                                 <Rating name="min-rating"
@@ -142,7 +142,7 @@ export default function Filter(props) {
                         </Grid>
                         <Grid item xs={6}>
                             <Typography variant="body1" align="center">
-                                Maximum rating: {maxTempRat >= 0 ? maxTempRat : maxRating}/10
+                                Maximum rating: {maxTempRat >= 0 ? maxTempRat : maxRating}/5
                     </Typography>
                             <Typography align="center">
                                 <Rating name="max-rating"

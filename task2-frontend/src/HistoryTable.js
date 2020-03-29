@@ -1,12 +1,10 @@
 import React from 'react';
+import { Link } from 'react-router-dom'
 import { makeStyles } from '@material-ui/core/styles';
-import Table from '@material-ui/core/Table';
-import TableBody from '@material-ui/core/TableBody';
-import TableCell from '@material-ui/core/TableCell';
-import TableContainer from '@material-ui/core/TableContainer';
-import TableHead from '@material-ui/core/TableHead';
-import TableRow from '@material-ui/core/TableRow';
-import Paper from '@material-ui/core/Paper';
+import {
+    Table, TableBody, TableCell, TableContainer, TableHead, TableRow,
+    Paper, Typography
+} from '@material-ui/core';
 import { getDate } from './utils'
 
 import UserRating from './UserRating'
@@ -35,43 +33,54 @@ export default function HistoryTable(props) {
     const classes = useStyles();
 
     return (
-        <TableContainer component={Paper}>
-            <Table className={classes.table} aria-label="caption table">
-                <TableHead classes={{ root: classes.tableHead }}>
-                    <TableRow>
-                        {props.adminView &&
-                            <TableCell>Username</TableCell>
-                        }
-                        <TableCell>Movie</TableCell>
-                        <TableCell align="center">Year</TableCell>
-                        <TableCell align="center">Rating</TableCell>
-                        <TableCell align="center">Rated on</TableCell>
-                    </TableRow>
-                </TableHead>
-                <TableBody>
-                    {props.data && props.data.map((row, i) => (
-                        <TableRow key={i} classes={{ root: classes.tableRow }}>
+        !props.data || props.data.length === 0 ?
+            <Typography variant="body1" component="p">
+                No data to display
+            </Typography>
+            :
+            <TableContainer component={Paper}>
+                <Table className={classes.table} aria-label="caption table">
+                    <TableHead classes={{ root: classes.tableHead }}>
+                        <TableRow>
                             {props.adminView &&
-                                <TableCell component="th" scope="row">
-                                    {row.username}
-                                </TableCell>
+                                <TableCell>Username</TableCell>
                             }
-                            <TableCell align="left">{row.title}</TableCell>
-                            <TableCell align="center">{row.year}</TableCell>
-                            <TableCell align="center">
-                                <UserRating
-                                    showDelete
-                                    readOnly={props.readOnly}
-                                    rating={row.rating}
-                                    user={props.adminView ? row.username : false}
-                                    movieId={row.movieId}
-                                    delete />
-                            </TableCell>
-                            <TableCell align="center">{getDate(row.date)}</TableCell>
+                            <TableCell>Movie</TableCell>
+                            <TableCell align="center">Year</TableCell>
+                            <TableCell align="center">Rating</TableCell>
+                            <TableCell align="center">Rated on</TableCell>
                         </TableRow>
-                    ))}
-                </TableBody>
-            </Table>
-        </TableContainer>
+                    </TableHead>
+                    <TableBody>
+                        {props.data && props.data.map((row, i) => (
+                            <TableRow key={i} classes={{ root: classes.tableRow }}>
+                                {
+                                    props.adminView &&
+                                    <TableCell component='th' scope="row">
+                                        <Link to={"/profile/"+row.username}>
+                                            <Typography variant="body1" color="primary">
+                                            {row.username}
+                                            </Typography>
+                                        </Link>
+                                    </TableCell>
+                                }
+                                <TableCell align="left">{row.title}</TableCell>
+                                <TableCell align="center">{row.year}</TableCell>
+                                <TableCell align="center">
+                                    <UserRating
+                                        showDelete
+                                        readOnly={props.readOnly}
+                                        rating={row.rating}
+                                        user={props.adminView ? row.username : false}
+                                        movieId={row.movieId}
+                                        user={props.user}
+                                    />
+                                </TableCell>
+                                <TableCell align="center">{getDate(row.date)}</TableCell>
+                            </TableRow>
+                        ))}
+                    </TableBody>
+                </Table>
+            </TableContainer>
     );
 }

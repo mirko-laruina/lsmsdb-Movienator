@@ -1,17 +1,18 @@
 import React, { useEffect } from 'react'
-import { makeStyles } from '@material-ui/core/styles';
+import { Link } from 'react-router-dom'
 import { Grid, Button } from '@material-ui/core'
-import BasicPage from './BasicPage'
+import RestrictedPage from './RestrictedPage'
 import { baseUrl } from './utils'
 import { Typography } from '@material-ui/core'
 import MostLikedTable from './MostLikedTable'
+import ProfilePageSkeleton from './ProfilePageSkeleton'
 import axios from 'axios'
 
 export default function ProfilePage(props) {
     const [infos, setInfos] = React.useState({})
-    const [authorized, setAuthorized] = React.useState(false)
     const [admin, setAdmin] = React.useState(false)
     const [user, setUser] = React.useState(props.match.params.username)
+    const [loading, setLoading] = React.useState(true)
 
     useEffect(() => {
         let reqUser = localStorage.getItem('username')
@@ -34,7 +35,6 @@ export default function ProfilePage(props) {
             // Admin requesting another user profile page 
             reqUser = urlUser
         }
-        setAuthorized(true)
         let url = baseUrl + "/user/" + reqUser
         axios.get(url, {
             params: {
@@ -44,35 +44,43 @@ export default function ProfilePage(props) {
             if (data.data.success) {
                 console.log(data.data.response)
                 setInfos(data.data.response)
+                setLoading(false)
             }
         })
+
+        setLoading(true)
     }, [props.match.params.username])
 
     const banUser = () => {
-        axios.post(baseUrl+"/user/"+user+"/ban", null, {
+        axios.post(baseUrl + "/user/" + user + "/ban", null, {
             params: {
                 sessionId: localStorage.getItem('sessionId')
             }
         }).then((data) => {
-            if(data.data.success){
+            if (data.data.success) {
                 props.history.push('/admin')
             }
         })
     }
 
     return (
-        <BasicPage history={props.history}>
-            <Typography variant="h3" component="h1">
-                Profile page
-                </Typography>
-            <br />
+        <RestrictedPage
+            history={props.history}
+            customAuthorization={() => {
+                return localStorage.getItem('is_admin') === 'true'
+                    || localStorage.getItem('username') === props.match.params.username
+                    || (localStorage.getItem('username') && !props.match.params.username)
+            }}>
+
             {
-                !authorized ?
-                    <Typography variant="body1" component='p'>
-                        You are not authorized to access this page
-                        </Typography>
+                loading ?
+                    <ProfilePageSkeleton />
                     :
                     <React.Fragment>
+                        <Typography variant="h3" component="h1">
+                            Profile page
+                        </Typography>
+                        <br />
                         <Grid container>
                             <Grid item xs={9}>
                                 <Typography variant="h4" component='h2'>
@@ -100,13 +108,34 @@ export default function ProfilePage(props) {
                             Email: {infos.email}
                         </Typography>
                         <br />
-                        <Typography variant="h4" component='h2'>
-                            The things you like
-                            </Typography>
+                        <Grid container>
+                            <Grid item xs={9}>
+                                <Typography variant="h4" component='h2'>
+                                    The things you like
+                                </Typography>
+                            </Grid>
+                            <Grid item xs={3}>
+                                <Button fullWidth
+                                    variant="outlined"
+                                    size="large"
+                                    color="primary"
+                                    component={Link}
+                                    to={
+                                        admin === 'false' || !props.match.params.username 
+                                        ?
+                                        "/history"
+                                        :
+                                        "/history/" + props.match.params.username
+                                    }
+                                >
+                                    Rating history
+                                </Button>
+                            </Grid>
+                        </Grid>
                         <br />
                         <Typography variant="h5" component='h3'>
                             Actors
-                            </Typography>
+                        </Typography>
                         <br />
                         <MostLikedTable
                             subject='Actor'
@@ -115,7 +144,7 @@ export default function ProfilePage(props) {
                         <br />
                         <Typography variant="h5" component='h3'>
                             Directors
-                            </Typography>
+                        </Typography>
                         <br />
                         <MostLikedTable
                             subject='Director'
@@ -124,7 +153,7 @@ export default function ProfilePage(props) {
                         <br />
                         <Typography variant="h5" component='h3'>
                             Genres
-                            </Typography>
+                        </Typography>
                         <br />
                         <MostLikedTable
                             subject='Genre'
@@ -132,6 +161,6 @@ export default function ProfilePage(props) {
                         />
                     </React.Fragment>
             }
-        </BasicPage>
+        </RestrictedPage>
     )
 }
