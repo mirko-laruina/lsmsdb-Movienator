@@ -195,7 +195,7 @@ export default function BasicPage(props) {
                         <Button
                             variant="contained"
                             className={classes.browseButton}
-                            size="normal"
+                            size="medium"
                             to="/browse"
                             component={Link}>
                             Browse all

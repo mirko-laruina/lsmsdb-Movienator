@@ -55,7 +55,8 @@ export default function LoginForm(props) {
                 {props.isRegistering ? 'Registration' : 'Login'}
             </Typography>
             <br />
-            <form onSubmit={() => {
+            <form onSubmit={(e) => {
+                e.preventDefault()
                 setErrorMsg("");
                 setLoading(true);
                 sendRequest();
