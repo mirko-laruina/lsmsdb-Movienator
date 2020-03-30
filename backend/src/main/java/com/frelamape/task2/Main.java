@@ -37,7 +37,8 @@ public class Main {
     @RequestMapping(value={"/api/v1/auth/password"}, method= RequestMethod.POST)
     public @ResponseBody String changePassword(@RequestParam(value = "sessionId") String sid,
                                       @RequestParam("password") String password){
-        if(password.trim() == ""){
+        password = password.trim();
+        if(password.equals("")){
             return new Gson().toJson(new BaseResponse(false, null, null));
         }
         Session s = new Session(sid);
@@ -54,7 +55,10 @@ public class Main {
     public @ResponseBody String register(@RequestParam("username") String username,
                                          @RequestParam("password") String password,
                                          @RequestParam("email") String email){
-        if(password.trim() == "" || username.trim() == "" || email.trim() == ""){
+        email = email.trim();
+        username = username.trim();
+        password = password.trim();
+        if(password.equals("") || username.equals("") || email.equals("")){
             return new Gson().toJson(new BaseResponse(false, null, null));
         }
         User u = new User(username);
