@@ -83,14 +83,12 @@
                         <goals>
                             <goal>install-node-and-npm</goal>
                         </goals>
-                        <phase>package</phase>
                     </execution>
                     <execution>
                         <id>npm install</id>
                         <goals>
                             <goal>npm</goal>
                         </goals>
-                        <phase>package</phase>
                     </execution>
                     <execution>
                         <id>Build frontend</id>
@@ -100,7 +98,6 @@
                         <configuration>
                             <arguments>run build</arguments>
                         </configuration>
-                        <phase>package</phase>
                     </execution>
                 </executions>
             </plugin>
