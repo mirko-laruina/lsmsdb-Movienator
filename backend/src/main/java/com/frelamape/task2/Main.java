@@ -14,12 +14,13 @@ import java.util.List;
 import java.util.UUID;
 
 @RestController
+@RequestMapping("/api/v1")
 @EnableAutoConfiguration
 public class Main {
     private static DatabaseAdapter dba;
 
     @CrossOrigin
-    @RequestMapping(value={"/api/v1/auth/login"}, method= RequestMethod.POST)
+    @RequestMapping(value={"/auth/login"}, method= RequestMethod.POST)
     public @ResponseBody String login(@RequestParam("username") String username,
                                       @RequestParam("password") String password){
         User u = new User(username);
@@ -34,7 +35,7 @@ public class Main {
     }
 
     @CrossOrigin
-    @RequestMapping(value={"/api/v1/auth/password"}, method= RequestMethod.POST)
+    @RequestMapping(value={"/auth/password"}, method= RequestMethod.POST)
     public @ResponseBody String changePassword(@RequestParam(value = "sessionId") String sid,
                                       @RequestParam("password") String password){
         password = password.trim();
@@ -51,7 +52,7 @@ public class Main {
     }
 
     @CrossOrigin
-    @RequestMapping(value={"/api/v1/auth/register"}, method= RequestMethod.POST)
+    @RequestMapping(value={"/auth/register"}, method= RequestMethod.POST)
     public @ResponseBody String register(@RequestParam("username") String username,
                                          @RequestParam("password") String password,
                                          @RequestParam("email") String email){
@@ -82,7 +83,7 @@ public class Main {
     }
 
     @CrossOrigin
-    @RequestMapping(value={"/api/v1/auth/logout"}, method= RequestMethod.POST)
+    @RequestMapping(value={"/auth/logout"}, method= RequestMethod.POST)
     public @ResponseBody String logout(@RequestParam("sessionId") String sid){
         Session s = new Session(sid);
         User u = dba.getUserFromSession(s);
@@ -90,7 +91,7 @@ public class Main {
     }
 
     @CrossOrigin
-    @RequestMapping(value={"/api/v1/movie/browse"}, method= RequestMethod.GET)
+    @RequestMapping(value={"/movie/browse"}, method= RequestMethod.GET)
     public @ResponseBody String browseMovies(@RequestParam(value = "sessionId", required = false) String sid,
                                              @RequestParam(required = false, defaultValue = "release") String sortBy,
                                              @RequestParam(required = false, defaultValue = "-1") int sortOrder,
@@ -140,7 +141,7 @@ public class Main {
 
 
     @CrossOrigin
-    @RequestMapping(value={"/api/v1/movie/search"}, method= RequestMethod.GET)
+    @RequestMapping(value={"/movie/search"}, method= RequestMethod.GET)
     public @ResponseBody String searchMovie(@RequestParam(value = "sessionId", required = false) String sid,
                                              @RequestParam(required = true, defaultValue = "query") String query,
                                              @RequestParam(required = false, defaultValue = "10") int n,
@@ -165,7 +166,7 @@ public class Main {
     }
 
     @CrossOrigin
-    @RequestMapping(value={"/api/v1/movie/{movieId}"}, method= RequestMethod.GET)
+    @RequestMapping(value={"/movie/{movieId}"}, method= RequestMethod.GET)
     public @ResponseBody String getMovie(@RequestParam(value = "sessionId", required = false) String sid,
                                             @PathVariable("movieId") String movieId
     ){
@@ -185,7 +186,7 @@ public class Main {
     }
 
     @CrossOrigin
-    @RequestMapping(value={"/api/v1/movie/{movieId}/rating"}, method= RequestMethod.PUT)
+    @RequestMapping(value={"/movie/{movieId}/rating"}, method= RequestMethod.PUT)
     public @ResponseBody String putRating(@RequestParam(value = "sessionId", required = true) String sid,
                                           @PathVariable("movieId") String movieId,
                                           @RequestParam(value = "rating", required = true) double ratingValue
@@ -211,7 +212,7 @@ public class Main {
     }
 
     @CrossOrigin
-    @RequestMapping(value={"/api/v1/movie/{movieId}/rating"}, method= RequestMethod.DELETE)
+    @RequestMapping(value={"/movie/{movieId}/rating"}, method= RequestMethod.DELETE)
     public @ResponseBody String deleteRating(@RequestParam(value = "sessionId", required = true) String sid,
                                           @PathVariable("movieId") String movieId
     ){
@@ -233,7 +234,7 @@ public class Main {
     }
 
     @CrossOrigin
-    @RequestMapping(value={"/api/v1/movie/statistics"}, method= RequestMethod.GET)
+    @RequestMapping(value={"/movie/statistics"}, method= RequestMethod.GET)
     public @ResponseBody String movieStatistics(@RequestParam(value = "sessionId", required = false) String sid,
                                              @RequestParam(required = true) String groupBy,
                                              @RequestParam(required = false, defaultValue = "rating") String sortBy,
@@ -254,7 +255,7 @@ public class Main {
     }
 
     @CrossOrigin
-    @RequestMapping(value={"/api/v1/user/{username}"}, method= RequestMethod.GET)
+    @RequestMapping(value={"/user/{username}"}, method= RequestMethod.GET)
     public @ResponseBody String getUserProfile(@RequestParam(value = "sessionId") String sid,
                                          @PathVariable("username") String username
     ){
@@ -274,7 +275,7 @@ public class Main {
     }
 
     @CrossOrigin
-    @RequestMapping(value={"/api/v1/user/{username}/ratings"}, method= RequestMethod.GET)
+    @RequestMapping(value={"/user/{username}/ratings"}, method= RequestMethod.GET)
     public @ResponseBody String getUserRatings(@RequestParam(value = "sessionId") String sid,
                                                @PathVariable("username") String username,
                                                @RequestParam(required = false, defaultValue = "10") int n,
@@ -297,7 +298,7 @@ public class Main {
     }
 
     @CrossOrigin
-    @RequestMapping(value={"/api/v1/user/{username}/rating/{movieId}"}, method= RequestMethod.GET)
+    @RequestMapping(value={"/user/{username}/rating/{movieId}"}, method= RequestMethod.GET)
     public @ResponseBody String getUserRating(@RequestParam(value = "sessionId") String sid,
                                                @PathVariable("username") String username,
                                                @PathVariable("movieId") String movieId
@@ -319,7 +320,7 @@ public class Main {
     }
 
     @CrossOrigin
-    @RequestMapping(value={"/api/v1/user/{username}/rating/{movieId}"}, method= RequestMethod.POST)
+    @RequestMapping(value={"/user/{username}/rating/{movieId}"}, method= RequestMethod.POST)
     public @ResponseBody String putUserRating(@RequestParam(value = "sessionId") String sid,
                                               @PathVariable("username") String username,
                                               @PathVariable("movieId") String movieId,
@@ -350,7 +351,7 @@ public class Main {
     }
 
     @CrossOrigin
-    @RequestMapping(value={"/api/v1/user/{username}/rating/{movieId}"}, method= RequestMethod.DELETE)
+    @RequestMapping(value={"/user/{username}/rating/{movieId}"}, method= RequestMethod.DELETE)
     public @ResponseBody String deleteUserRating(@RequestParam(value = "sessionId") String sid,
                                               @PathVariable("username") String username,
                                               @PathVariable("movieId") String movieId
@@ -376,8 +377,8 @@ public class Main {
     }
 
     @CrossOrigin
-    @RequestMapping(value={"/api/v1/user/{username}/ban"}, method= RequestMethod.POST)
-    public @ResponseBody String deleteUserRating(@RequestParam(value = "sessionId") String sid,
+    @RequestMapping(value={"/user/{username}/ban"}, method= RequestMethod.POST)
+    public @ResponseBody String banUser(@RequestParam(value = "sessionId") String sid,
                                                  @PathVariable("username") String username
     ){
         Session s = new Session(sid);
@@ -400,7 +401,7 @@ public class Main {
     }
 
     @CrossOrigin
-    @RequestMapping(value={"/api/v1/user/search"}, method= RequestMethod.GET)
+    @RequestMapping(value={"/user/search"}, method= RequestMethod.GET)
     public @ResponseBody String searchUser(@RequestParam(value = "sessionId") String sid,
                                            @RequestParam String query,
                                            @RequestParam(required = false, defaultValue = "10") int limit
@@ -421,7 +422,7 @@ public class Main {
     }
 
     @CrossOrigin
-    @RequestMapping(value={"/api/v1/ratings"}, method= RequestMethod.GET)
+    @RequestMapping(value={"/ratings"}, method= RequestMethod.GET)
     public @ResponseBody String getAllRatings(@RequestParam(value = "sessionId") String sid,
                                            @RequestParam(required = false, defaultValue = "10") int n,
                                            @RequestParam(required = false, defaultValue = "1") int page
