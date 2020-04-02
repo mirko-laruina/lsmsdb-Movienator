@@ -1,6 +1,5 @@
 package com.frelamape.task2.db;
 
-import com.mongodb.MongoWriteException;
 import com.mongodb.bulk.BulkWriteResult;
 import com.mongodb.client.*;
 import com.mongodb.client.model.*;
@@ -72,11 +71,14 @@ public class DatabaseAdapter {
         );
 
         Document doc = iterable.first();
-        if (doc == null){
-            return false;
+
+        Double total = null;
+        Integer count = null;
+
+        if (doc != null) {
+            total = BsonAutoCast.asDouble(doc, "total");
+            count = BsonAutoCast.asInteger(doc, "count");
         }
-        Double total = BsonAutoCast.asDouble(doc, "total");
-        Integer count = BsonAutoCast.asInteger(doc, "count");
 
         if (total == null)
             total = 0.0;
