@@ -7,86 +7,74 @@
 import pandas as pd
 import numpy as np
 from config import dataset_location, parse_dataset_output
+import csv
 
 
 # In[2]:
 
 
-title_akas=pd.read_csv(dataset_location+'title.akas.tsv.gz', delimiter='\t')
+title_akas = pd.read_csv(dataset_location+'title.akas.tsv.gz', delimiter='\t', encoding='utf-8', na_values='\\N', quoting=csv.QUOTE_NONE)
 
 
 # In[3]:
 
 
-title_basics=pd.read_csv(dataset_location+'title.basics.tsv.gz', delimiter='\t')
+title_basics = pd.read_csv(dataset_location+'title.basics.tsv.gz', delimiter='\t', encoding='utf-8', na_values='\\N', quoting=csv.QUOTE_NONE)
+title_basics = title_basics.set_index('tconst')
+title_movies = title_basics.loc[title_basics['titleType']=="movie"]
 
 
 # In[4]:
 
 
 #only italians
-title_ita=title_akas.loc[title_akas['region']=="IT"]
-title_eng=title_akas.loc[title_akas['region']=="US"]
+title_ita = title_akas.loc[title_akas['region']=="IT"]
+title_ita = title_ita.drop_duplicates(subset ="titleId", keep = 'first')
+title_ita = title_ita.set_index('titleId')
 
 
 # In[5]:
 
 
-title_ita.drop_duplicates(subset ="titleId", keep = 'first', inplace = True)
-title_eng.drop_duplicates(subset ="titleId", keep = 'first', inplace = True)
+#join ita e movies
+title_movies_ita=title_ita.join(title_movies, how='inner')
+title_movies_ita.index.name = 'titleId'
+title_movies_ita
 
 
 # In[6]:
 
 
-#join ita e basics
-title_joined=title_ita.set_index('titleId').join(title_basics.set_index('tconst')).join(title_eng.set_index('titleId'), rsuffix="_eng")
-title_joined.index.name = 'titleId'
+title_movies_ita.columns
 
 
 # In[7]:
 
 
-#only movies
-title_movies_ita=title_joined.loc[title_joined['titleType']=="movie"]
-title_movies_ita
-
-
-# In[8]:
-
-
-title_movies_ita.columns
-
-
-# In[9]:
-
-
 #Movie{id, title, original_title, runtime, country, year, characters, directors, genres, ratings, tot_rating}
 #remove useless columns
 title_movies_ita=title_movies_ita.drop(['ordering', 'region', 'language', 'types', 'attributes',
-       'isOriginalTitle', 'titleType', 'primaryTitle', 
-       'isAdult', 'endYear',
-       'ordering_eng', 'region_eng', 'language_eng', 'types_eng',
-       'attributes_eng', 'isOriginalTitle_eng'], axis=1)
+       'isOriginalTitle', 'titleType', 
+       'isAdult', 'endYear'], axis=1)
 title_movies_ita
 
 
 # In[10]:
 
 
-title_principals=pd.read_csv(dataset_location+'title.principals.tsv.gz', delimiter='\t')
+title_principals=pd.read_csv(dataset_location+'title.principals.tsv.gz', delimiter='\t', encoding='utf-8', na_values='\\N', quoting=csv.QUOTE_NONE)
 
 
 # In[11]:
 
 
-title_crew=pd.read_csv(dataset_location+'title.crew.tsv.gz', delimiter='\t')
+title_crew=pd.read_csv(dataset_location+'title.crew.tsv.gz', delimiter='\t', encoding='utf-8', na_values='\\N', quoting=csv.QUOTE_NONE)
 
 
 # In[12]:
 
 
-name_basics=pd.read_csv(dataset_location+'name.basics.tsv.gz', delimiter='\t')
+name_basics=pd.read_csv(dataset_location+'name.basics.tsv.gz', delimiter='\t', encoding='utf-8', na_values='\\N', quoting=csv.QUOTE_NONE)
 
 
 # In[13]:
@@ -123,7 +111,7 @@ for x in range(3, 73):
 # In[17]:
 
 
-dir_split=dir_split.replace('\\N', np.nan)
+# dir_split=dir_split.replace('\\N', np.nan)
 
 
 # In[18]:
@@ -256,22 +244,22 @@ actors_ita=actors.loc[actors.tconst.isin(movies_dir.titleId)]
 actors_ita
 
 
-# In[34]:
+# In[36]:
 
 
 #remove square brackets
-actors_ita['characters'] = actors_ita['characters'].apply(lambda x: x.replace('[','').replace(']','').replace('"',''))
+actors_ita['characters'] = actors_ita['characters'].apply(lambda x: x.replace('[','').replace(']','').replace('"','') if type(x) is not float else x)
 actors_ita
 
 
-# In[35]:
+# In[37]:
 
 
 #change \N into null
-actors_ita=actors_ita.replace('\\N', np.nan)
+# actors_ita=actors_ita.replace('\\N', np.nan)
 
 
-# In[36]:
+# In[38]:
 
 
 #join actors with their names
@@ -279,7 +267,7 @@ actors_name=actors_ita.set_index('nconst').join(names.set_index('nconst'))
 actors_name
 
 
-# In[37]:
+# In[39]:
 
 
 #create touples (character, name, id)
@@ -288,7 +276,7 @@ actors_name['actor'] = actors_name[['characters', 'primaryName', 'nconst']].valu
 actors_name
 
 
-# In[38]:
+# In[40]:
 
 
 #put all actors of a movie into an array
@@ -296,7 +284,7 @@ actors_grouped=actors_name.groupby('tconst').actor.apply(list).reset_index()
 actors_grouped
 
 
-# In[39]:
+# In[41]:
 
 
 #join movies with actors
@@ -304,14 +292,14 @@ movies_final=movies_dir.set_index('titleId').join(actors_grouped.set_index('tcon
 movies_final
 
 
-# In[40]:
+# In[42]:
 
 
 #change all \N into null
-movies_final=movies_final.replace('\\N', np.nan)
+# movies_final=movies_final.replace('\\N', np.nan)
 
 
-# In[41]:
+# In[43]:
 
 
 #remove film without a startYear
@@ -319,25 +307,31 @@ movies_final = movies_final[pd.notnull(movies_final['startYear'])]
 movies_final
 
 
-# In[42]:
+# In[44]:
 
 
 movies_final.reset_index(level=0, inplace=True)
 movies_final
 
 
-# In[43]:
+# In[45]:
 
 
 #rename and reorder columns
-movies_final=movies_final[['titleId', 'title', 'title_eng', 'originalTitle', 'runtimeMinutes', 'startYear', 'actor', 'directors', 'genres']]
+movies_final=movies_final[['titleId', 'title', 'primaryTitle', 'originalTitle', 'runtimeMinutes', 'startYear', 'actor', 'directors', 'genres']]
 movies_final.columns=['tid', 'title_ita', 'title', 'originaltitle', 'runtime', 'year', 'characters', 'directors','genres']
 movies_final
 
 
-# In[44]:
+# In[46]:
 
 
 #export as json
 movies_final.to_json(parse_dataset_output, orient='records')
+
+
+# In[ ]:
+
+
+
 
