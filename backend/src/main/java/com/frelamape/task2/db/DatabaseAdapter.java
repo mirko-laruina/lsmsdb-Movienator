@@ -188,7 +188,7 @@ public class DatabaseAdapter {
     public QuerySubset<RatingExtended> getAllRatings(int n, int page){
         List<Rating> ratings = Rating.Adapter.fromDBObjectIterable(ratingsCollection
                 .find()
-                .sort(descending('date'))
+                .sort(descending("date"))
                 .skip(n*(page-1))
                 .limit(n)
         );
@@ -203,6 +203,7 @@ public class DatabaseAdapter {
         Bson filter = eq("_id.user_id", u.getId());
         List<Rating> ratings = Rating.Adapter.fromDBObjectIterable(ratingsCollection
                 .find(filter)
+                .sort(descending("date"))
                 .skip(n*(page-1))
                 .limit(n)
         );
