@@ -188,6 +188,7 @@ public class DatabaseAdapter {
     public QuerySubset<RatingExtended> getAllRatings(int n, int page){
         List<Rating> ratings = Rating.Adapter.fromDBObjectIterable(ratingsCollection
                 .find()
+                .sort(descending('date'))
                 .skip(n*(page-1))
                 .limit(n)
         );
