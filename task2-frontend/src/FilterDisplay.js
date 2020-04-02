@@ -1,4 +1,4 @@
-import React from 'react'
+import React, {useEffect} from 'react'
 import {Grid, Chip, Typography, Button, Dialog, Slide} from '@material-ui/core'
 import ListIcon from '@material-ui/icons/List';
 import Filters from './Filters'
@@ -12,6 +12,18 @@ export default function ResultPage(props) {
     const [open, setOpen] = React.useState(false);
     var filters = props.filters
     var setFilters = props.setFilters
+
+    const updateFilters = (filters) => {
+        localStorage.setItem('filters', JSON.stringify(filters))
+        setFilters(filters);
+    }
+
+    useEffect(()=>{
+        window.onpopstate = (e) => {
+            if(localStorage.getItem('filters'))
+                setFilters(JSON.parse(localStorage.getItem('filters')))
+        }
+    }, [])
 
     return (
         <Grid container>
@@ -60,7 +72,7 @@ export default function ResultPage(props) {
                     onClose={() => setOpen(false)}
                 >
 
-                    <Filters setOpen={setOpen} filters={filters} handler={setFilters} />
+                    <Filters setOpen={setOpen} filters={filters} handler={updateFilters} />
                 </Dialog>
             </Grid>
         </Grid>
