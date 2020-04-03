@@ -12,6 +12,7 @@ public class User {
     private transient String password;
     private String email;
     private Boolean isAdmin;
+    private Boolean isBanned;
     private List<Statistics<Statistics.Aggregator>> favouriteActors = new ArrayList<>();
     private List<Statistics<Statistics.Aggregator>> favouriteDirectors = new ArrayList<>();
     private List<Statistics<Statistics.Aggregator>> favouriteGenres = new ArrayList<>();
@@ -61,6 +62,15 @@ public class User {
 
     public void setAdmin(Boolean admin) {
         isAdmin = admin;
+    }
+    public Boolean isBanned() {
+        if (isBanned == null)
+            return false;
+        return isBanned;
+    }
+
+    public void setBanned(Boolean banned) {
+        isBanned = banned;
     }
 
     public List<Statistics<Statistics.Aggregator>> getFavouriteActors() {
@@ -115,6 +125,7 @@ public class User {
             user.setPassword(d.getString("password"));
             user.setEmail(d.getString("email"));
             user.setAdmin(d.getBoolean("isAdmin", false));
+            user.setBanned(d.getBoolean("isBanned", false));
             user.setEmail(d.getString("email"));
 
             Object ratedActorObj = d.get("rated_actors");

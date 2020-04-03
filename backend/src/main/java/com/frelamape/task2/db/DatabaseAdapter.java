@@ -535,13 +535,20 @@ public class DatabaseAdapter {
 
         UpdateResult result = usersCollection.updateOne(
                 eq("_id", u.getId()),
-                set("isbanned", true)
+                combine(
+                    set("isBanned", true),
+                    unset("sessions")
+                )
         );
 
         if (result.wasAcknowledged() && result.getMatchedCount() == 1) {
             // delete user ratings
-            ratingsCollection.deleteMany(eq("user_id", u.getId()));
-            return true;
+            List<Rating> ratings = Rating.Adapter.fromDBObjectIterable(ratingsCollection.find(eq("_id.user_id", u.getId())));
+            boolean success = true;
+            for (Rating r:ratings){
+                success &= deleteRating(r);
+            }
+            return success;
         } else{
             return false;
         }

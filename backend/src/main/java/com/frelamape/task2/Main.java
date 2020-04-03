@@ -28,10 +28,17 @@ public class Main {
         u = dba.authUser(u);
         if (u != null){
             Session s = new Session(UUID.randomUUID().toString()); // TODO better session
-            if (dba.addSession(u, s))
-                return new Gson().toJson(new BaseResponse(true, null, new LoginResponse(s.getId(), u.isAdmin())));
+            if (!u.isBanned()){
+                if (dba.addSession(u, s))
+                    return new Gson().toJson(new BaseResponse(true, null, new LoginResponse(s.getId(), u.isAdmin())));
+                else
+                    return new Gson().toJson(new BaseResponse(true, "Error creating new user session", null));
+            } else {
+                return new Gson().toJson(new BaseResponse(false, "User is banned.", null));
+            }
+        } else {
+            return new Gson().toJson(new BaseResponse(false, "Wrong username or password.", null));
         }
-        return new Gson().toJson(new BaseResponse(false, null, null));
     }
 
     @CrossOrigin
