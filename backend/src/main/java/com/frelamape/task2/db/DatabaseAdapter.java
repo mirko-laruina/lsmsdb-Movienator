@@ -14,7 +14,9 @@ import org.bson.types.ObjectId;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Date;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 import static com.mongodb.client.model.Filters.*;
 import static com.mongodb.client.model.Projections.include;
@@ -171,14 +173,43 @@ public class DatabaseAdapter {
         }
     }
 
-    /**
-     * TODO: rewrite using aggregations
-     */
     private List<RatingExtended> fillRatingExtended(List<Rating> ratings){
         List<RatingExtended> ratingsExtended = new ArrayList<>();
+        Set<ObjectId> userIds = new HashSet<>();
+        Set<String> movieIds = new HashSet<>();
+
+        for (Rating r:ratings){
+            userIds.add(r.getUserId());
+            movieIds.add(r.getMovieId());
+        }
+
+        FindIterable<Document> userIterable = usersCollection.find(
+            in("_id", userIds)
+        ).projection(include("username"));
+        List<User> users = User.Adapter.fromDBObjectIterable(userIterable);
+
+        FindIterable<Document> movieIterable = moviesCollection.find(
+            in("_id", movieIds)
+        ).projection(include("title", "year", "total_rating"));
+        List<Movie> movies = Movie.Adapter.fromDBObjectIterable(movieIterable);
+
         for (Rating r: ratings){
-            User u = getUserById(r.getUserId(), "username");
-            Movie m = getMovieDetails(r.getMovieId(), "title", "year", "total_rating");
+            User u = null;
+            for (User user:users){
+                if (user.getId().equals(r.getUserId())){
+                    u = user;
+                    break;
+                }
+            }
+
+            Movie m = null;
+            for (Movie movie:movies){
+                if (movie.getId().equals(r.getMovieId())){
+                    m = movie;
+                    break;
+                }
+            }
+
             if (u != null && m != null){
                 ratingsExtended.add(new RatingExtended(m, u, r));
             }
@@ -496,7 +527,7 @@ public class DatabaseAdapter {
     }
 
     public ObjectId addUser(User u){
-        // TODO name exceptions to return meaningful error message to user
+        // TODO name exceptions to return meaningful error message to user ?
 
         // check unique
         // NB: not unique => not banned
@@ -578,6 +609,33 @@ public class DatabaseAdapter {
         return new QuerySubset<>(
                 User.Adapter.fromDBObjectIterable(userIterable),
                 usersCollection.countDocuments(filter));
+    }
+
+    public boolean fillUserRatings(User u, List<Movie> movies){
+        List<String> ids = new ArrayList<>();
+        for (Movie m:movies){
+            ids.add(m.getId());
+        }
+
+        FindIterable<Document> ratingIterable = ratingsCollection.find(
+            and(
+                eq("_id.user_id", u.getId()),
+                in("_id.movie_id", ids)
+            )
+        );
+
+        List<Rating> ratings = Rating.Adapter.fromDBObjectIterable(ratingIterable);
+
+        for (Movie m:movies){
+            for (Rating r:ratings){
+                if (m.getId().equals(r.getMovieId())){
+                    m.setUserRating(r.getRating());
+                    break;
+                }
+            }
+        }
+
+        return true;
     }
 
     public MongoClient getMongoClient() {

@@ -136,12 +136,7 @@ public class Main {
         QuerySubset<Movie> querySubset = dba.getMovieList(realSortBy, sortOrder, minRating, maxRating, director, actor, country,
                                               fromYear, toYear, genre, n, page);
         if (u != null){
-            // TODO use a bulk operation
-            for (Movie movie: querySubset.getList()){
-                Rating r = dba.getUserRating(u, movie);
-                if (r != null && r.getRating() != null)
-                    movie.setUserRating(r.getRating());
-            }
+            dba.fillUserRatings(u, querySubset.getList());
         }
         return new Gson().toJson(new BaseResponse(true, null, querySubset));
     }
@@ -162,12 +157,7 @@ public class Main {
 
         QuerySubset<Movie> movies = dba.searchMovie(query, n, page);
         if (u != null){
-            // TODO use a bulk operation
-            for (Movie movie:movies.getList()){
-                Rating r = dba.getUserRating(u, movie);
-                if (r != null && r.getRating() != null)
-                    movie.setUserRating(r.getRating());
-            }
+            dba.fillUserRatings(u, movies.getList());
         }
         return new Gson().toJson(new BaseResponse(true, null, movies));
     }
