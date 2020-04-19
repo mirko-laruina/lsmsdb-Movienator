@@ -257,8 +257,26 @@ public class Main {
                                              @RequestParam(required = false, defaultValue = "10") int n,
                                              @RequestParam(required = false, defaultValue = "1") int page
     ){
-        // TODO
-        return new Gson().toJson(new BaseResponse(true, null, null));
+        //Identificazione campo per il sorting
+        String realSortBy;
+        switch (sortBy){
+            case "count":
+                realSortBy = "movie_count";
+                break;
+            case "rating":
+                realSortBy = "avg_rating";
+                break;
+            case "alphabetic":
+                realSortBy = "name";
+                break;
+            default:
+                return new Gson().toJson(new BaseResponse(false, "Unrecognized sortBy value: " + sortBy, null));
+        }
+
+        QuerySubset<Statistics<Statistics.Aggregator>> statistics = dba.getStatistics(groupBy, realSortBy, sortOrder,
+                minRating, maxRating, director, actor, country, fromYear, toYear, genre, n, page);
+
+        return new Gson().toJson(new BaseResponse(true, null, statistics));
     }
 
     @CrossOrigin
