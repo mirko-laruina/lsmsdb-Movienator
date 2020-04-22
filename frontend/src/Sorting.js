@@ -11,7 +11,7 @@ export default function Sorting(props) {
     const sortOrderIndex = props.options.sortOrder
 
     const handler = (t, v) => {
-        var options = Object.assign({}, props.options);
+        let options = Object.assign({}, props.options);
         if(t === "sortOrder" && v === '0'){
             options[t] = -1
         } else {

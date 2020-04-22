@@ -26,7 +26,7 @@ export default function BrowsePage(props) {
         const browseRequest = () => {
             var reqParams = {
                 ...filters,
-                sortBy: sortOpt.sortBy ? sorts[sortOpt.sortBy].toLowerCase() : undefined,
+                sortBy: typeof(sortOpt.sortBy) !== 'undefined' ? sorts[sortOpt.sortBy].toLowerCase() : undefined,
                 sortOrder: sortOpt.sortOrder,
                 page: currentPage,
                 n: filmPerPage
