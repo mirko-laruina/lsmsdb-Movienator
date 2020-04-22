@@ -35,7 +35,7 @@ const useStyles = makeStyles((theme) => (
 
 export default function StatsPage(props) {
     const classes = useStyles()
-    const [isCorrectAggr, setCorrectAggr] = React.useState(true);
+    const [isCorrectAggr, setCorrectAggr] = React.useState(false);
     const [filters, setFilters] = React.useState({});
     const [sortOpt, setSortOpt] = React.useState({});
     const [data, setData] = React.useState([]);
@@ -48,18 +48,22 @@ export default function StatsPage(props) {
 
 
     useEffect(() => {
-        let options = Object.assign({}, sortOpt);
-        options.groupBy = aggregation_fields.findIndex((e) => {
-            return e.toLowerCase() == props.match.params.group.toLowerCase()
-        })
-        setSortOpt(options)
+        let aggr_index = aggregation_fields.findIndex((e) => {
+            return e.toLowerCase() === props.match.params.group.toLowerCase()
+        });
+        if(aggr_index > -1){
+            let options = Object.assign({}, sortOpt);
+            options.groupBy = aggr_index
+            setSortOpt(options)
+            setCorrectAggr(true)
+        }
     }, [props.match.params.group])
 
     useEffect(() => {
         setLoading(true)
         if (typeof (sortOpt.groupBy) !== 'undefined'
             &&
-            props.match.params.group.toLowerCase() != aggregation_fields[sortOpt.groupBy].toLowerCase()) {
+            props.match.params.group.toLowerCase() !== aggregation_fields[sortOpt.groupBy].toLowerCase()) {
             props.history.push('/stats/' + aggregation_fields[sortOpt.groupBy].toLowerCase())
         } else if (typeof (sortOpt.groupBy) !== 'undefined') {
             axios.get(baseUrl + "movie/statistics", {
@@ -75,7 +79,7 @@ export default function StatsPage(props) {
                 .then(function (res) {
                     if (res.data.success) {
                         setData(res.data.response.list)
-                        if (res.data.response.list.length == filmPerPage) {
+                        if (res.data.response.list.length === filmPerPage) {
                             setPageCount(currentPage + 1)
                         }
                         setLoading(false)

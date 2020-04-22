@@ -2,16 +2,17 @@ import React, { useEffect } from 'react'
 import { Typography } from '@material-ui/core'
 import BasicPage from './BasicPage'
 
-export default function UserSearchPage(props) {
+export default function RestrictedPage(props) {
     const [authorized, setAuthorized] = React.useState(false)
+    const authorization = props.customAuthorization
 
     useEffect(() => {
-        if(props.customAuthorization){
-            setAuthorized(props.customAuthorization())
+        if(authorization){
+            setAuthorized(authorization())
             return
         }
         setAuthorized(localStorage.getItem('is_admin') === 'true')
-    }, [])
+    }, [authorization])
 
     return (
         <BasicPage history={props.history}>

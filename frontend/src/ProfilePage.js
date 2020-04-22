@@ -12,7 +12,7 @@ import axios from 'axios'
 export default function ProfilePage(props) {
     const [infos, setInfos] = React.useState({})
     const [admin, setAdmin] = React.useState(false)
-    const [user, setUser] = React.useState(props.match.params.username)
+    const user = props.match.params.username
     const [loading, setLoading] = React.useState(true)
     const [newPassword, setNewPassword] = React.useState("")
     const [errorPw, setErrorPw] = React.useState(false)
@@ -67,7 +67,6 @@ export default function ProfilePage(props) {
             }
         }).then((data) => {
             if (data.data.success) {
-                console.log(data.data.response)
                 setInfos(data.data.response)
                 setLoading(false)
             }

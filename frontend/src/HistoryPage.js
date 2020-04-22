@@ -85,6 +85,7 @@ export default function HistoryPage(props) {
                         <HistoryTable
                             data={movies}
                             user={props.match.params.username}
+                            readOnly={props.match.params.username && localStorage.getItem('username') !== props.match.params.username}
                         />
                         <br />
                         <Grid container justify="center">
