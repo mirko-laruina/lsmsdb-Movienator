@@ -2,7 +2,7 @@ import React from 'react'
 import { Typography, TextField, Button } from '@material-ui/core'
 import { Alert } from '@material-ui/lab'
 import axios from 'axios'
-import { baseUrl } from './utils.js'
+import { baseUrl, errorHandler } from './utils.js'
 import MyBackdrop from './MyBackdrop'
 
 export default function LoginForm(props) {
@@ -44,7 +44,7 @@ export default function LoginForm(props) {
                     }
                 }
                 setLoading(false)
-            })
+            }).catch((response) => errorHandler(response))
     }
 
     return (

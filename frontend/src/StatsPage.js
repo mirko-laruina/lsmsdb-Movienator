@@ -11,7 +11,7 @@ import { makeStyles } from '@material-ui/core/styles';
 
 import FilterDisplay from './FilterDisplay'
 import Sorting from './Sorting'
-import { aggregation_fields, baseUrl } from './utils.js';
+import { aggregation_fields, baseUrl, errorHandler } from './utils.js';
 
 import axios from 'axios'
 
@@ -83,8 +83,13 @@ export default function StatsPage(props) {
                             setPageCount(currentPage + 1)
                         }
                         setLoading(false)
+                    } else {
+                        alert(res.data.message)
+                        alert("You will be disconnected")
+                        localStorage.removeItem('sessionId')
+                        window.location.reload()
                     }
-                })
+                }).catch((response) => errorHandler(response))
         }
     }, [sortOpt, filters, currentPage])
 

@@ -5,7 +5,7 @@ import SearchIcon from '@material-ui/icons/Search'
 import RestrictedPage from './RestrictedPage'
 import HistoryTable from './HistoryTable'
 import ControlPanelSkeleton from './ControlPanelSkeleton'
-import { baseUrl } from './utils'
+import { baseUrl, errorHandler, force_disconnect } from './utils'
 import axios from 'axios'
 
 export default function ControlPanel(props) {
@@ -28,8 +28,11 @@ export default function ControlPanel(props) {
                 setRatings(data.data.response.list)
                 setPageCount(Math.ceil(parseInt(data.data.response.totalCount) / ratingPerPage))
                 setLoading(false)
+            } else {
+                alert(data.data.message)
+                force_disconnect()
             }
-        })
+        }).catch((response) => errorHandler(response))
     }, [currentPage])
 
     return (
