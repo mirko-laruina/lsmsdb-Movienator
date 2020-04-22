@@ -1,5 +1,7 @@
 export const baseUrl = 'http://'+window.location.hostname+':8080/api/v1/'
 
+export const aggregation_fields = ["Country", "Year", "Director", "Actor", "Genre"]
+
 export function countryToFlag(isoCode) {
     return typeof String.fromCodePoint !== 'undefined'
         ? isoCode.toUpperCase().replace(/./g, char => String.fromCodePoint(char.charCodeAt(0) + 127397))

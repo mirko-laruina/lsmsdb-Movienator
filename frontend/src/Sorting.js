@@ -3,24 +3,22 @@ import { Grid } from '@material-ui/core'
 
 import MySelect from './MySelect.js';
 
-const groups = ["Country", "Year", "Director", "Actor"];
-const sorts = ["Release", "Rating", "Title"];
 const sortOrders = ["Descending", "Ascending"];
 
-
 export default function Sorting(props) {
-    const [sortByValue, setSortBy] = React.useState('0');
-    const [groupByValue, setGroupBy] = React.useState('0');
-    const [sortOrderValue, setSortOrder] = React.useState('0');
-    const handler = props.handler;
+    const groupByIndex = props.options.groupBy
+    const sortByIndex = props.options.sortBy
+    const sortOrderIndex = props.options.sortOrder
 
-    useEffect(() => {
-        handler({
-            sortBy: sortByValue,
-            groupBy: groupByValue,
-            sortOrder: sortOrderValue,
-        })
-    }, [sortByValue, groupByValue, sortOrderValue, handler])
+    const handler = (t, v) => {
+        var options = Object.assign({}, props.options);
+        if(t === "sortOrder" && v === '0'){
+            options[t] = -1
+        } else {
+            options[t] = parseInt(v)
+        }
+        props.setOpts(options)
+    }
 
     return (
         <Grid container spacing={2}>
@@ -29,9 +27,9 @@ export default function Sorting(props) {
                     <MySelect
                         id="group-by-select"
                         label="Group by"
-                        options={groups}
-                        selectedIndex={groupByValue}
-                        changeHandler={setGroupBy}
+                        options={props.groups}
+                        selectedIndex={groupByIndex}
+                        changeHandler={(v) => handler('groupBy', v)}
                     />
                 </Grid>
             }
@@ -39,19 +37,19 @@ export default function Sorting(props) {
                 <MySelect
                     id="sort-by-select"
                     label="Sort by"
-                    options={sorts}
-                    selectedIndex={sortByValue}
-                    changeHandler={setSortBy}
-                />
+                    options={props.sorts}
+                    selectedIndex={sortByIndex}
+                    changeHandler={(v) => handler('sortBy', v)}
+                    />
             </Grid>
             <Grid item xs={3}>
                 <MySelect
                     id="sort-order-select"
                     label="Sort order"
                     options={sortOrders}
-                    selectedIndex={sortOrderValue}
-                    changeHandler={setSortOrder}
-                />
+                    selectedIndex={sortOrderIndex}
+                    changeHandler={(v) => handler('sortOrder', v)}
+                    />
             </Grid>
         </Grid>
     )
