@@ -1,5 +1,5 @@
-import React, {useEffect} from 'react'
-import {Grid, Chip, Typography, Button, Dialog, Slide} from '@material-ui/core'
+import React, { useEffect } from 'react'
+import { Grid, Chip, Typography, Button, Dialog, Slide } from '@material-ui/core'
 import ListIcon from '@material-ui/icons/List';
 import Filters from './Filters'
 import MyCard from './MyCard'
@@ -18,12 +18,10 @@ export default function ResultPage(props) {
         setFilters(filters);
     }
 
-    useEffect(()=>{
-        window.onpopstate = (e) => {
-            if(localStorage.getItem('filters'))
-                setFilters(JSON.parse(localStorage.getItem('filters')))
-        }
-    }, [])
+    useEffect(() => {
+        if (localStorage.getItem('filters'))
+            setFilters(JSON.parse(localStorage.getItem('filters')))
+    }, [setFilters])
 
     return (
         <Grid container>

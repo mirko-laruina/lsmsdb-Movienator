@@ -8,7 +8,7 @@ import DeleteForeverIcon from '@material-ui/icons/DeleteForever';
 import MyBackdrop from './MyBackdrop'
 
 import axios from 'axios'
-import { baseUrl } from './utils'
+import { baseUrl, errorHandler, force_disconnect } from './utils'
 export default function UserRating(props) {
     const [userRatedNow, setUserRatedNow] = React.useState(null)
     const [deletedNow, setDeletedNow] = React.useState(false)
@@ -27,8 +27,11 @@ export default function UserRating(props) {
                 setUserRatedNow(value)
                 setDeletedNow(false)
                 setLoading(false)
+            } else {
+                alert(pkt.data.message)
+                force_disconnect()
             }
-        })
+        }).catch((response) => errorHandler(response))
     }
 
 
@@ -48,7 +51,7 @@ export default function UserRating(props) {
             setUserRatedNow(false)
             setDeletedNow(true)
             window.location.reload()
-        })
+        }).catch((response) => errorHandler(response))
     }
 
     const StyledRating = withStyles({

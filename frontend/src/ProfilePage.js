@@ -3,7 +3,7 @@ import { Link } from 'react-router-dom'
 import { Grid, Button, TextField } from '@material-ui/core'
 import Alert from '@material-ui/lab/Alert'
 import RestrictedPage from './RestrictedPage'
-import { baseUrl } from './utils'
+import { baseUrl, errorHandler, force_disconnect } from './utils'
 import { Typography } from '@material-ui/core'
 import MostLikedTable from './MostLikedTable'
 import ProfilePageSkeleton from './ProfilePageSkeleton'
@@ -12,7 +12,7 @@ import axios from 'axios'
 export default function ProfilePage(props) {
     const [infos, setInfos] = React.useState({})
     const [admin, setAdmin] = React.useState(false)
-    const [user, setUser] = React.useState(props.match.params.username)
+    const user = props.match.params.username
     const [loading, setLoading] = React.useState(true)
     const [newPassword, setNewPassword] = React.useState("")
     const [errorPw, setErrorPw] = React.useState(false)
@@ -30,7 +30,7 @@ export default function ProfilePage(props) {
             } else {
                 setErrorPw(true)
             }
-        })
+        }).catch((response) => errorHandler(response))
         setErrorPw(false)
     }
 
@@ -67,11 +67,13 @@ export default function ProfilePage(props) {
             }
         }).then((data) => {
             if (data.data.success) {
-                console.log(data.data.response)
                 setInfos(data.data.response)
                 setLoading(false)
+            } else {
+                alert(data.data.message)
+                force_disconnect()
             }
-        })
+        }).catch((response) => errorHandler(response))
 
         setLoading(true)
     }, [props.match.params.username])
@@ -84,8 +86,11 @@ export default function ProfilePage(props) {
         }).then((data) => {
             if (data.data.success) {
                 props.history.push('/admin')
+            } else {
+                alert(data.data.message)
+                force_disconnect()
             }
-        })
+        }).catch((response) => errorHandler(response))
     }
 
     return (

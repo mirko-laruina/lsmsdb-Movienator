@@ -9,7 +9,7 @@ import FilterDisplay from './FilterDisplay.js';
 import Sorting from './Sorting.js';
 import MovieListDisplay from './MovieListDisplay'
 
-import { baseUrl } from './utils.js'
+import { baseUrl, errorHandler } from './utils.js'
 import axios from 'axios';
 
 export default function BrowsePage(props) {
@@ -20,24 +20,14 @@ export default function BrowsePage(props) {
     const [currentPage, setCurrentPage] = React.useState(1);
     const [loading, setLoading] = React.useState(true);
     const filmPerPage = 10;
+    const sorts = ["Realease", "Title", "Rating"];
 
     useEffect(() => {
         const browseRequest = () => {
-            if (typeof (sortOpt.sortBy) === 'undefined'
-                ||
-                typeof (sortOpt.sortOrder) === 'undefined') {
-                //sortOpt isn't updated by the child component yet
-                //we should NOT do any request
-                return
-            }
-            var sorting = {
-                sortBy: sortOpt.sortBy === '0' ? 'release' :
-                    sortOpt.sortBy === '1' ? 'rating' : 'title',
-                sortOrder: sortOpt.sortOrder === '0' ? -1 : 1,
-            }
             var reqParams = {
                 ...filters,
-                ...sorting,
+                sortBy: typeof(sortOpt.sortBy) !== 'undefined' ? sorts[sortOpt.sortBy].toLowerCase() : undefined,
+                sortOrder: sortOpt.sortOrder,
                 page: currentPage,
                 n: filmPerPage
             }
@@ -46,17 +36,24 @@ export default function BrowsePage(props) {
                 reqParams.sessionId = localStorage.getItem('sessionId')
             }
 
+            console.log(reqParams)
             axios.get(baseUrl + "movie/browse", {
                 params: reqParams
             })
                 .then(function (res) {
+                    console.log(res)
                     if (res.data.success) {
                         setMovies(res.data.response.list)
                         setPageCount(Math.ceil(parseInt(res.data.response.totalCount) / filmPerPage))
                         setLoading(false);
                         console.log(res.data)
+                    } else {
+                        alert(res.data.message)
+                        alert("You will be disconnected")
+                        localStorage.removeItem('sessionId')
+                        window.location.reload()
                     }
-                })
+                }).catch((response) => errorHandler(response))
         }
 
         setLoading(true)
@@ -68,7 +65,7 @@ export default function BrowsePage(props) {
             <FilterDisplay filters={filters} setFilters={setFilters} />
             <br />
             <Typography variant="h4">Browse movies</Typography>
-            <Sorting noGroup sortOpt={sortOpt} handler={setSortOpt} />
+            <Sorting noGroup sorts={sorts} options={sortOpt} setOpts={setSortOpt} />
             <MovieListDisplay
                 loading={loading}
                 numFilm={filmPerPage}

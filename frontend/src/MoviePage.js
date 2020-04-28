@@ -3,7 +3,7 @@ import { Rating } from '@material-ui/lab'
 import { Typography, Grid, Chip } from '@material-ui/core'
 import axios from 'axios'
 
-import { baseUrl, getDate } from './utils'
+import { baseUrl, getDate, errorHandler, force_disconnect } from './utils'
 import BasicPage from './BasicPage'
 import UserRating from './UserRating'
 import MoviePageSkeleton from './MoviePageSkeleton'
@@ -76,8 +76,11 @@ export default function MoviePage(props) {
         axios.get(url, { params: params }).then((data) => {
             if (data.data.success) {
                 setMovie(data.data.response)
+            } else {
+                alert(data.data.message)
+                force_disconnect()
             }
-        })
+        }).catch((response) => errorHandler(response))
     }, [props.match.params.id])
 
     return (

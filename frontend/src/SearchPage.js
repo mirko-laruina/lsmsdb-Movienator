@@ -6,7 +6,7 @@ import SearchIcon from '@material-ui/icons/Search'
 import Pagination from '@material-ui/lab/Pagination';
 import MovieListDisplay from './MovieListDisplay'
 
-import { baseUrl } from './utils.js'
+import { baseUrl, errorHandler } from './utils.js'
 import axios from 'axios';
 
 export default function BrowsePage(props) {
@@ -35,8 +35,13 @@ export default function BrowsePage(props) {
                         setPageCount(Math.ceil(parseInt(res.data.response.totalCount) / filmPerPage))
                         setLoading(false);
                         console.log(res.data)
+                    } else {
+                        alert(res.data.message)
+                        alert("You will be disconnected")
+                        localStorage.removeItem('sessionId')
+                        window.location.reload()
                     }
-                })
+                }).catch((response) => errorHandler(response))
         }
 
         setLoading(true)

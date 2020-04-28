@@ -4,7 +4,7 @@ import { Typography, List, ListItem, ListItemAvatar, ListItemText, Avatar, Grid 
 import PersonIcon from '@material-ui/icons/Person'
 import RestrictedPage from './RestrictedPage'
 import axios from 'axios'
-import { baseUrl } from './utils'
+import { baseUrl, errorHandler, force_disconnect } from './utils'
 
 export default function UserSearchPage(props) {
     const [users, setUsers] = React.useState([])
@@ -17,12 +17,14 @@ export default function UserSearchPage(props) {
                 query: props.match.params.query
             }
         }).then((data) => {
-            console.log(data)
             if (data.data.success) {
                 setUsers(data.data.response)
                 setLoading(false)
+            } else {
+                alert(data.data.message)
+                force_disconnect()
             }
-        })
+        }).catch((response) => errorHandler(response))
     }, [props.match.params.query])
 
     return (

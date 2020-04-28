@@ -73,7 +73,6 @@ export default function HistoryTable(props) {
                                         rating={row.rating}
                                         user={props.adminView ? row.username : false}
                                         movieId={row.movieId}
-                                        user={props.user}
                                     />
                                 </TableCell>
                                 <TableCell align="center">{getDate(row.date)}</TableCell>
