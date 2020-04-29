@@ -40,7 +40,7 @@ export default function ResultPage(props) {
                                 onDelete={() => {
                                     var newFilters = Object.assign({}, filters);
                                     delete newFilters[key];
-                                    setFilters(newFilters)
+                                    updateFilters(newFilters)
                                 }
                                 }
                                 key={key}
