@@ -19,6 +19,11 @@ import java.util.List;
 import java.util.UUID;
 import java.util.concurrent.Executor;
 
+/**
+ * Main class
+ *
+ * Refer to docs/api.md for the description of the methods.
+ */
 @RestController
 @RequestMapping("/api/v1")
 @EnableAutoConfiguration
@@ -467,6 +472,11 @@ public class Main  implements AsyncConfigurer {
         }
     }
 
+    /**
+     * Asynchronously updates the internal and total rating of the given movie.
+     *
+     * @param movie the movie to be updated
+     */
     @Async
     void updateInternalRating(Movie movie){
         dba.updateInternalRating(movie.getId());
