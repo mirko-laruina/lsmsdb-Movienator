@@ -17,6 +17,7 @@ import java.util.Date;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
+import java.util.stream.StreamSupport;
 
 import static com.mongodb.client.model.Filters.*;
 import static com.mongodb.client.model.Projections.include;
@@ -39,6 +40,14 @@ public class DatabaseAdapter {
         ratingsCollection = database.getCollection("ratings");
     }
 
+    /**
+     * Updates the total rating of a movie.
+     *
+     * This is done by averaging the ratings of the different sources.
+     *
+     * @param movieId the id of the movie
+     * @return True if the update was successful, false otherwise.
+     */
     private boolean updateTotalRating(String movieId){
         Movie m = getMovieDetails(movieId);
 
@@ -52,14 +61,23 @@ public class DatabaseAdapter {
                     eq("_id", movieId),
                     set("total_rating", totalRating)
             );
-            return result.wasAcknowledged();
+            return result.getModifiedCount() == 1;
         } else{
             return true;
         }
 
     }
 
-    private boolean updateInternalRating(String movieId){
+    /**
+     * Updates the internal rating of the movie.
+     *
+     * This is done by calculating the average over all ratings in the
+     * database with an aggregation pipeline.
+     *
+     * @param movieId the id of the movie
+     * @return True if the update was successful, false otherwise.
+     */
+    public boolean updateInternalRating(String movieId){
         AggregateIterable<Document> iterable = ratingsCollection.aggregate(
                 Arrays.asList(
                         Aggregates.match(eq("_id.movie_id", movieId)),
@@ -109,7 +127,7 @@ public class DatabaseAdapter {
                     )
             ));
 
-            if (result.wasAcknowledged()){
+            if (result.getModifiedCount() >= 1){
                 return updateTotalRating(movieId);
             } else{
                 return false;
@@ -119,7 +137,7 @@ public class DatabaseAdapter {
                     eq("_id", movieId),
                     pull("ratings", eq("source", "internal"))
             );
-            if (result.wasAcknowledged()){
+            if (result.getModifiedCount() == 1){
                 return updateTotalRating(movieId);
             } else{
                 return false;
@@ -150,29 +168,53 @@ public class DatabaseAdapter {
                  options
         );
 
-        if (result.wasAcknowledged()){
-            if (updateInternalRating(rating.getMovieId())){
-                return result.getUpsertedId() != null ? 0 : 1;
-            } else {
-                return -20;
-            }
+        if (result.getModifiedCount() == 1 || result.getUpsertedId() != null){
+            return result.getUpsertedId() != null ? 0 : 1;
         } else{
             return -10;
         }
     }
 
+    /**
+     * Deletes the given rating from the database.
+     *
+     * @param rating the rating to be removed. Only the movieId and userId
+     *               fields are used
+     * @return True if the update was successful, false otherwise.
+     */
     public boolean deleteRating(Rating rating){
         DeleteResult res = ratingsCollection.deleteOne(
-                and(eq("_id.movie_id", rating.getMovieId()),
-                        eq("_id.user_id", rating.getUserId()))
+                eq("_id", rating.getId())
         );
-        if (res.wasAcknowledged() && res.getDeletedCount() == 1){
-            return updateInternalRating(rating.getMovieId());
-        } else {
-            return false;
-        }
+        return res.getDeletedCount() == 1;
     }
 
+    /**
+     * Deletes multiple ratings from the database.
+     *
+     * @param ratings the list of ratings to be removed. Only the movieId and userId
+     *                fields are used-
+     * @return True if the update was successful, false otherwise.
+     */
+    public boolean deleteRatings(List<Rating> ratings){
+        List<Document> ratingIds = new ArrayList<>();
+
+        for (Rating r:ratings){
+            ratingIds.add(r.getId());
+        }
+
+        DeleteResult res = ratingsCollection.deleteMany(
+                in("_id", ratingIds)
+        );
+        return res.getDeletedCount() == ratings.size();
+    }
+
+    /**
+     * Adds information about user and movie to the given ratings.
+     *
+     * @param ratings the list of ratings
+     * @return a list of RatingExtended that contains the supplementary information.
+     */
     private List<RatingExtended> fillRatingExtended(List<Rating> ratings){
         List<RatingExtended> ratingsExtended = new ArrayList<>();
         Set<ObjectId> userIds = new HashSet<>();
@@ -218,6 +260,16 @@ public class DatabaseAdapter {
         return ratingsExtended;
     }
 
+    /**
+     * Gets all ratings in the database sorted by descending date.
+     *
+     * Result can be paged using n and page. The returned list contains
+     * the n elements of the `page`th page.
+     *
+     * @param n items per page
+     * @param page page number
+     * @return the subset of all ratings.
+     */
     public QuerySubset<RatingExtended> getAllRatings(int n, int page){
         List<Rating> ratings = Rating.Adapter.fromDBObjectIterable(ratingsCollection
                 .find()
@@ -232,6 +284,14 @@ public class DatabaseAdapter {
         );
     }
 
+    /**
+     * Gets all ratings of a user in the database sorted by descending date.
+     *
+     * @param u the user
+     * @param n items per page
+     * @param page page number
+     * @return the subset of all user ratings.
+     */
     public QuerySubset<RatingExtended> getUserRatings(User u, int n, int page){
         Bson filter = eq("_id.user_id", u.getId());
         List<Rating> ratings = Rating.Adapter.fromDBObjectIterable(ratingsCollection
@@ -247,6 +307,13 @@ public class DatabaseAdapter {
         );
     }
 
+    /**
+     * Get the rating (if it exists) whose user is u and movie is m.
+     *
+     * @param u the user
+     * @param m the movie
+     * @return the rating or null if none is found
+     */
     public Rating getUserRating(User u, Movie m){
         return Rating.Adapter.fromDBObject(
                 ratingsCollection.find(
@@ -256,6 +323,12 @@ public class DatabaseAdapter {
         );
     }
 
+    /**
+     * Returns an User instance containing her login information.
+     *
+     * @param usernameORemail query string. Can be either username or email.
+     * @return an User instance with _id, username, email and password.
+     */
     public User getUserLoginInfo(String usernameORemail){
         return User.Adapter.fromDBObject(
                 usersCollection.find(
@@ -269,6 +342,15 @@ public class DatabaseAdapter {
         );
     }
 
+    /**
+     * Returns an User instance containing all his login information.
+     *
+     * This function also calculates the user statistics using
+     * aggregation pipelines.
+     *
+     * @param username the user's username
+     * @return a User with all information (including statistics)
+     */
     public User getUserProfile(String username){
         User u = User.Adapter.fromDBObject(
                 usersCollection.find(
@@ -330,6 +412,14 @@ public class DatabaseAdapter {
         return u;
     }
 
+    /**
+     * Get a user by his id, returning only a chosen subset of field.
+     *
+     * @param userId the _id of the User
+     * @param fields the list of fields to return
+     * @return a User instance with the chosen fields or null if user
+     *         is not found
+     */
     public User getUserById(ObjectId userId, String... fields){
         Document document;
 
@@ -349,14 +439,28 @@ public class DatabaseAdapter {
         return u;
     }
 
+    /**
+     * Adds the new login session to the user.
+     *
+     * @param u the user
+     * @param s the new session
+     * @return true if addition was successful, false otherwise
+     */
     public boolean addSession(User u, Session s){
         UpdateResult result = usersCollection.updateOne(
                 eq("_id", u.getId()),
                 push("sessions", Session.Adapter.toDBObject(s))
         );
-        return result.wasAcknowledged();
+        return result.getModifiedCount() == 1;
     }
 
+    /**
+     * Checks whether the given session of a user exists.
+     *
+     * @param u the user
+     * @param s the session
+     * @return true if the user has a matching session, false otherwise
+     */
     public boolean existsSession(User u, Session s){
         Document userDocument = usersCollection.find(
                 and(eq("_id", u.getId()),
@@ -385,6 +489,12 @@ public class DatabaseAdapter {
         return true;
     }
 
+    /**
+     * Returns the user whose session is s.
+     *
+     * @param s the session
+     * @return the user or null if none is found
+     */
     public User getUserFromSession(Session s){
         Document userDocument = usersCollection.find(
                 and(
@@ -397,23 +507,54 @@ public class DatabaseAdapter {
         return User.Adapter.fromDBObject(userDocument);
     }
 
+    /**
+     * Removes the given session from the user.
+     *
+     * @param u the user
+     * @param s the session
+     * @return true if deletion was successful, false otherwise
+     */
     public boolean removeSession(User u, Session s){
         UpdateResult result = usersCollection.updateOne(
                 eq("_id", u.getId()),
                 pull("sessions", eq("_id", s.getId()))
         );
-        return result.wasAcknowledged();
+        return result.getModifiedCount() == 1;
     }
 
+    /**
+     * Renew the given session of the given user.
+     *
+     * @param u the user
+     * @param s the session
+     * @return true if renewal was successful, false otherwise
+     */
     public boolean updateSession(User u, Session s){
         UpdateResult result = usersCollection.updateOne(
                 and(eq("_id", u.getId()),
                     eq("sessions._id", s.getId())),
                 set("sessions.$.expiry", s.getExpiry())
         );
-        return result.wasAcknowledged();
+        return result.getModifiedCount() == 1;
     }
 
+    /**
+     * Returns a list of filtered movies with the given sorting. The result is paged
+     *
+     * @param sortBy field to sortBy (must match a DB field)
+     * @param sortOrder 1 for ascending, -1 for descending
+     * @param minRating return only movies with a higher rating than this
+     * @param maxRating return only movies with a lower rating than this
+     * @param director return only movies from a director whose name contains all words in this string
+     * @param actor return only movies with an actor whose name contains all words in this string
+     * @param country return only movies that contain this country
+     * @param fromYear return only movies that were released in this or a following year
+     * @param toYear return only movies that were released in this or a previous year
+     * @param genre return only movies that contain this genre
+     * @param n items per page
+     * @param page page number
+     * @return a paged subset of all movies that match all filters
+     */
     public QuerySubset<Movie> getMovieList(String sortBy, int sortOrder, double minRating,
                                     double maxRating, String director, String actor,
                                     String country, int fromYear, int toYear, String genre,
@@ -491,6 +632,13 @@ public class DatabaseAdapter {
         );
     }
 
+    /**
+     * Finds a movie given its id and returns some chosen fields.
+     *
+     * @param id the id of the movie
+     * @param fields the list of fields to be removed
+     * @return a Movie instance with the given fields or null if none is found
+     */
     public Movie getMovieDetails(String id, String... fields){
         Document document;
         if (fields.length != 0) {
@@ -506,6 +654,16 @@ public class DatabaseAdapter {
         return Movie.Adapter.fromDBObject(document);
     }
 
+    /**
+     * Finds a movie by name. All matching movies are returned.
+     *
+     * This function uses a Mongo text index to fuzzy match movies.
+     *
+     * @param query the string to query
+     * @param n items per page
+     * @param page page number
+     * @return a paged subset of the search results
+     */
     public QuerySubset<Movie> searchMovie(String query, int n, int page){
         Bson filter = text("\""+ query + "\"");
         FindIterable<Document> movieIterable = moviesCollection
@@ -521,7 +679,23 @@ public class DatabaseAdapter {
         );
     }
 
-    //public List<Statistics<Statistics.Aggregator>> getStatistics(String groupBy, String sortBy, int sortOrder, int n, int page){
+    /**
+     *
+     * @param groupBy one of (genre, year, contry, acotr, director)
+     * @param realSortBy one of (name, avg_rating, movie_count)
+     * @param sortOrder 1 for ascending, -1 for descending
+     * @param minRating return only movies with a higher rating than this
+     * @param maxRating return only movies with a lower rating than this
+     * @param director return only movies from a director whose name contains all words in this string
+     * @param actor return only movies with an actor whose name contains all words in this string
+     * @param country return only movies that contain this country
+     * @param fromYear return only movies that were released in this or a following year
+     * @param toYear return only movies that were released in this or a previous year
+     * @param genre return only movies that contain this genre
+     * @param n items per page
+     * @param page page number
+     * @return a paged subset of the aggregated statistics
+     */
     public QuerySubset<Statistics<Statistics.Aggregator>> getStatistics(String groupBy, String realSortBy, int sortOrder, double minRating,
         double maxRating, String director, String actor, String country, int fromYear, int toYear, String genre,
         int n, int page) {
@@ -645,18 +819,21 @@ public class DatabaseAdapter {
         );
 
         return new QuerySubset<>(
-                Statistics.Adapter.fromDBObjectIterable(iterable, groupClass), 
-                10 //cambiare classe e numero
+                Statistics.Adapter.fromDBObjectIterable(iterable, groupClass),
+                -1
         );
 
     }
 
+    /**
+     * Adds a new user to the database.
+     *
+     * @param u the user to be added
+     * @return the id of the new user or null in case of error
+     */
     public ObjectId addUser(User u){
-        // TODO name exceptions to return meaningful error message to user ?
-
         // check unique
-        // NB: not unique => not banned
-
+        // NB: unique => not banned
         Document userInDB = usersCollection.find(
                 or(
                     eq("username", u.getUsername()),
@@ -677,6 +854,12 @@ public class DatabaseAdapter {
         }
     }
 
+    /**
+     * Changes the user password.
+     *
+     * @param u the User instance with the modified password.
+     * @return true if the password was changed successfully, false otherwise
+     */
     public boolean editUserPassword(User u){
         UpdateResult result = usersCollection.updateOne(
                 eq("username", u.getUsername()),
@@ -686,9 +869,16 @@ public class DatabaseAdapter {
         return result.getModifiedCount() != 0;
     }
 
-    public boolean banUser(User u){
-        // NB: User must contain ID
-
+    /**
+     * Bans a user. This consists in setting a flag in his document
+     *
+     * NB: User u must contain ID
+     * NB: all user ratings will be deleted
+     *
+     * @param u the user to be banned (only the _id is used)
+     * @return the list of movies whose rating should be updated
+     */
+    public List<Movie> banUser(User u){
         UpdateResult result = usersCollection.updateOne(
                 eq("_id", u.getId()),
                 combine(
@@ -697,19 +887,29 @@ public class DatabaseAdapter {
                 )
         );
 
-        if (result.wasAcknowledged() && result.getMatchedCount() == 1) {
+        if (result.getModifiedCount() == 1) {
             // delete user ratings
             List<Rating> ratings = Rating.Adapter.fromDBObjectIterable(ratingsCollection.find(eq("_id.user_id", u.getId())));
-            boolean success = true;
-            for (Rating r:ratings){
-                success &= deleteRating(r);
+            if(deleteRatings(ratings)){
+                List<Movie> movies = new ArrayList<>();
+                for (Rating r:ratings){
+                    movies.add(new Movie(r.getMovieId()));
+                }
+                return movies;
+            } else {
+                return null;
             }
-            return success;
         } else{
-            return false;
+            return null;
         }
     }
 
+    /**
+     * Authenticates the given user.
+     *
+     * @param u User instance that must contain username and password.
+     * @return User instance with all user information.
+     */
     public User authUser(User u){
         Document userDocument = usersCollection.find(
                 and(eq("username", u.getUsername()),
@@ -722,6 +922,16 @@ public class DatabaseAdapter {
             return User.Adapter.fromDBObject(userDocument);
     }
 
+    /**
+     * Searches a user by name.
+     *
+     * This uses a text index in the User collection.
+     *
+     * @param query the string to match
+     * @param n items per page
+     * @param page page number
+     * @return a paged subset of the users that match the given query
+     */
     public QuerySubset<User> searchUser(String query, int n, int page){
         Bson filter = text("\""+ query + "\"");
         FindIterable<Document> userIterable = usersCollection
@@ -736,6 +946,13 @@ public class DatabaseAdapter {
                 usersCollection.countDocuments(filter));
     }
 
+    /**
+     * Adds the user ratings to the given movies.
+     *
+     * @param u the User whose ratings are to be found
+     * @param movies the list of movies to be updated with the user ratings.
+     * @return true if the movies were updated successfully, false otherwise
+     */
     public boolean fillUserRatings(User u, List<Movie> movies){
         List<String> ids = new ArrayList<>();
         for (Movie m:movies){

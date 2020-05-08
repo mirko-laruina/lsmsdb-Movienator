@@ -1,5 +1,6 @@
 package com.frelamape.task2.db;
 
+import org.bson.BsonDocument;
 import org.bson.Document;
 import org.bson.types.ObjectId;
 
@@ -38,13 +39,20 @@ public class Rating {
     public String getMovieId() {
         return movieId;
     }
-
     public void setMovieId(String movieId) {
         this.movieId = movieId;
     }
 
     public Date getDate() {
         return date;
+    }
+
+    public Document getId() {
+        Document id = new Document();
+        id.append("user_id", this.getUserId());
+        id.append("movie_id", this.getMovieId());
+
+        return id;
     }
 
     public void setDate(Date date) {
@@ -84,12 +92,8 @@ public class Rating {
         }
 
         public static Document toDBObject(Rating rating){
-            Document id = new Document();
-            id.append("user_id", rating.getUserId());
-            id.append("movie_id", rating.getMovieId());
-
             Document d = new Document();
-            d.append("_id", id);
+            d.append("_id", rating.getId());
             d.append("date", rating.getDate());
             d.append("rating", rating.getRating());
 
