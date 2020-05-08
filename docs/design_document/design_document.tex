@@ -13,6 +13,32 @@
 \usepackage{bera}
 \usepackage{xcolor}
 
+% style for java code
+\definecolor{codegreen}{rgb}{0,0.6,0}
+\definecolor{codegray}{rgb}{0.5,0.5,0.5}
+\definecolor{codepurple}{rgb}{0.58,0,0.82}
+\definecolor{codeorange}{rgb}{0.8,0.5,0.1}
+ 
+\lstdefinestyle{mystyle}{
+    commentstyle=\color{codegreen},
+    keywordstyle=\color{codeorange},
+    numberstyle=\tiny\color{codegray},
+    stringstyle=\color{codegreen},
+    basicstyle=\ttfamily\footnotesize,
+    breakatwhitespace=false,         
+    breaklines=true,                 
+    captionpos=b,                    
+    keepspaces=true,                 
+    numbers=left,                    
+    numbersep=5pt,                  
+    showspaces=false,                
+    showstringspaces=false,
+    showtabs=false,                  
+    tabsize=2
+}
+
+\lstset{style=mystyle}
+
 \colorlet{punct}{red!60!black}
 \definecolor{background}{HTML}{EEEEEE}
 \definecolor{delim}{RGB}{20,105,176}
@@ -332,6 +358,48 @@ The application will be made of the following 4 components:
 	\end{enumerate}
 \end{itemize}
 
+\section{Implementation}
+
+\subsection{API}
+
+\subsubsection{GetStatistics}
+This function is used to return aggregated statistics on movies based on one of the following information attributes:
+\begin{itemize}
+	\item genre
+	\item year
+	\item country
+	\item director
+	\item character
+\end{itemize}
+Before performing the aggregation, movies can be filtered as shown in the \textit{GetMovieList} API.
+The statistics returned show the following informations about the aggregation attribute:
+\begin{itemize}
+	\item aggregated attribute
+	\item average rating calculated on the aggregation
+	\item number of movies present in the aggregation (calculated after filtering)
+\end{itemize}
+Results can also be sorted in ascending or descending order based on each of the previous attributes.
+
+The aggregation pipeline is performed with the following code:
+
+\lstinputlisting[language=Java]{figs/code/aggregation.java}
+
+The \textbf{match} function uses the array of conditions "\textit{filters}" to perform all the filters in a single step. \textbf{Unwind} deconstructs the array field and returns a document for each array element (this is necessary for country, director and character fields). Then, the \textbf{group} function groups documents by the value expressed in the "\textit{realGroupBy}" and then applies accumulator expression to each group:
+\begin{itemize}
+	\item \textbf{Accumulators.first} sets "\textit{realGroupName}" as name of the group
+	\item \textbf{Accumulators.avg} calculates the average rating of all the "\textit{total\_rating}" and saves them in the "\textit{avg\_rating}" attribute
+	\item \textbf{Accumulators.sum} calculates the number of movies in the aggregation, by adding 1 to the variable "\textit{movie\_count}" for each movie
+\end{itemize}
+After that, the results are sorted with the \textbf{sort} function, where the argument "\textit{sorting}" is calculated as follow:
+
+\lstinputlisting[language=Java]{figs/code/sorting.java}
+
+Here, "\textit{realSortBy}" is the value to sort.
+
+Finally, the \textbf{skip} and the \textbf{limit} functions are used to manage the display of the results.
+
+%scrivere qualcosa sul ritorno?
+
 %DUBBI
 %username must be unique? (functional or not functional?)
 %->unique, functional, inserire anche in task 1
@@ -341,5 +409,16 @@ The application will be made of the following 4 components:
 %->no
 %email is necessary for registration?
 %->yes + personal informations (not required)
+
+\section{Database}
+
+\subsection{Creation of the database}
+The database is created from scratch starting from the public IMDb dataset available at the link \href{https://www.imdb.com/interfaces/}{https://www.imdb.com/interfaces/}.
+
+We developed a Python script, in order to obtain the data in the form described in the Data Model. However, some information where missing. So we integrated missing information scraping them from other movie's sites while we were scraping for ratings.
+
+\subsection{Scraping}
+
+\subsection{Updating the database}
 
 \end{document}

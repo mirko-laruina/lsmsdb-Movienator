@@ -642,7 +642,7 @@ public class DatabaseAdapter {
                         Aggregates.skip(n*(page-1)),
                         Aggregates.limit(n)
                 )
-        );//.iterator;
+        );
 
         return new QuerySubset<>(
                 Statistics.Adapter.fromDBObjectIterable(iterable, groupClass), 
