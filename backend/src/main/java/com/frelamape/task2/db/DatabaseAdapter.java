@@ -17,6 +17,7 @@ import java.util.Date;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
+import java.util.stream.StreamSupport;
 
 import static com.mongodb.client.model.Filters.*;
 import static com.mongodb.client.model.Projections.include;
@@ -52,7 +53,7 @@ public class DatabaseAdapter {
                     eq("_id", movieId),
                     set("total_rating", totalRating)
             );
-            return result.wasAcknowledged();
+            return result.getModifiedCount() == 1;
         } else{
             return true;
         }
@@ -109,7 +110,7 @@ public class DatabaseAdapter {
                     )
             ));
 
-            if (result.wasAcknowledged()){
+            if (result.getModifiedCount() >= 1){
                 return updateTotalRating(movieId);
             } else{
                 return false;
@@ -119,7 +120,7 @@ public class DatabaseAdapter {
                     eq("_id", movieId),
                     pull("ratings", eq("source", "internal"))
             );
-            if (result.wasAcknowledged()){
+            if (result.getModifiedCount() == 1){
                 return updateTotalRating(movieId);
             } else{
                 return false;
@@ -150,7 +151,7 @@ public class DatabaseAdapter {
                  options
         );
 
-        if (result.wasAcknowledged()){
+        if (result.getModifiedCount() == 1 || result.getUpsertedId() != null){
             if (updateInternalRating(rating.getMovieId())){
                 return result.getUpsertedId() != null ? 0 : 1;
             } else {
@@ -166,7 +167,7 @@ public class DatabaseAdapter {
                 and(eq("_id.movie_id", rating.getMovieId()),
                         eq("_id.user_id", rating.getUserId()))
         );
-        if (res.wasAcknowledged() && res.getDeletedCount() == 1){
+        if (res.getDeletedCount() == 1){
             return updateInternalRating(rating.getMovieId());
         } else {
             return false;
@@ -354,7 +355,7 @@ public class DatabaseAdapter {
                 eq("_id", u.getId()),
                 push("sessions", Session.Adapter.toDBObject(s))
         );
-        return result.wasAcknowledged();
+        return result.getModifiedCount() == 1;
     }
 
     public boolean existsSession(User u, Session s){
@@ -402,7 +403,7 @@ public class DatabaseAdapter {
                 eq("_id", u.getId()),
                 pull("sessions", eq("_id", s.getId()))
         );
-        return result.wasAcknowledged();
+        return result.getModifiedCount() == 1;
     }
 
     public boolean updateSession(User u, Session s){
@@ -411,7 +412,7 @@ public class DatabaseAdapter {
                     eq("sessions._id", s.getId())),
                 set("sessions.$.expiry", s.getExpiry())
         );
-        return result.wasAcknowledged();
+        return result.getModifiedCount() == 1;
     }
 
     public QuerySubset<Movie> getMovieList(String sortBy, int sortOrder, double minRating,
@@ -645,8 +646,8 @@ public class DatabaseAdapter {
         );//.iterator;
 
         return new QuerySubset<>(
-                Statistics.Adapter.fromDBObjectIterable(iterable, groupClass), 
-                10 //cambiare classe e numero
+                Statistics.Adapter.fromDBObjectIterable(iterable, groupClass),
+                -1
         );
 
     }
@@ -697,7 +698,7 @@ public class DatabaseAdapter {
                 )
         );
 
-        if (result.wasAcknowledged() && result.getMatchedCount() == 1) {
+        if (result.getModifiedCount() == 1) {
             // delete user ratings
             List<Rating> ratings = Rating.Adapter.fromDBObjectIterable(ratingsCollection.find(eq("_id.user_id", u.getId())));
             boolean success = true;
