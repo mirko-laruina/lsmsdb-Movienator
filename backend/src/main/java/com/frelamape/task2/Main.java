@@ -7,16 +7,23 @@ import com.google.gson.Gson;
 import org.bson.types.ObjectId;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
+import org.springframework.context.annotation.Bean;
+import org.springframework.scheduling.annotation.Async;
+import org.springframework.scheduling.annotation.AsyncConfigurer;
+import org.springframework.scheduling.annotation.EnableAsync;
+import org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
+import java.util.concurrent.Executor;
 
 @RestController
 @RequestMapping("/api/v1")
 @EnableAutoConfiguration
-public class Main {
+@EnableAsync
+public class Main  implements AsyncConfigurer {
     private static DatabaseAdapter dba;
 
     @CrossOrigin
@@ -198,6 +205,7 @@ public class Main {
         Movie movie = dba.getMovieDetails(movieId);
         Rating rating = new Rating(u, movie, ratingValue);
         int result = dba.insertRating(rating);
+        updateInternalRating(movie);
         switch (result){
             case 0:
                 return new Gson().toJson(new BaseResponse(true, "Rating added", null));
@@ -223,6 +231,7 @@ public class Main {
         Movie movie = dba.getMovieDetails(movieId);
         Rating rating = new Rating(u, movie, 0.0);
         boolean result = dba.deleteRating(rating);
+        updateInternalRating(movie);
         if (result){
             return new Gson().toJson(new BaseResponse(true, null, null));
         } else {
@@ -347,8 +356,10 @@ public class Main {
         if (u != null && (u.isAdmin() || u.getUsername().equals(username))){
             User u2 = dba.getUserLoginInfo(username);
             if (u2 != null){
-                Rating rating = new Rating(u2, new Movie(movieId), ratingVal);
+                Movie movie = new Movie(movieId);
+                Rating rating = new Rating(u2, movie, ratingVal);
                 int result = dba.insertRating(rating);
+                updateInternalRating(movie);
                 switch (result) {
                     case 0:
                         return new Gson().toJson(new BaseResponse(true, "Rating added", null));
@@ -402,10 +413,13 @@ public class Main {
         if (u != null && u.isAdmin()){
             User u2 = dba.getUserLoginInfo(username);
             if (u2 != null){
-                boolean result = dba.banUser(u2);
-                if (result)
+                List<Movie> result = dba.banUser(u2);
+                if (result != null) {
+                    for (Movie m:result)
+                        updateInternalRating(m);
+
                     return new Gson().toJson(new BaseResponse(true, null, null));
-                else
+                } else
                     return new Gson().toJson(new BaseResponse(false, "Error banning user", null));
             } else {
                 return new Gson().toJson(new BaseResponse(false, "User not found", null));
@@ -453,6 +467,10 @@ public class Main {
         }
     }
 
+    @Async
+    void updateInternalRating(Movie movie){
+        dba.updateInternalRating(movie.getId());
+    }
 
     public static void main(String[] args) {
         String connectionURI = null;
@@ -474,6 +492,17 @@ public class Main {
         }
 
         SpringApplication.run(Main.class, args);
+    }
+
+    @Override
+    public Executor getAsyncExecutor() {
+        ThreadPoolTaskExecutor executor = new ThreadPoolTaskExecutor();
+        executor.setCorePoolSize(2);
+        executor.setMaxPoolSize(2);
+        executor.setQueueCapacity(500);
+        executor.setThreadNamePrefix("Movienator-");
+        executor.initialize();
+        return executor;
     }
 
 }

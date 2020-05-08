@@ -60,7 +60,7 @@ public class DatabaseAdapter {
 
     }
 
-    private boolean updateInternalRating(String movieId){
+    public boolean updateInternalRating(String movieId){
         AggregateIterable<Document> iterable = ratingsCollection.aggregate(
                 Arrays.asList(
                         Aggregates.match(eq("_id.movie_id", movieId)),
@@ -152,11 +152,7 @@ public class DatabaseAdapter {
         );
 
         if (result.getModifiedCount() == 1 || result.getUpsertedId() != null){
-            if (updateInternalRating(rating.getMovieId())){
-                return result.getUpsertedId() != null ? 0 : 1;
-            } else {
-                return -20;
-            }
+            return result.getUpsertedId() != null ? 0 : 1;
         } else{
             return -10;
         }
@@ -164,14 +160,22 @@ public class DatabaseAdapter {
 
     public boolean deleteRating(Rating rating){
         DeleteResult res = ratingsCollection.deleteOne(
-                and(eq("_id.movie_id", rating.getMovieId()),
-                        eq("_id.user_id", rating.getUserId()))
+                eq("_id", rating.getId())
         );
-        if (res.getDeletedCount() == 1){
-            return updateInternalRating(rating.getMovieId());
-        } else {
-            return false;
+        return res.getDeletedCount() == 1;
+    }
+
+    public boolean deleteRatings(List<Rating> ratings){
+        List<Document> ratingIds = new ArrayList<>();
+
+        for (Rating r:ratings){
+            ratingIds.add(r.getId());
         }
+
+        DeleteResult res = ratingsCollection.deleteMany(
+                in("_id", ratingIds)
+        );
+        return res.getDeletedCount() == ratings.size();
     }
 
     private List<RatingExtended> fillRatingExtended(List<Rating> ratings){
@@ -687,7 +691,7 @@ public class DatabaseAdapter {
         return result.getModifiedCount() != 0;
     }
 
-    public boolean banUser(User u){
+    public List<Movie> banUser(User u){
         // NB: User must contain ID
 
         UpdateResult result = usersCollection.updateOne(
@@ -701,13 +705,17 @@ public class DatabaseAdapter {
         if (result.getModifiedCount() == 1) {
             // delete user ratings
             List<Rating> ratings = Rating.Adapter.fromDBObjectIterable(ratingsCollection.find(eq("_id.user_id", u.getId())));
-            boolean success = true;
-            for (Rating r:ratings){
-                success &= deleteRating(r);
+            if(deleteRatings(ratings)){
+                List<Movie> movies = new ArrayList<>();
+                for (Rating r:ratings){
+                    movies.add(new Movie(r.getMovieId()));
+                }
+                return movies;
+            } else {
+                return null;
             }
-            return success;
         } else{
-            return false;
+            return null;
         }
     }
 
