@@ -340,7 +340,8 @@ obtaining ratings of a user or ratings of a movies are required.
 \paragraph{Indices} 
 \begin{itemize}
 	\item \texttt{\_id.movie\_id}: speed up aggregations on movie.
-	\item \texttt{\_id.user\_id}: speed up user ratings browse
+	\item \texttt{\_id.user\_id}: speed up user ratings browse.
+	\item \texttt{date}: speed up browsing user and global ratings.
 \end{itemize}
 
 \subsubsection{Users}
@@ -464,7 +465,7 @@ If user is logged in, a separate query will be done to fetch the user's ratings 
 \lstinputlisting[language=Java]{figs/code/search_movie.java}
 
 \subsubsection{Get Details}
-Given a movie id, return all movie details. Snippet not reported for brevity's sake.
+Given a movie id, return all movie details. Code snippet not reported for brevity's sake.
 
 \subsubsection{Browse Statistics}
 This function is used to return aggregated statistics on movies based on one of the following information attributes:
@@ -505,7 +506,7 @@ Finally, the \textbf{skip} and the \textbf{limit} functions are used to manage t
 
 \subsection{Ratings}
 \subsubsection{CRUD operations}
-A rating can be added, read, updated or deleted. Related snippets are not shown for brevity's sake.
+A rating can be added, read, updated or deleted. Related code snippets are not shown for brevity's sake.
 
 After a rating is updated, the corresponding movie rating information are asynchronously updated (refer to \ref{sssec:updateInternalRating}).
 
@@ -520,11 +521,31 @@ By building the array of identifiers, just one query to the database is necessar
 \lstinputlisting[language=Java]{figs/code/fill_user_ratings.java}
 
 \subsubsection{Browse All}
+Admins can browse all ratings in the collection in descendig date order. Results are paged as seen in previous sections. Related code snippet is not shown for brevity's sake.
 
 \subsubsection{Browse User Ratings}
+Users can browse all their ratings in descendig date order. Results are paged as seen in previous sections. Related code snippet is not shown for brevity's sake.
 
 \subsubsection{Update Internal Rating}
 \label{sssec:updateInternalRating}
+After a rating is changed, the average internal rating and the total rating of the movie should be updated. This is done asynchronously after the update in order not to make the client wait for this additional operation.
+
+The update takes in input the old and the new rating (one of them can be null in case of insertion or delition) and consists in three parts:
+\begin{enumerate}
+	\item fetch the movie from the DB
+	\item calculate new statistics
+	\item update the database. Both internal rating and total rating are updated. For the former there are three cases:
+	\begin{itemize}
+		\item the internal rating was not present before and it needs to be added.
+		\item the internal rating existed and needs to be updated
+		\item the internal rating existed and needs to be removed
+	\end{itemize}
+	For the total rating there are two cases: update or unset in case the rating we removed was the last one.		
+\end{enumerate}
+
+Furthermore, this operation is also protected from possible concurrent bakends running in other machines since it modifies the database only if it detected no updated between the fetch of the movie and the updated. It does so by making sure that the \emph{last\_updated} field remains the same by adding a filter in the update query (if no internal rating was present before it just checks that it was not added in the meanwhile). In case of failure, it retries up to 5 times. It is very unlikely to fail but in case it will be corrected by the scraper that always builds the internal rating using the Ratings collection.
+
+\lstinputlisting[language=Java]{figs/code/update_internal_rating.java}
 
 \subsection{Users}
 \subsubsection{Get Profile}
