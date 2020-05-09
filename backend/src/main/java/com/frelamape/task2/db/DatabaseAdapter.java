@@ -1,6 +1,5 @@
 package com.frelamape.task2.db;
 
-import com.mongodb.bulk.BulkWriteResult;
 import com.mongodb.client.*;
 import com.mongodb.client.model.*;
 import com.mongodb.client.result.DeleteResult;
@@ -10,14 +9,15 @@ import org.bson.BsonDocument;
 import org.bson.Document;
 import org.bson.conversions.Bson;
 import org.bson.types.ObjectId;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Configurable;
+import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.boot.ApplicationArguments;
+import org.springframework.stereotype.Component;
+import org.springframework.stereotype.Service;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Date;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
-import java.util.stream.StreamSupport;
+import javax.annotation.PostConstruct;
+import java.util.*;
 
 import static com.mongodb.client.model.Filters.*;
 import static com.mongodb.client.model.Projections.include;
@@ -25,6 +25,7 @@ import static com.mongodb.client.model.Sorts.ascending;
 import static com.mongodb.client.model.Sorts.descending;
 import static com.mongodb.client.model.Updates.*;
 
+@Component
 public class DatabaseAdapter {
     private MongoClient mongoClient;
     private MongoDatabase database;
@@ -32,119 +33,23 @@ public class DatabaseAdapter {
     private MongoCollection<Document> usersCollection;
     private MongoCollection<Document> ratingsCollection;
 
-    public DatabaseAdapter(String connectionURI, String dbName){
+    @Autowired
+    private DatabaseTaskExecutor executor;
+
+    @Autowired
+    private ApplicationArguments applicationArguments;
+
+    @PostConstruct
+    public void init() {
+        String connectionURI = applicationArguments.getSourceArgs()[0];
+        String dbName = applicationArguments.getSourceArgs()[1];
+
         mongoClient = MongoClients.create(connectionURI);
         database = mongoClient.getDatabase(dbName);
         moviesCollection = database.getCollection("movies");
         usersCollection = database.getCollection("users");
         ratingsCollection = database.getCollection("ratings");
     }
-
-    /**
-     * Updates the total rating of a movie.
-     *
-     * This is done by averaging the ratings of the different sources.
-     *
-     * @param movieId the id of the movie
-     * @return True if the update was successful, false otherwise.
-     */
-    private boolean updateTotalRating(String movieId){
-        Movie m = getMovieDetails(movieId);
-
-        if (!m.getRatings().isEmpty()) {
-            double sum = 0;
-            for (AggregatedRating r : m.getRatings()) {
-                sum += r.getAvgRating() * r.getWeight();
-            }
-            double totalRating = sum/m.getRatings().size();
-            UpdateResult result = moviesCollection.updateOne(
-                    eq("_id", movieId),
-                    set("total_rating", totalRating)
-            );
-            return result.getModifiedCount() == 1;
-        } else{
-            return true;
-        }
-
-    }
-
-    /**
-     * Updates the internal rating of the movie.
-     *
-     * This is done by calculating the average over all ratings in the
-     * database with an aggregation pipeline.
-     *
-     * @param movieId the id of the movie
-     * @return True if the update was successful, false otherwise.
-     */
-    public boolean updateInternalRating(String movieId){
-        AggregateIterable<Document> iterable = ratingsCollection.aggregate(
-                Arrays.asList(
-                        Aggregates.match(eq("_id.movie_id", movieId)),
-                        Aggregates.group(
-                                "$_id.movie_id",
-                                Accumulators.sum("total", "$rating"),
-                                Accumulators.sum("count", 1)
-                        )
-
-                )
-        );
-
-        Document doc = iterable.first();
-
-        Double total = null;
-        Integer count = null;
-
-        if (doc != null) {
-            total = BsonAutoCast.asDouble(doc, "total");
-            count = BsonAutoCast.asInteger(doc, "count");
-        }
-
-        if (total == null)
-            total = 0.0;
-        if (count == null)
-            count = 0;
-
-        double avgrating;
-
-        if (count != 0) {
-            avgrating = total / count;
-            AggregatedRating rating = new AggregatedRating(
-                    "internal",
-                    avgrating,
-                    count,
-                    1.0,
-                    new Date()
-            );
-            BulkWriteResult result = moviesCollection.bulkWrite(Arrays.asList(
-                    new UpdateOneModel<>(
-                            eq("_id", movieId),
-                            pull("ratings", eq("source", "internal"))
-                    ),
-                    new UpdateOneModel<>(
-                            eq("_id", movieId),
-                            push("ratings", AggregatedRating.Adapter.toDBObject(rating))
-                    )
-            ));
-
-            if (result.getModifiedCount() >= 1){
-                return updateTotalRating(movieId);
-            } else{
-                return false;
-            }
-        } else {
-            UpdateResult result = moviesCollection.updateOne(
-                    eq("_id", movieId),
-                    pull("ratings", eq("source", "internal"))
-            );
-            if (result.getModifiedCount() == 1){
-                return updateTotalRating(movieId);
-            } else{
-                return false;
-            }
-        }
-    }
-
     /**
      * Inserts a rating.
      *
@@ -154,12 +59,12 @@ public class DatabaseAdapter {
      *         -10 if unknown error
      *         -20 if unknown error in rating update
      */
-    public int insertRating(Rating rating){
+    public void insertRating(Rating rating){
         Document ratingBson = Rating.Adapter.toDBObject(rating);
-        UpdateOptions options = new UpdateOptions();
+        FindOneAndUpdateOptions options = new FindOneAndUpdateOptions();
         options.upsert(true);
 
-        UpdateResult result = ratingsCollection.updateOne(
+        Document oldRatingDoc = ratingsCollection.findOneAndUpdate(
                  eq("_id", ratingBson.get("_id")),
                  combine(
                          set("rating", rating.getRating()),
@@ -168,11 +73,8 @@ public class DatabaseAdapter {
                  options
         );
 
-        if (result.getModifiedCount() == 1 || result.getUpsertedId() != null){
-            return result.getUpsertedId() != null ? 0 : 1;
-        } else{
-            return -10;
-        }
+        Rating oldRating = Rating.Adapter.fromDBObject(oldRatingDoc);
+        executor.updateInternalRating(oldRating, rating);
     }
 
     /**
@@ -183,10 +85,12 @@ public class DatabaseAdapter {
      * @return True if the update was successful, false otherwise.
      */
     public boolean deleteRating(Rating rating){
-        DeleteResult res = ratingsCollection.deleteOne(
+        Document ratingDoc = ratingsCollection.findOneAndDelete(
                 eq("_id", rating.getId())
         );
-        return res.getDeletedCount() == 1;
+        rating = Rating.Adapter.fromDBObject(ratingDoc);
+        executor.updateInternalRating(rating, null);
+        return rating != null;
     }
 
     /**
@@ -206,6 +110,11 @@ public class DatabaseAdapter {
         DeleteResult res = ratingsCollection.deleteMany(
                 in("_id", ratingIds)
         );
+
+        for (Rating r:ratings){
+            executor.updateInternalRating(r, null);
+        }
+
         return res.getDeletedCount() == ratings.size();
     }
 
@@ -816,7 +725,7 @@ public class DatabaseAdapter {
                         Aggregates.skip(n*(page-1)),
                         Aggregates.limit(n)
                 )
-        );
+        );//.iterator;
 
         return new QuerySubset<>(
                 Statistics.Adapter.fromDBObjectIterable(iterable, groupClass),
@@ -878,7 +787,7 @@ public class DatabaseAdapter {
      * @param u the user to be banned (only the _id is used)
      * @return the list of movies whose rating should be updated
      */
-    public List<Movie> banUser(User u){
+    public boolean banUser(User u){
         UpdateResult result = usersCollection.updateOne(
                 eq("_id", u.getId()),
                 combine(
@@ -890,17 +799,9 @@ public class DatabaseAdapter {
         if (result.getModifiedCount() == 1) {
             // delete user ratings
             List<Rating> ratings = Rating.Adapter.fromDBObjectIterable(ratingsCollection.find(eq("_id.user_id", u.getId())));
-            if(deleteRatings(ratings)){
-                List<Movie> movies = new ArrayList<>();
-                for (Rating r:ratings){
-                    movies.add(new Movie(r.getMovieId()));
-                }
-                return movies;
-            } else {
-                return null;
-            }
+            return deleteRatings(ratings);
         } else{
-            return null;
+            return true;
         }
     }
 

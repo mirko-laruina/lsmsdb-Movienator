@@ -4,20 +4,18 @@ import com.frelamape.task2.api.BaseResponse;
 import com.frelamape.task2.api.LoginResponse;
 import com.frelamape.task2.db.*;
 import com.google.gson.Gson;
+import org.apache.catalina.core.ApplicationContext;
 import org.bson.types.ObjectId;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
-import org.springframework.context.annotation.Bean;
-import org.springframework.scheduling.annotation.Async;
-import org.springframework.scheduling.annotation.AsyncConfigurer;
-import org.springframework.scheduling.annotation.EnableAsync;
-import org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor;
+import org.springframework.context.ConfigurableApplicationContext;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
-import java.util.concurrent.Executor;
 
 /**
  * Main class
@@ -26,10 +24,9 @@ import java.util.concurrent.Executor;
  */
 @RestController
 @RequestMapping("/api/v1")
-@EnableAutoConfiguration
-@EnableAsync
-public class Main  implements AsyncConfigurer {
-    private static DatabaseAdapter dba;
+public class Controller {
+    @Autowired
+    private DatabaseAdapter dba;
 
     @CrossOrigin
     @RequestMapping(value={"/auth/login"}, method= RequestMethod.POST)
@@ -209,16 +206,8 @@ public class Main  implements AsyncConfigurer {
 
         Movie movie = dba.getMovieDetails(movieId);
         Rating rating = new Rating(u, movie, ratingValue);
-        int result = dba.insertRating(rating);
-        updateInternalRating(movie);
-        switch (result){
-            case 0:
-                return new Gson().toJson(new BaseResponse(true, "Rating added", null));
-            case 1:
-                return new Gson().toJson(new BaseResponse(true, "Rating updated", null));
-            default:
-                return new Gson().toJson(new BaseResponse(false, "Unknown error inserting rating", null));
-        }
+        dba.insertRating(rating);
+        return new Gson().toJson(new BaseResponse(true, "Rating inserted successfully", null));
     }
 
     @CrossOrigin
@@ -236,7 +225,6 @@ public class Main  implements AsyncConfigurer {
         Movie movie = dba.getMovieDetails(movieId);
         Rating rating = new Rating(u, movie, 0.0);
         boolean result = dba.deleteRating(rating);
-        updateInternalRating(movie);
         if (result){
             return new Gson().toJson(new BaseResponse(true, null, null));
         } else {
@@ -363,16 +351,9 @@ public class Main  implements AsyncConfigurer {
             if (u2 != null){
                 Movie movie = new Movie(movieId);
                 Rating rating = new Rating(u2, movie, ratingVal);
-                int result = dba.insertRating(rating);
-                updateInternalRating(movie);
-                switch (result) {
-                    case 0:
-                        return new Gson().toJson(new BaseResponse(true, "Rating added", null));
-                    case 1:
-                        return new Gson().toJson(new BaseResponse(true, "Rating updated", null));
-                    default:
-                        return new Gson().toJson(new BaseResponse(false, "Unkonwn error inserting rating", null));
-                }
+                dba.insertRating(rating);
+                return new Gson().toJson(new BaseResponse(true, "Rating added", null));
+
             } else {
                 return new Gson().toJson(new BaseResponse(false, "User not found", null));
             }
@@ -418,11 +399,8 @@ public class Main  implements AsyncConfigurer {
         if (u != null && u.isAdmin()){
             User u2 = dba.getUserLoginInfo(username);
             if (u2 != null){
-                List<Movie> result = dba.banUser(u2);
-                if (result != null) {
-                    for (Movie m:result)
-                        updateInternalRating(m);
-
+                boolean result = dba.banUser(u2);
+                if (result)  {
                     return new Gson().toJson(new BaseResponse(true, null, null));
                 } else
                     return new Gson().toJson(new BaseResponse(false, "Error banning user", null));
@@ -471,48 +449,4 @@ public class Main  implements AsyncConfigurer {
             return new Gson().toJson(new BaseResponse(false, "Unauthorized", null));
         }
     }
-
-    /**
-     * Asynchronously updates the internal and total rating of the given movie.
-     *
-     * @param movie the movie to be updated
-     */
-    @Async
-    void updateInternalRating(Movie movie){
-        dba.updateInternalRating(movie.getId());
-    }
-
-    public static void main(String[] args) {
-        String connectionURI = null;
-        String dbName = null;
-
-        System.out.println(args.length);
-        for (String arg:args){
-            System.out.println(arg);
-        }
-
-        if (args.length == 2){
-            connectionURI = args[0];
-            dbName = args[1];
-
-            dba = new DatabaseAdapter(connectionURI, dbName);
-        } else{
-            System.out.println("This executable takes 2 parameters: the connection URI and the database name.");
-            return;
-        }
-
-        SpringApplication.run(Main.class, args);
-    }
-
-    @Override
-    public Executor getAsyncExecutor() {
-        ThreadPoolTaskExecutor executor = new ThreadPoolTaskExecutor();
-        executor.setCorePoolSize(2);
-        executor.setMaxPoolSize(2);
-        executor.setQueueCapacity(500);
-        executor.setThreadNamePrefix("Movienator-");
-        executor.initialize();
-        return executor;
-    }
-
 }

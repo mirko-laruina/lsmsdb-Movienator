@@ -16,7 +16,7 @@ public class DatabaseAdapterTest {
 
     @BeforeClass
     public static void beforeClass() throws Exception {
-        dba = new DatabaseAdapter("mongodb://localhost:27017", "task2-test");
+//        dba = new DatabaseAdapter("mongodb://localhost:27017", "task2-test");
 
         user1 = dba.getUserProfile("mancio");
         Assert.assertNotNull(user1);
