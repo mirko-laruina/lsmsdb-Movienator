@@ -13,19 +13,13 @@
 \usepackage{bera}
 \usepackage{xcolor}
 
-% style for java code
-\definecolor{codegreen}{rgb}{0,0.6,0}
-\definecolor{codegray}{rgb}{0.5,0.5,0.5}
-\definecolor{codepurple}{rgb}{0.58,0,0.82}
-\definecolor{codeorange}{rgb}{0.8,0.5,0.1}
+\definecolor{background}{HTML}{EEEEEE}
  
 \lstdefinestyle{mystyle}{
-    commentstyle=\color{codegreen},
-    keywordstyle=\color{codeorange},
-    numberstyle=\tiny\color{codegray},
-    stringstyle=\color{codegreen},
-    basicstyle=\ttfamily\footnotesize,
-    breakatwhitespace=false,         
+	basicstyle=\ttfamily\small,
+	backgroundcolor=\color{background},
+	breakatwhitespace=false,        
+    frame=lines,   
     breaklines=true,                 
     captionpos=b,                    
     keepspaces=true,                 
@@ -34,49 +28,73 @@
     showspaces=false,                
     showstringspaces=false,
     showtabs=false,                  
-    tabsize=2
+	tabsize=4,
+	numbers=left,
+	numberstyle=\tiny\color{black},
+	numbersep=10pt,
+	framexleftmargin=5pt,
+	framexrightmargin=5pt,
 }
 
 \lstset{style=mystyle}
 
-\colorlet{punct}{red!60!black}
-\definecolor{background}{HTML}{EEEEEE}
-\definecolor{delim}{RGB}{20,105,176}
-\definecolor{string}{RGB}{61,107,42}
-\colorlet{numb}{magenta!60!black}
+\definecolor{jsonstring}{RGB}{61,107,42}
+\colorlet{jsonpunct}{red!60!black}
+\definecolor{jsondelim}{RGB}{20,105,176}
+\colorlet{jsonnumb}{magenta!60!black}
 
 \lstdefinelanguage{json}{
-	basicstyle=\normalfont\ttfamily,
-	tabsize=4,
-    % numbers=left,
-    % numberstyle=\scriptsize,
-    % stepnumber=1,
-    % numbersep=8pt,
-    showstringspaces=false,
-    breaklines=true,
-    frame=lines,
-	backgroundcolor=\color{background},
+	stringstyle={\color{jsonstring}},
 	string = [d]{"},
-	stringstyle={\color{string}},
     literate=
-     *{0}{{{\color{numb}0}}}{1}
-      {1}{{{\color{numb}1}}}{1}
-      {2}{{{\color{numb}2}}}{1}
-      {3}{{{\color{numb}3}}}{1}
-      {4}{{{\color{numb}4}}}{1}
-      {5}{{{\color{numb}5}}}{1}
-      {6}{{{\color{numb}6}}}{1}
-      {7}{{{\color{numb}7}}}{1}
-      {8}{{{\color{numb}8}}}{1}
-      {9}{{{\color{numb}9}}}{1}
-      {:}{{{\color{punct}{:}}}}{1}
-      {,}{{{\color{punct}{,}}}}{1}
-      {\{}{{{\color{delim}{\{}}}}{1}
-      {\}}{{{\color{delim}{\}}}}}{1}
-      {[}{{{\color{delim}{[}}}}{1}
-      {]}{{{\color{delim}{]}}}}{1},
+     *{0}{{{\color{jsonnumb}0}}}{1}
+      {1}{{{\color{jsonnumb}1}}}{1}
+      {2}{{{\color{jsonnumb}2}}}{1}
+      {3}{{{\color{jsonnumb}3}}}{1}
+      {4}{{{\color{jsonnumb}4}}}{1}
+      {5}{{{\color{jsonnumb}5}}}{1}
+      {6}{{{\color{jsonnumb}6}}}{1}
+      {7}{{{\color{jsonnumb}7}}}{1}
+      {8}{{{\color{jsonnumb}8}}}{1}
+      {9}{{{\color{jsonnumb}9}}}{1}
+      {:}{{{\color{jsonpunct}{:}}}}{1}
+      {,}{{{\color{jsonpunct}{,}}}}{1}
+      {\{}{{{\color{jsondelim}{\{}}}}{1}
+      {\}}{{{\color{jsondelim}{\}}}}}{1}
+      {[}{{{\color{jsondelim}{[}}}}{1}
+      {]}{{{\color{jsondelim}{]}}}}{1},
 }
 
+\definecolor{javared}{rgb}{0.6,0,0} % for strings
+\definecolor{javagreen}{rgb}{0.25,0.5,0.35} % comments
+\definecolor{javapurple}{rgb}{0.5,0,0.35} % keywords
+\definecolor{javadocblue}{rgb}{0.25,0.35,0.75} % javadoc
+\definecolor{javablue}{HTML}{348B98}
+ 
+\lstset{language=Java,
+	keywordstyle=\color{javapurple}\bfseries,
+	stringstyle=\color{javared},
+	commentstyle=\color{javagreen},
+	morecomment=[s][\color{javadocblue}]{/**}{*/},
+	emph=[1]% Java Classes
+    {%
+		AggregateIterable,
+		FindIterable,
+        Document,
+        Arrays,
+        Aggregates,
+        Accumulators,
+        Bson,
+        RuntimeException,
+        User,
+        Session,
+        Movie,
+        Adapter,
+        Sorts,
+        Projections,
+    },
+	emphstyle=[1]{\color{javablue}},
+}
 
 \renewcommand{\arraystretch}{1.5}
 
@@ -90,7 +108,7 @@
 \pagenumbering{gobble}
 \maketitle
 \vfill
-% \setcounter{tocdepth}{1}
+\setcounter{tocdepth}{2}
 \tableofcontents
 \vfill
 \clearpage
@@ -193,6 +211,8 @@ The use-case diagram is shown in \cref{fig:usecase}. Different colors are used t
 
 The class diagram is shown in \cref{fig:class_diagram}. It was decided to show \emph{Country}, \emph{Year} and \emph{Genre} as separate entities as they are some of the fields over which aggregate statistics are calculated.
 
+% ------------------------------------------------------------------------------
+
 \clearpage
 \subsection{Data model}
 The data model is split in 3 different collections:
@@ -244,18 +264,19 @@ In each following subsection, an example document is shown for every collection.
 			"avgrating": 9,
 			"count": 100,
 			"weight": 2,
-			"last_update": "2019-11-28"
+			"last_update": "2019-11-28 12:34:56"
 		},
 		{
 			"source": "IMDb",
 			"avgrating": 8.6,
 			"count": 628981,
 			"weight": 1,
-			"last_update": "2019-11-28"
+			"last_update": "2019-11-28 12:34:56"
 		},
 		...
 	],
-	"total_rating": 8.87
+	"total_rating": 8.87,
+	"last_scraped": "2019-11-28 12:34:56"
 }
 \end{lstlisting}
 
@@ -270,19 +291,22 @@ we can affort many indices to speed-up the aggregations.
 \paragraph{Indices} 
 Indices on the following fields will be set for this collection:
 \begin{itemize}
-	\item \texttt{title} (text index)
-	\item \texttt{country}
-	\item \texttt{year}
-	\item \texttt{characters.actor\_id} (multikey index)
-	\item \texttt{directors.id} (multikey index)
-	\item \texttt{total\_rating}
-	\item \texttt{ratings.last\_update}
+	\item \texttt{title}: speed-up sorting by title
+	\item \texttt{title}, \texttt{original\_title} (text\ index): movie lookup 
+			by name
+	\item \texttt{countries} (multikey index): filter and aggregation by country
+	\item \texttt{genres} (multikey index): filter and aggregation by genre
+	\item \texttt{year}: filter and aggregation by year
+	\item \texttt{characters.actor\_id} (multikey index): filter and aggregation by actor
+	\item \texttt{directors.id} (multikey index): filter and aggregation by director
+	\item \texttt{total\_rating}: filter and sorting by rating
+	\item \texttt{last\_scraped}: fast lookup for next-to-be-scraped movie (oldest movie).
 \end{itemize}
 
-An index on the \emph{total rating} is necessary for efficiently returning a 
-subset of movies based on their rating. However, frequent writes on it would 
-negatively impact the performance on the system. Therefore, this field will 
-not contain the real-time total rating but will be updated periodically.
+Among this fields, \emph{total\_rating} is the only one that will be updated 
+frequently (all other fields with index are updated with the periodic scraper 
+whose period is of some days). However it is necessary to efficiently fulfill 
+many queries.
 
 \subsubsection{Ratings}
 \label{sec:ratings}
@@ -299,18 +323,24 @@ not contain the real-time total rating but will be updated periodically.
 \end{lstlisting}
 
 \paragraph{Notes}
-The raw ratings are kept separated from the movie they refer to because the single 
-ratings are never shown to the user. 
-Furthermore, new ratings are expected to be frequently added.
-By using a separate collection, the problem of a long array of nested documents 
-is avoided. However, the introduction of an index is necessary.
+The raw ratings are kept separated from the movie they refer for three reasons:
+\begin{enumerate}
+	\item single ratings are never shown to the user, except when the user 
+			looks his own ratings or when the admin looks all ratings	
+	\item they may be accessed per-user, per-movie (for calculating 	
+			statistics) and globally (by the administrator). The optimization for one use-case would influence the performance of another.
+	\item new ratings are expected to be frequently added and, thus, the use of 
+		a nested document inside the \emph{movies} collection would be 
+		infeasible beacause it would grow indefinitely. 
+\end{enumerate} 
 
-Another reason for keeping it separated is that they may be accessed per-user, per-movie (for calculating statistics) and globally (by the administrator).
+However, this choice mandates the introduction of indices for efficiently 
+obtaining ratings of a user or ratings of a movies are required.
 
 \paragraph{Indices} 
 \begin{itemize}
-	\item \texttt{\_id.movie\_id}: speed up aggregations.
-	\item \texttt{(\_id.user\_id, \_id.movie\_id}: quickly find user's ratings (compound multi-key index).
+	\item \texttt{\_id.movie\_id}: speed up aggregations on movie.
+	\item \texttt{\_id.user\_id}: speed up user ratings browse
 \end{itemize}
 
 \subsubsection{Users}
@@ -333,36 +363,110 @@ Another reason for keeping it separated is that they may be accessed per-user, p
 	]
 }
 \end{lstlisting}
-
 \paragraph{Notes}
-In order to provide the user with statistics about his favourite actors, directors
-and genres, partial statistics need to be stored within the \emph{Users} collection. 
-In fact, calculating them is very expensive since it involves 
-more than one collection.
+\emph{Username}, \emph{email} and \emph{session\_id} must be unique across the whole collection.
 
 \paragraph{Indices} 
-An index will be introduced on the \emph{username} (text index) and \emph{email} fields. 
-Furthermore, these fields must also be unique.
+\begin{itemize}
+	\item \texttt{username} (text index): find user by username
+	\item \texttt{username}: find user by exact username
+	\item \texttt{email}: find user by email
+	\item \texttt{sessions.session\_id} (multikey index): find user by session id
+\end{itemize}
 
 \subsection{Software Architecture}
 
 The application will be made of the following 4 components:
 \begin{itemize}
-	\item \textbf{Mongo DB}: a MongoDB cluster will be deployed with sharding and replication.
+	\item \textbf{Mongo DB}: a MongoDB cluster will be deployed with
+		replication.
 	\item \textbf{React Frontend}: web-based UI.
 	\item \textbf{Java Backend}: using \emph{Spring}, the \emph{Java backend} will provide REST APIs to the \emph{React frontent}.
 	\item \textbf{Updater ``bot''}: two Python scripts are needed in order to nightly update the DB with the latest movies and ratings: 
 	\begin{enumerate}
 		\item the \textbf{IMDB parser} periodically parses the IMDb dataset to add the latest movies.
-		\item the \textbf{scraper} continuously parses the rating sources to update the ratings. Ratings of newer movies will be updated more often than older.
+		\item the \textbf{scraper} continuously parses the rating sources to update the ratings.
 	\end{enumerate}
+	These scripts will executes asynchronously from the \emph{Java backend}.
 \end{itemize}
 
-\section{Implementation}
+% ------------------------------------------------------------------------------
 
-\subsection{API}
+\section{Database}
 
-\subsubsection{GetStatistics}
+\subsection{Creation of the database}
+The database is created from scratch starting from the public IMDb dataset available at the link \href{https://www.imdb.com/interfaces/}{https://www.imdb.com/interfaces/}.
+
+We developed a Python script, in order to obtain the data in the form described in the Data Model. However, some information where missing. So we integrated missing information scraping them from other movie's sites while we were scraping for ratings.
+
+\subsection{Scraping}
+
+\subsection{Updating the database}
+
+% ------------------------------------------------------------------------------
+
+\section{Backend Implementation}
+The API specification can be found in the \texttt{docs/api.md} file. This section will go through the implementation of the main APIs. 
+
+\subsection{Java classes overview}
+TODO
+ - Class diagram
+ - Some words
+ - Each class has an Adapter to conveniently convert from/to Mongo Document
+
+\subsection{Authentication}
+
+\paragraph{Register}
+In order to register a user, it must first be checked that no user with same username and password exists (snippet 1) and then, if no duplicate entry is found, the user can be added to the database (snippet 2). If creation was successful, a new session for the new user is then added (snippet 5). Any subsequent API call must be accompanied by the session identifier in order to identify the user (snippet 6).
+
+\paragraph{Change Password}
+This query (snippet 3) is simply done by matching the user by username and setting the new password.
+
+\paragraph{Login}
+In order to authenticate the user, a matching user with same username and password is found in the database (snippet 4). If a user matches, a new session
+for the given user is then added (snippet 5).
+
+\paragraph{Logout}
+The session is removed from the DB (snippet 7).
+
+\lstinputlisting[language=Java]{figs/code/authentication.java}
+
+\subsection{Movies}
+\subsubsection{Browse}
+Returns a list of filtered movies with the given sorting. The result is paged.
+
+\begin{enumerate}
+	\item build a list of filters based on user specifications. People names are
+			matched if all words in the query sring are substrings of the full 
+			name (this is done using a regex).
+	\item Make the filter to pass to the \emph{find} function by and-ing all 
+			conditions.
+	\item Make the query:
+		\begin{description}
+			\item[find] all movies matching the conditions
+			\item[sort] by the user-defined sort order
+			\item[project] only movie important details
+			\item[skip] the first \emph{n} pages
+			\item[limit] the results to the page size
+		\end{description}
+\end{enumerate}
+
+If user is logged in, a separate query will be done to fetch the user's ratings of the returned movies (\ref{sssec:userratings}).
+
+\lstinputlisting[language=Java]{figs/code/browse_movies.java}
+
+\subsubsection{Search}
+During a search, movies that (fuzzy) match the entire query are returned sorted
+by ``likelyhood'' (meta text score, in MongoDB). Results are paged as before.
+
+If user is logged in, a separate query will be done to fetch the user's ratings of the returned movies (refer to \ref{sssec:userratings}).
+
+\lstinputlisting[language=Java]{figs/code/search_movie.java}
+
+\subsubsection{Get Details}
+Given a movie id, return all movie details. Snippet not reported for brevity's sake.
+
+\subsubsection{Browse Statistics}
 This function is used to return aggregated statistics on movies based on one of the following information attributes:
 \begin{itemize}
 	\item genre
@@ -397,28 +501,36 @@ After that, the results are sorted with the \textbf{sort} function, where the ar
 Here, "\textit{realSortBy}" is the value to sort.
 
 Finally, the \textbf{skip} and the \textbf{limit} functions are used to manage the display of the results.
-
 %scrivere qualcosa sul ritorno?
 
-%DUBBI
-%username must be unique? (functional or not functional?)
-%->unique, functional, inserire anche in task 1
-%the only difference between anonymous and registered user is that reg. user can rate?
-%->+profile with stats on him
-%can a film be marked as watched?
-%->no
-%email is necessary for registration?
-%->yes + personal informations (not required)
+\subsection{Ratings}
+\subsubsection{CRUD operations}
+A rating can be added, read, updated or deleted. Related snippets are not shown for brevity's sake.
 
-\section{Database}
+After a rating is updated, the corresponding movie rating information are asynchronously updated (refer to \ref{sssec:updateInternalRating}).
 
-\subsection{Creation of the database}
-The database is created from scratch starting from the public IMDb dataset available at the link \href{https://www.imdb.com/interfaces/}{https://www.imdb.com/interfaces/}.
+\subsubsection{Get all ratings for a user and list of movies}
+\label{sssec:userratings}
+This particular operation is done to add the user's ratings to a query result set. First the list of movie ids of the movies in the query result is built and then all ratings of the given user to any of those movies is returned.
 
-We developed a Python script, in order to obtain the data in the form described in the Data Model. However, some information where missing. So we integrated missing information scraping them from other movie's sites while we were scraping for ratings.
+By building the array of identifiers, just one query to the database is necessary.
 
-\subsection{Scraping}
+\textbf{NB}: the number of movies will always be small due to paging (20).
 
-\subsection{Updating the database}
+\lstinputlisting[language=Java]{figs/code/fill_user_ratings.java}
+
+\subsubsection{Browse All}
+
+\subsubsection{Browse User Ratings}
+
+\subsubsection{Update Internal Rating}
+\label{sssec:updateInternalRating}
+
+\subsection{Users}
+\subsubsection{Get Profile}
+
+\subsubsection{Ban}
+
+\subsubsection{Search}
 
 \end{document}
