@@ -400,6 +400,8 @@ The database is created from scratch starting from the public IMDb dataset avail
 
 We developed a Python script, in order to obtain the data in the form described in the Data Model. However, some information where missing. So we integrated missing information scraping them from other movie's sites while we were scraping for ratings.
 
+Collections are saved into Json files and then upserted in MongoDB database with another simple python script with the use of the \textbf{UpdateOne} module. Update requests are inserted in append into an array and served through the \textbf{bulk\_write()} function.
+
 \subsection{Scraping}
 
 \subsection{Updating the database}
