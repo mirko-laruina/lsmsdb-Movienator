@@ -556,4 +556,29 @@ Furthermore, this operation is also protected from possible concurrent bakends r
 
 \subsubsection{Search}
 
+\section{Replication}
+\subsection{Configuration of the replica set}
+Replication has been achieved through the set up of a MongoDB replica set in a remote cluster of 3 virtual machines provided by the University of Pisa.
+
+A configuration document has been written, specifying the id of the replica set and the addresses of the machines. Additionally, a location tag was included. This could be useful if, in the future, the application is deployed to multiple datacenters for a more fine-grained control over the database requests (e.g. writes could be applied to at least one machine in every datacenter before returning ). 
+
+\begin{lstlisting}[language=json]	
+rsconf = {
+	_id: "replicaset0",
+	members: [
+	{_id: 0, host: "172.16.1.251:27017", tags: { location: 'unipi'} },
+	{_id: 0, host: "172.16.1.162:27017", tags: { location: 'unipi'} },
+	{_id: 0, host: "172.16.1.195:27017", tags: { location: 'unipi'} }
+	]
+}
+\end{lstlisting}
+
+By default MongoDB binds only to localhost, to allow connection through the network the \lstinline{mongod} daemon was started with the \lstinline{--bind_ip} flag.
+
+\begin{lstlisting}[language=bash]
+mongod 	--replSet replicaset0
+		--dbpath ~/data/rs_db
+		--oplogSize 200 
+		--bind_ip 172.16.1.162
+\end{lstlisting}
 \end{document}
