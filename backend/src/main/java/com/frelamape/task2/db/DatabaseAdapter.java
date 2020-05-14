@@ -5,6 +5,8 @@ import com.mongodb.client.model.*;
 import com.mongodb.client.result.DeleteResult;
 import com.mongodb.client.result.InsertOneResult;
 import com.mongodb.client.result.UpdateResult;
+import com.mongodb.WriteConcern;
+import com.mongodb.ReadPreference;
 import org.bson.BsonDocument;
 import org.bson.Document;
 import org.bson.conversions.Bson;
@@ -31,6 +33,8 @@ public class DatabaseAdapter {
     private MongoDatabase database;
     private MongoCollection<Document> moviesCollection;
     private MongoCollection<Document> usersCollection;
+    private MongoCollection<Document> usersCollectionMajorityWrite;
+    private MongoCollection<Document> usersCollectionPrimaryRead;
     private MongoCollection<Document> ratingsCollection;
 
     @Autowired
@@ -46,9 +50,11 @@ public class DatabaseAdapter {
 
         mongoClient = MongoClients.create(connectionURI);
         database = mongoClient.getDatabase(dbName);
-        moviesCollection = database.getCollection("movies");
-        usersCollection = database.getCollection("users");
-        ratingsCollection = database.getCollection("ratings");
+        moviesCollection = database.getCollection("movies").withReadPreference(ReadPreference.nearest());
+        usersCollection = database.getCollection("users").withReadPreference(ReadPreference.nearest());
+        usersCollectionMajorityWrite = database.getCollection("users").withWriteConcern(WriteConcern.MAJORITY);
+        usersCollectionPrimaryRead = database.getCollection("users").withReadPreference(ReadPreference.primary());
+        ratingsCollection = database.getCollection("ratings").withReadPreference(ReadPreference.nearest());
     }
     /**
      * Inserts a rating.
@@ -240,7 +246,7 @@ public class DatabaseAdapter {
      */
     public User getUserLoginInfo(String usernameORemail){
         return User.Adapter.fromDBObject(
-                usersCollection.find(
+                usersCollectionPrimaryRead.find(
                         or(
                                 eq("username", usernameORemail),
                                 eq("email", usernameORemail)
@@ -356,7 +362,7 @@ public class DatabaseAdapter {
      * @return true if addition was successful, false otherwise
      */
     public boolean addSession(User u, Session s){
-        UpdateResult result = usersCollection.updateOne(
+        UpdateResult result = usersCollectionMajorityWrite.updateOne(
                 eq("_id", u.getId()),
                 push("sessions", Session.Adapter.toDBObject(s))
         );
@@ -371,7 +377,7 @@ public class DatabaseAdapter {
      * @return true if the user has a matching session, false otherwise
      */
     public boolean existsSession(User u, Session s){
-        Document userDocument = usersCollection.find(
+        Document userDocument = usersCollectionPrimaryRead.find(
                 and(eq("_id", u.getId()),
                     eq("sessions._id", s.getId())
                 ))
@@ -405,7 +411,7 @@ public class DatabaseAdapter {
      * @return the user or null if none is found
      */
     public User getUserFromSession(Session s){
-        Document userDocument = usersCollection.find(
+        Document userDocument = usersCollectionPrimaryRead.find(
                 and(
                         eq("sessions._id", s.getId())
                 ))
@@ -424,7 +430,7 @@ public class DatabaseAdapter {
      * @return true if deletion was successful, false otherwise
      */
     public boolean removeSession(User u, Session s){
-        UpdateResult result = usersCollection.updateOne(
+        UpdateResult result = usersCollectionMajorityWrite.updateOne(
                 eq("_id", u.getId()),
                 pull("sessions", eq("_id", s.getId()))
         );
@@ -439,7 +445,7 @@ public class DatabaseAdapter {
      * @return true if renewal was successful, false otherwise
      */
     public boolean updateSession(User u, Session s){
-        UpdateResult result = usersCollection.updateOne(
+        UpdateResult result = usersCollectionMajorityWrite.updateOne(
                 and(eq("_id", u.getId()),
                     eq("sessions._id", s.getId())),
                 set("sessions.$.expiry", s.getExpiry())
@@ -743,7 +749,7 @@ public class DatabaseAdapter {
     public ObjectId addUser(User u){
         // check unique
         // NB: unique => not banned
-        Document userInDB = usersCollection.find(
+        Document userInDB = usersCollectionPrimaryRead.find(
                 or(
                     eq("username", u.getUsername()),
                     eq("email", u.getEmail())
@@ -754,7 +760,7 @@ public class DatabaseAdapter {
             return null;
         }
 
-        InsertOneResult result = usersCollection.insertOne(User.Adapter.toDBObject(u));
+        InsertOneResult result = usersCollectionMajorityWrite.insertOne(User.Adapter.toDBObject(u));
 
         if (result.getInsertedId() != null) {
             return result.getInsertedId().asObjectId().getValue();
@@ -770,7 +776,7 @@ public class DatabaseAdapter {
      * @return true if the password was changed successfully, false otherwise
      */
     public boolean editUserPassword(User u){
-        UpdateResult result = usersCollection.updateOne(
+        UpdateResult result = usersCollectionMajorityWrite.updateOne(
                 eq("username", u.getUsername()),
                 set("password", u.getPassword())
         );
@@ -788,7 +794,7 @@ public class DatabaseAdapter {
      * @return the list of movies whose rating should be updated
      */
     public boolean banUser(User u){
-        UpdateResult result = usersCollection.updateOne(
+        UpdateResult result = usersCollectionMajorityWrite.updateOne(
                 eq("_id", u.getId()),
                 combine(
                     set("isBanned", true),
