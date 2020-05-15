@@ -11,9 +11,12 @@ import org.bson.BsonDocument;
 import org.bson.Document;
 import org.bson.conversions.Bson;
 import org.bson.types.ObjectId;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Configurable;
 import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.ApplicationArguments;
 import org.springframework.stereotype.Component;
 import org.springframework.stereotype.Service;
@@ -37,16 +40,27 @@ public class DatabaseAdapter {
     private MongoCollection<Document> usersCollectionPrimaryRead;
     private MongoCollection<Document> ratingsCollection;
 
+    private static final Logger logger = LoggerFactory.getLogger(DatabaseAdapter.class);
+
+    @Value("${com.frelamape.task2.db.DatabaseAdapter.connectionURI}")
+    private String connectionURI;
+    @Value("${com.frelamape.task2.db.DatabaseAdapter.dbName}")
+    private String dbName;
+
     @Autowired
     private DatabaseTaskExecutor executor;
 
     @Autowired
-    private ApplicationArguments applicationArguments;
+    private ApplicationArguments args;
 
     @PostConstruct
     public void init() {
-        String connectionURI = applicationArguments.getSourceArgs()[0];
-        String dbName = applicationArguments.getSourceArgs()[1];
+        if (args.getSourceArgs().length >= 2) {
+            connectionURI = args.getSourceArgs()[1];
+            dbName = args.getSourceArgs()[0];
+        }
+
+        logger.info("Connecting to Mongo at " + connectionURI + " " + dbName);
 
         mongoClient = MongoClients.create(connectionURI);
         database = mongoClient.getDatabase(dbName);
