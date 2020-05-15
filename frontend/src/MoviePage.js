@@ -42,12 +42,15 @@ export default function MoviePage(props) {
             if (rating.source === 'internal') {
                 movie.ratings[i].source = 'Movienator'
             }
+            if (rating.count <= 0){
+                len -= 1
+            }
         })
         return movie.ratings.map((rating, i) => {
             if (rating.source === 'user') {
                 return
             }
-            else {
+            else if (rating.count > 0){
                 return (
                     <Grid item xs={12 / len} key={i}>
                         <Typography variant="h6" component="h3">
