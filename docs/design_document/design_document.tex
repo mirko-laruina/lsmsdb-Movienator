@@ -561,7 +561,7 @@ When a user is banned, a flag is set on its document and all his ratings are rem
 \subsubsection{Search}
 User search works alike the movie search, taking advantage of a \emph{text index}, sorting results by best match and paging the result. Code snippet is not reported for brevity's sake.
 
-\section{Replication}
+\section{Authentication and replication}
 \subsection{Configuration of the replica set}
 Replication has been achieved through the set up of a MongoDB replica set in a remote cluster of 3 virtual machines provided by the University of Pisa.
 
@@ -587,6 +587,46 @@ mongod 	--replSet replicaset0
 		--bind_ip 172.16.1.162
 \end{lstlisting}
 \subsection{Authentication}
+In order to keep our system secure, authentication must be setup.
+A user responsible of handling our database, \textit{moviedb}, was created from the mongo shell.
+\begin{lstlisting}
+db.createUser(
+	{
+		user: 'lsmsdb',
+		pwd: '******',
+		roles: [ { role: "readWrite", db: "moviedb" } ]
+	}
+)
+\end{lstlisting}
+
+This is not enough since particular operations, like adding or removing new nodes to the replica set, require special privileges. The solution we choose was to create a superuser:
+
+\begin{lstlisting}
+db.createUser(
+	{
+		user: "lsmsdb_admin",
+		pwd: "******",
+		roles: [ {role: "root", db: 'admin' }],
+		passwordDigestor : "server"
+	}
+)
+\end{lstlisting}
+
+The \lstinline{passwordDigestor} is an optional parameter which allows us to specify who has to digest the password (client or server). Since we use the SCRAM-SHA-256 mechanism, which is not compatible with the client, the server choice was forced.
+\\
+\\
+After the users have been created, we run the MongoDB daemon with the authentication enabled, adding the \lstinline{--auth} flag:
+
+\begin{lstlisting}[language=bash]
+mongod 	--replSet replicaset0
+		--dbpath ~/data/rs_db
+		--oplogSize 200 
+		--bind_ip 172.16.1.162
+		--auth
+\end{lstlisting}
+
+All the connections from our Spring Boot server will now have to be authenticated with the \textit{lsmsdb} user we just created, while the administration of the cluster or of its node is to be done with \textit{lsmsdb\_admin}.
+
 \subsection{Consistency, Availability and Partition tolerance}
 The CAP theorem states that only two between consistency, availability and partition tolerance could be achieved in a database: our main service, providning movies infos and ratings, could work well even if with outdated data.
 Movie's description or title rarely chages while ratings should have a low variability: it is therefore the most convenient choise to increase our availability and partition tolerance.
@@ -618,4 +658,41 @@ ratingsCollection = database.getCollection("ratings").withReadPreference(ReadPre
 \lstinline{usersCollectionMajorityWrite} handles all the requests for which we want the updates to be permanent (e.g. password changes, new session id etc.): a write concern of 'majority' (which is computed against the total nodes in the replica set) protects us against network partition since no matter what happens to the nodes, as long as a majority is reached, the election system will make sure the successive primary node will have our write. Since the secondaries could or could not have it, when we want consistency we have to read only from the primary. Therefore, the \lstinline{usersCollectionPrimaryRead} will set the correct ReadPreference and will be used accordingly.
 
 For what concerns the other requests, consistency is not strictly necessary and we would like our system to be highly available. For this reason, we keep the default write concern (equal to 1) and set the read preference to 'nearest', thus allowing reads from secondaries (which could have outdated informations).
+\subsection{Test and evaluation}
+\subsubsection{Election}
+A test of the election mechanism has been done,
+\begin{lstlisting}[language={}, basicstyle=\small]
+2020-05-16T19:55:36.242+0100 I  ELECTION [replexec-0] Starting an election, since we've seen no PRIMARY in the past 10000ms                                                                                        
+2020-05-16T19:55:36.242+0100 I  ELECTION [replexec-0] conducting a dry run election to see if we could be elected. current term: 41                                                                                
+2020-05-16T19:55:36.242+0100 I  REPL     [replexec-0] Scheduling remote command request for vote request: RemoteCommand 305 -- target:172.16.1.162:27017 db:admin cmd:{ replSetRequestVotes: 1, setName: "replicase
+t0", dryRun: true, term: 41, candidateIndex: 0, configVersion: 6, lastCommittedOp: { ts: Timestamp(1589655321, 1), t: 41 } }                                                                                       
+2020-05-16T19:55:36.242+0100 I  REPL     [replexec-0] Scheduling remote command request for vote request: RemoteCommand 306 -- target:172.16.1.195:27017 db:admin cmd:{ replSetRequestVotes: 1, setName: "replicase
+t0", dryRun: true, term: 41, candidateIndex: 0, configVersion: 6, lastCommittedOp: { ts: Timestamp(1589655321, 1), t: 41 } }                                                                                       
+2020-05-16T19:55:36.242+0100 I  ELECTION [replexec-5] VoteRequester(term 41 dry run) failed to receive response from 172.16.1.162:27017: HostUnreachable: Error connecting to 172.16.1.162:27017 :: caused by :: C$nnection refused
+2020-05-16T19:55:36.244+0100 I  ELECTION [replexec-2] VoteRequester(term 41 dry run) received a yes vote from 172.16.1.195:27017; response message: { term: 41, voteGranted: true, reason: "", ok: 1.0, $clusterTi$e: { clusterTime: Timestamp(1589655321, 1), signature: { hash: BinData(0, 0000000000000000000000000000000000000000), keyId: 0 } }, operationTime: Timestamp(1589655321, 1) }
+2020-05-16T19:55:36.244+0100 I  ELECTION [replexec-2] dry election run succeeded, running for election in term 42
+2020-05-16T19:55:36.250+0100 I  REPL     [replexec-2] Scheduling remote command request for vote request: RemoteCommand 307 -- target:172.16.1.162:27017 db:admin cmd:{ replSetRequestVotes: 1, setName: "replicas$t0", dryRun: false, term: 42, candidateIndex: 0, configVersion: 6, lastCommittedOp: { ts: Timestamp(1589655321, 1), t: 41 } }
+2020-05-16T19:55:36.251+0100 I  REPL     [replexec-2] Scheduling remote command request for vote request: RemoteCommand 308 -- target:172.16.1.195:27017 db:admin cmd:{ replSetRequestVotes: 1, setName: "replicas$t0", dryRun: false, term: 42, candidateIndex: 0, configVersion: 6, lastCommittedOp: { ts: Timestamp(1589655321, 1), t: 41 } }
+2020-05-16T19:55:36.251+0100 I  ELECTION [replexec-5] VoteRequester(term 42) failed to receive response from 172.16.1.162:27017: HostUnreachable: Error connecting to 172.16.1.162:27017 :: caused by :: Connectio$ refused
+2020-05-16T19:55:36.265+0100 I  ELECTION [replexec-3] VoteRequester(term 42) received a yes vote from 172.16.1.195:27017; response message: { term: 42, voteGranted: true, reason: "", ok: 1.0, $clusterTime: { cl$sterTime: Timestamp(1589655321, 1), signature: { hash: BinData(0, 0000000000000000000000000000000000000000), keyId: 0 } }, operationTime: Timestamp(1589655321, 1) }
+2020-05-16T19:55:36.265+0100 I  ELECTION [replexec-3] election succeeded, assuming primary role in term 42
+2020-05-16T19:55:36.265+0100 I  REPL     [replexec-3] transition to PRIMARY from SECONDARY
+2020-05-16T19:55:36.265+0100 I  REPL     [replexec-3] Resetting sync source to empty, which was :27017
+2020-05-16T19:55:36.266+0100 I  REPL     [replexec-3] Entering primary catch-up mode.
+2020-05-16T19:55:36.268+0100 I  REPL_HB  [replexec-5] Heartbeat to 172.16.1.162:27017 failed after 2 retries, response status: HostUnreachable: Error connecting to 172.16.1.162:27017 :: caused by :: Connection $efused
+2020-05-16T19:55:36.268+0100 I  REPL     [replexec-5] Caught up to the latest optime known via heartbeats after becoming primary. Target optime: { ts: Timestamp(1589655321, 1), t: 41 }. My Last Applied: { ts: T$mestamp(1589655321, 1), t: 41 }
+2020-05-16T19:55:36.268+0100 I  REPL     [replexec-5] Exited primary catch-up mode.
+2020-05-16T19:55:36.268+0100 I  REPL     [replexec-5] Stopping replication producer
+2020-05-16T19:55:36.268+0100 I  REPL     [ReplBatcher] Oplog buffer has been drained in term 42
+2020-05-16T19:55:36.268+0100 I  REPL     [ReplBatcher] Oplog buffer has been drained in term 42
+2020-05-16T19:55:36.268+0100 I  REPL     [RstlKillOpThread] Starting to kill user operations
+2020-05-16T19:55:36.269+0100 I  REPL     [RstlKillOpThread] Stopped killing user operations
+2020-05-16T19:55:36.269+0100 I  REPL     [RstlKillOpThread] State transition ops metrics: { lastStateTransition: "stepUp", userOpsKilled: 0, userOpsRunning: 0 }
+2020-05-16T19:55:36.269+0100 I  REPL     [rsSync-0] transition to primary complete; database writes are now permitted
+\end{lstlisting}
+
+As we can see, it worked flawlessly: no primary was seen for 10 seconds, this triggered an election (or, to be precise, a dry run followed by a \textit{real} run).
+The candidate node was \lstinline{172.16.1.251} and received a positive vote from \lstinline{172.16.1.195}, while \lstinline{172.16.1.162} was unreachable (since it was down). A majority (2 out of 3) was reached and the secondary node transitioned to primary. It then caught up with the latest optime (row 19), cleaned the oplog and killed all the current user operations (row 25).
+
+From the time of the dry run for election (19:55:36 and 242ms), which is 10 seconds after the last heartbeat in our case, to the new primary being up and running (19:55:36 and 269ms) only 27ms were elapsed: this is possible since the three nodes are connected to the same LAN, but certifies how the election mechanism is fast and efficient.
 \end{document}
