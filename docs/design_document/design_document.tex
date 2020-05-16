@@ -581,4 +581,36 @@ mongod 	--replSet replicaset0
 		--oplogSize 200 
 		--bind_ip 172.16.1.162
 \end{lstlisting}
+\subsection{Authentication}
+\subsection{Consistency, Availability and Partition tolerance}
+The CAP theorem states that only two between consistency, availability and partition tolerance could be achieved in a database: our main service, providning movies infos and ratings, could work well even if with outdated data.
+Movie's description or title rarely chages while ratings should have a low variability: it is therefore the most convenient choise to increase our availability and partition tolerance.
+This is not true for what concerns logins and accounts in general: e.g a password change should be set in stone or the user creation should grant login consistency. A bad user experience is the consequence of not handling correctly this aspects.
+
+Different handling of the write and read requests depending on the data we want could be a reasonable solution.
+The drivers connecting to the database can specify a WriteConcern and a ReadPreference: the first determines the number of members of the replica set that should have written the new data before a positive response is sent to the driver, the second option is about the possibility of reading from nodes other than the master.
+The default configuration of MongoDB is a WriteConcern equal to 1 (only the primary server is updated) and a ReadPreference of 'primary' (we can read only from the primary). This means that, in case of a network partition excluding a number of nodes less than the majority and including the master, thus with the election of a new primary, consistency is not guaranteed since a write could have been made just before the partitioning (and the read would work just fine from the newly elected master).
+
+What has been chosen, as already anticipated, is a differentiated approach depending on the request. To access the \lstinline{users} collection, the driver establishes three different connections with the database.
+
+\begin{lstlisting}[language=java]
+mongoClient = MongoClients.create(connectionURI);
+database = mongoClient.getDatabase(dbName);
+
+moviesCollection = database.getCollection("movies").withReadPreference(ReadPreference.nearest());
+
+usersCollection = database.getCollection("users").withReadPreference(ReadPreference.nearest());
+
+usersCollectionMajorityWrite = database.getCollection("users").withWriteConcern(WriteConcern.MAJORITY);
+
+usersCollectionPrimaryRead = database.getCollection("users").withReadPreference(ReadPreference.primary());
+
+ratingsCollection = database.getCollection("ratings").withReadPreference(ReadPreference.nearest());
+\end{lstlisting}
+
+\lstinline{usersCollection} will be used for all the requests where we want high availabillity, like showing up the profile page or finding the user from the admin control page.
+\\
+\lstinline{usersCollectionMajorityWrite} handles all the requests for which we want the updates to be permanent (e.g. password changes, new session id etc.): a write concern of 'majority' (which is computed against the total nodes in the replica set) protects us against network partition since no matter what happens to the nodes, as long as a majority is reached, the election system will make sure the successive primary node will have our write. Since the secondaries could or could not have it, when we want consistency we have to read only from the primary. Therefore, the \lstinline{usersCollectionPrimaryRead} will set the correct ReadPreference and will be used accordingly.
+
+For what concerns the other requests, consistency is not strictly necessary and we would like our system to be highly available. For this reason, we keep the default write concern (equal to 1) and set the read preference to 'nearest', thus allowing reads from secondaries (which could have outdated informations).
 \end{document}
