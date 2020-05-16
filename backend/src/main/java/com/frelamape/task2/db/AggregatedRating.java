@@ -1,12 +1,14 @@
 package com.frelamape.task2.db;
 
 import org.bson.Document;
+import org.bson.conversions.Bson;
 
 import java.util.Date;
 
 public class AggregatedRating {
     private String source;
     private Double avgRating;
+    private transient Double sum;
     private Integer count;
     private Double weight;
     private Date lastUpdate;
@@ -17,6 +19,7 @@ public class AggregatedRating {
         this.count = count;
         this.weight = weight;
         this.lastUpdate = lastUpdate;
+
     }
 
     public String getSource() {
@@ -28,7 +31,12 @@ public class AggregatedRating {
     }
 
     public Double getAvgRating() {
-        return avgRating;
+        if (avgRating != null)
+            return avgRating;
+        else if (count != 0)
+            return sum/count;
+        else
+            return null;
     }
 
     public void setAvgRating(Double avgRating) {
@@ -59,18 +67,34 @@ public class AggregatedRating {
         this.lastUpdate = lastUpdate;
     }
 
+    public Double getSum() {
+        return sum;
+    }
+
+    public void setSum(Double sum) {
+        this.sum = sum;
+        if (sum != null && count!= null && count != 0) // sum overrides any value found in average
+            avgRating = sum/count;
+    }
+
     public static class Adapter {
         public static AggregatedRating fromDBObject (Document d){
             if (d == null)
                 return null;
 
-            return new AggregatedRating(
+            AggregatedRating rating = new AggregatedRating(
                     d.getString("source"),
                     BsonAutoCast.asDouble(d, "avgrating"),
                     BsonAutoCast.asInteger(d, "count"),
                     BsonAutoCast.asDouble(d, "weight"),
                     d.getDate("last_update")
             );
+
+            if (d.containsKey("sum")){ // internal rating
+                rating.setSum(BsonAutoCast.asDouble(d, "sum"));
+            }
+
+            return rating;
         }
 
         public static Document toDBObject (AggregatedRating r){
@@ -80,6 +104,7 @@ public class AggregatedRating {
             Document d = new Document();
             d.append("source", r.getSource());
             d.append("avgrating", r.getAvgRating());
+            d.append("sum", r.getSum());
             d.append("count", r.getCount());
             d.append("weight", r.getWeight());
             d.append("last_update", r.getLastUpdate());

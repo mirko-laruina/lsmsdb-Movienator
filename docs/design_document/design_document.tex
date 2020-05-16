@@ -261,21 +261,21 @@ In each following subsection, an example document is shown for every collection.
 	"ratings": [
 		{
 			"source": "internal",
-			"avgrating": 9,
+			"sum": 450,
 			"count": 100,
-			"weight": 2,
+			"weight": 1,
 			"last_update": "2019-11-28 12:34:56"
 		},
 		{
 			"source": "IMDb",
 			"avgrating": 8.6,
 			"count": 628981,
-			"weight": 1,
+			"weight": 0.5,
 			"last_update": "2019-11-28 12:34:56"
 		},
 		...
 	],
-	"total_rating": 8.87,
+	"total_rating": 4.43,
 	"last_scraped": "2019-11-28 12:34:56"
 }
 \end{lstlisting}
@@ -318,7 +318,7 @@ many queries.
 		"movie_id": "tt7286456"
 	},
 	"date": "2020-01-20",
-	"rating": 10
+	"rating": 5
 }
 \end{lstlisting}
 
@@ -535,26 +535,31 @@ After a rating is changed, the average internal rating and the total rating of t
 The update takes in input the old and the new rating (one of them can be null in case of insertion or delition) and consists in three parts:
 \begin{enumerate}
 	\item fetch the movie from the DB
-	\item calculate new statistics
-	\item update the database. Both internal rating and total rating are updated. For the former there are three cases:
-	\begin{itemize}
-		\item the internal rating was not present before and it needs to be added.
-		\item the internal rating existed and needs to be updated
-		\item the internal rating existed and needs to be removed
-	\end{itemize}
-	For the total rating there are two cases: update or unset in case the rating we removed was the last one.		
+	\item build the update request
+	\begin{enumerate}
+		\item Update \emph{internal rating}. The \emph{internal rating} nested document may be missing, in which case we need to push it. Otherwise, addition, deletion or modification must be correctly handled by incrementing \texttt{sum} and \texttt{count} appropriately.
+		\item Update the \emph{total rating} by calculating the new average. If no rating is present any longer, the \emph{total rating} is unset.
+	\end{enumerate}
 \end{enumerate}
 
-Furthermore, this operation is also protected from possible concurrent bakends running in other machines since it modifies the database only if it detected no updated between the fetch of the movie and the updated. It does so by making sure that the \emph{last\_updated} field remains the same by adding a filter in the update query (if no internal rating was present before it just checks that it was not added in the meanwhile). In case of failure, it retries up to 5 times. It is very unlikely to fail but in case it will be corrected by the scraper that always builds the internal rating using the Ratings collection.
+\textbf{NB: } the internal rating update is protected from concurrent modifications since it uses the atomic update operation \texttt{\$inc} to update the sum and the count. Furthermore, note also that all other aggregate ratings do not have the sum attribute but drectly the average attribute since they are scraped. On the other hand, the update of the total rating is not consistent since another asynchronous entity (e.g. scraper) may overwrite it with stale information. However, this is not a big issue since at maximum just a few ratings will be lost among a big pool (thousands and more) so the average does not change much.
 
 \lstinputlisting[language=Java]{figs/code/update_internal_rating.java}
 
 \subsection{Users}
 \subsubsection{Get Profile}
+The user profile is composed by his anagraphic information and his rating
+statistics. The first part is just a \emph{find} operation. The second part uses an aggregation pipeline similar to the one used to find movie statistics with th difference that in the end results are sorted by descending rating and only first 3 results are shown to the user.
+
+Note that this aggregation pipeline is, in a real scenario, very fast since a user will not have more than a few hundreds of ratings and ratings are indexed also by \texttt{user\_id} (so the match stage is extremely fast).
+
+\lstinputlisting[language=Java]{figs/code/get_user_profile.java}
 
 \subsubsection{Ban}
+When a user is banned, a flag is set on its document and all his ratings are removed from the database (triggering the internal rating update). Code snippet is not reported for brevity's sake.
 
 \subsubsection{Search}
+User search works alike the movie search, taking advantage of a \emph{text index}, sorting results by best match and paging the result. Code snippet is not reported for brevity's sake.
 
 \section{Replication}
 \subsection{Configuration of the replica set}

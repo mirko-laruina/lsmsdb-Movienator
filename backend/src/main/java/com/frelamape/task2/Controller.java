@@ -183,12 +183,17 @@ public class Controller {
         }
 
         Movie movie = dba.getMovieDetails(movieId);
-        if (u != null){
-            Rating r = dba.getUserRating(u, movie);
-            if (r != null && r.getRating() != null)
-                movie.setUserRating(r.getRating());
+        if (movie != null) {
+            if (u != null) {
+                Rating r = dba.getUserRating(u, movie);
+                if (r != null && r.getRating() != null)
+                    movie.setUserRating(r.getRating());
+            }
+            return new Gson().toJson(new BaseResponse(true, null, movie));
+        } else {
+            return new Gson().toJson(new BaseResponse(false, "Not found", null));
+
         }
-        return new Gson().toJson(new BaseResponse(true, null, movie));
     }
 
     @CrossOrigin

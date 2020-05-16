@@ -1,40 +1,46 @@
-// 1 - fetch movie
+// 1 - Fetch movie from DB
 Movie m = dba.getMovieDetails(movieId);
 
-// 2 - calculate new aggregated ratings
-// [...]
+// 2- Build the update request
+Bson match;
+List<Bson> updates = new ArrayList<>();
 
-// 3 - update database
-if (oldUpdate == null) {// there is no previous internal rating entry
-    match = and( // make sure no one added it in the meanwhile
+// 2a - update internal rating
+
+if (internalRating != null) { // there are previous ratings
+    // match the related nested document
+    match = and(
         eq("_id", movieId),
-        not(elemMatch("ratings", new Document().append("source", "internal")))
+        elemMatch("ratings", new Document() // always present
+            .append("source", "internal"))
     );
-    if (internalRating.getCount() != 0){ // push it if needs to be added
-        updates.add(push("ratings", AggregatedRating.Adapter.toDBObject(internalRating)));
+
+    if (oldRating == null) { // adding
+        updates.add(inc("ratings.$.sum", newRating.getRating()));
+        updates.add(inc("ratings.$.count", 1));
+    } else if (newRating == null) { // deleting
+        updates.add(inc("ratings.$.sum", -oldRating.getRating()));
+        updates.add(inc("ratings.$.count", -1));
+    } else { // changing
+        updates.add(inc("ratings.$.sum", newRating.getRating() - oldRating.getRating()));
+        updates.add(set("ratings.$.last_update", new Date()));
     }
-} else { // there is a previous entry: replace or pull 
-    match = and(    // make sure no one updated it in the meanwhile
-        eq("_id", movieId),
-        elemMatch("ratings", new Document()
-            .append("source", "internal")
-            .append("last_update", oldUpdate))
+    // [...] update internalRating
+} else { // internal rating is missing and must be created
+    match = eq("_id", movieId);
+    // [...] create new internalRating
+    updates.add(
+        push("ratings", AggregatedRating.Adapter.toDBObject(internalRating))
     );
-    if (internalRating.getCount() != 0) { // replace it if it exists
-        updates.add(set("ratings.$", AggregatedRating.Adapter.toDBObject(internalRating)));
-    } else { // else pull it
-        updates.add(pull("ratings", eq("source", "internal")));
-    }
 }
 
-if (m.getRatings().size() > 0) { // update total_rating
-        updates.add(set("total_rating", m.getTotalRating()));
-} else { // no rating available: unset it
-        updates.add(unset("total_rating"));
+// 2b - update total rating 
+// [...] calculate total rating 
+if (ar_count > 0) { 
+    updates.add(set("total_rating", m.getTotalRating()));
+} else { // if no rating source found
+    updates.add(unset("total_rating"));
 }
 
-UpdateResult result = moviesCollection.updateOne(match, combine(updates));
-if (result.getModifiedCount() == 1)
-    // ok
-else
-    // retry: someone modified it in the meanwhile
+// 3 - execute query on DB
+dba.getMoviesCollection().updateOne(match, combine(updates));
