@@ -2,7 +2,7 @@ import React, { useEffect } from 'react'
 import { Link } from 'react-router-dom'
 import { Grid, Button, TextField } from '@material-ui/core'
 import Alert from '@material-ui/lab/Alert'
-import RestrictedPage from './RestrictedPage'
+import BasicPage from './BasicPage'
 import { baseUrl, errorHandler, force_disconnect } from './utils'
 import { Typography } from '@material-ui/core'
 import MostLikedTable from './MostLikedTable'
@@ -60,7 +60,7 @@ export default function ProfilePage(props) {
             // Admin requesting another user profile page 
             reqUser = urlUser
         }
-        let url = baseUrl + "/user/" + reqUser
+        let url = baseUrl + "/user/" + localStorage.getItem('username')// + reqUser
         axios.get(url, {
             params: {
                 sessionId: localStorage.getItem('sessionId')
@@ -94,28 +94,47 @@ export default function ProfilePage(props) {
     }
 
     return (
-        <RestrictedPage
+        <BasicPage
             history={props.history}
-            customAuthorization={() => {
-                return localStorage.getItem('is_admin') === 'true'
-                    || localStorage.getItem('username') === props.match.params.username
-                    || (localStorage.getItem('username') && !props.match.params.username)
-            }}>
-
+        >
             {
                 loading ?
-                    <ProfilePageSkeleton showPw={isUserSelf}/>
+                    <ProfilePageSkeleton showPw={isUserSelf} />
                     :
                     <React.Fragment>
-                        <Typography variant="h3" component="h1">
-                            Profile page
+                        <Grid container>
+                            <Grid item xs={9}>
+                                <Typography variant="h3" component="h1">
+                                    Profile page
                         </Typography>
+                            </Grid>
+                            <Grid item xs={3}>
+                                {isUserSelf ?
+                                    <Button fullWidth
+                                        variant="outlined"
+                                        size="large"
+                                        color="primary"
+                                        onClick={alert}>
+                                        Follows
+                                    </Button>
+                                    :
+                                    <Button fullWidth
+                                        variant="outlined"
+                                        size="large"
+                                        color="primary"
+                                        onClick={alert}>
+                                        Follow user
+                                    </Button>
+                                }
+                            </Grid>
+                        </Grid>
+
                         <br />
                         <Grid container>
                             <Grid item xs={9}>
                                 <Typography variant="h4" component='h2'>
                                     Account details
-                                </Typography>
+                                        </Typography>
                             </Grid>
                             <Grid item xs={3}>
                                 {
@@ -126,22 +145,29 @@ export default function ProfilePage(props) {
                                         color="primary"
                                         onClick={banUser}>
                                         Ban user
-                                    </Button>
+                                            </Button>
                                 }
                             </Grid>
                         </Grid>
+
                         <br />
                         <Typography variant="h5" component='p'>
                             Username: {infos.username}
                         </Typography>
-                        <Typography variant="h5" component='p'>
-                            Email: {infos.email}
-                        </Typography>
+                        {
+                            (admin !== 'false'
+                                ||
+                                isUserSelf) &&
+
+                            <Typography variant="h5" component='p'>
+                                Email: {infos.email}
+                            </Typography>
+                        }
                         <br />
                         <Grid container>
                             <Grid item xs={9}>
                                 <Typography variant="h4" component='h2'>
-                                    The things you like
+                                    {isUserSelf ? "The things you like" : "The things he/she likes"}
                                 </Typography>
                             </Grid>
                             <Grid item xs={3}>
@@ -225,6 +251,6 @@ export default function ProfilePage(props) {
                         }
                     </React.Fragment>
             }
-        </RestrictedPage>
+        </BasicPage>
     )
 }
