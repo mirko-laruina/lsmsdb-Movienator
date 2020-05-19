@@ -100,11 +100,6 @@ export default function HomePage(props) {
         <br />
       </MyCard>
       <MyCard>
-        <Typography variant="h4" component="h2">Some movies you could like</Typography>
-        <br />
-        <SuggestedMovies />
-      </MyCard>
-      <MyCard>
         <Typography variant="h4" component='h2'>Explore movie statistics</Typography>
         <br />
         <Tabs
@@ -121,6 +116,11 @@ export default function HomePage(props) {
           <MyTab component={Link} to="/stats/year" label="By Year" icon={<DateRangeIcon />} />
           <MyTab component={Link} to="/stats/genre" label="By Genre" icon={<MovieFilterIcon />} />
         </Tabs>
+      </MyCard>
+      <MyCard>
+        <Typography variant="h4" component="h2">Some movies you could like</Typography>
+        <br />
+        <SuggestedMovies />
       </MyCard>
     </BasicPage>
   );
