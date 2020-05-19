@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 import { Link } from 'react-router-dom';
 
 /* Graphical components material-ui */
@@ -17,6 +17,9 @@ import { makeStyles, withStyles } from '@material-ui/core/styles';
 
 import BasicPage from './BasicPage.js'
 import MyCard from './MyCard.js'
+
+import axios from 'axios';
+import { baseUrl, errorHandler } from './utils';
 
 const useStyles = makeStyles(theme => (
   {
@@ -39,6 +42,27 @@ const MyTab = withStyles({
 export default function HomePage(props) {
   const classes = useStyles()
   const [searchValue, setSearch] = React.useState("")
+  const [movies, setMovies] = React.useState([])
+  const [loading, setLoading] = React.useState(false)
+
+  useEffect(() => {
+    axios.get(baseUrl + "movie/browse", {
+      params: {}
+    })
+      .then(function (res) {
+        console.log(res)
+        if (res.data.success) {
+          setMovies(res.data.response.list)
+          setLoading(false);
+          console.log(movies)
+        } else {
+          alert(res.data.message)
+          alert("You will be disconnected")
+          localStorage.removeItem('sessionId')
+          window.location.reload()
+        }
+      }).catch((response) => errorHandler(response))
+  }, [])
   return (
     <BasicPage noCard history={props.history}>
       <MyCard>
@@ -97,12 +121,40 @@ export default function HomePage(props) {
         <br />
       </MyCard>
       <MyCard>
+        <Typography variant="h4" component="h2">Some movies you could like</Typography>
+        <br />
+        <Tabs
+          value={0}
+          variant="standard"
+          aria-label="Suggested movies"
+          classes={{
+            indicator: classes.tabsIndicator,
+          }}>
+
+          {
+            movies && movies.map((movie, i) => {
+              return <MyTab
+                key={i}
+                component={Link}
+                to={"/movie/" + movie.id}
+                label={movie.title}
+                icon={
+                  <img
+                    src={movie.poster ? movie.poster : require('./blank_poster.png')}
+                    style={{ width: '140px' }} />
+                }
+              />
+            })
+          }
+        </Tabs>
+      </MyCard>
+      <MyCard>
         <Typography variant="h4" component='h2'>Explore movie statistics</Typography>
         <br />
         <Tabs
           value={0}
           variant="fullWidth"
-          aria-label="scrollable force tabs example"
+          aria-label="Explore movie statistics"
           classes={{
             root: classes.tabsRoot,
             indicator: classes.tabsIndicator,
