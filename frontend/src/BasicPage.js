@@ -146,6 +146,13 @@ export default function BasicPage(props) {
             }
         },
         {
+            label: 'Social profile',
+            handler: () => {
+                props.history.push('/social')
+            }
+
+        },
+        {
             label: 'Rating history',
             handler: () => {
                 props.history.push('/history')
