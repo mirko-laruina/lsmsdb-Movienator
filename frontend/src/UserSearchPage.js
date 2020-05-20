@@ -3,7 +3,7 @@ import { Typography, Grid } from '@material-ui/core'
 import RestrictedPage from './RestrictedPage'
 import axios from 'axios'
 import { baseUrl, errorHandler, force_disconnect } from './utils'
-import UsersListVertical from './UsersListVertical'
+import UsersListDisplay from './UsersListDisplay'
 
 export default function UserSearchPage(props) {
     const [users, setUsers] = React.useState([])
@@ -41,7 +41,7 @@ export default function UserSearchPage(props) {
                         No user found
                         </Typography>
                     :
-                    <UsersListVertical users={users} />
+                    <UsersListDisplay users={users} />
             }
         </RestrictedPage>
     )

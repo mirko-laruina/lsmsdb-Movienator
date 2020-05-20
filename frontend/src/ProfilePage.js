@@ -102,7 +102,7 @@ export default function ProfilePage(props) {
                     <ProfilePageSkeleton showPw={isUserSelf} />
                     :
                     <React.Fragment>
-                        <Grid container>
+                        <Grid container alignItems="center">
                             <Grid item xs={9}>
                                 <Typography variant="h3" component="h1">
                                     Profile page
@@ -115,8 +115,8 @@ export default function ProfilePage(props) {
                                         size="large"
                                         color="primary"
                                         component={Link}
-                                        to={"/social"}>
-                                        Follows
+                                        to={"/social/"}>
+                                        Social profile
                                     </Button>
                                     :
                                     <Button fullWidth
