@@ -114,7 +114,8 @@ export default function ProfilePage(props) {
                                         variant="outlined"
                                         size="large"
                                         color="primary"
-                                        onClick={alert}>
+                                        component={Link}
+                                        to={"/social"}>
                                         Follows
                                     </Button>
                                     :
