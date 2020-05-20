@@ -24,10 +24,10 @@ export default function SocialPage(props) {
 
     return (
         <BasicPage history={props.history}>
-            <Grid container alignItems="center">
-                <Grid item xs={9}>
+            <Grid container alignItems="center" spacing={1}>
+                <Grid item xs={isTargetUser ? 9 : 7}>
                     <Typography variant="h3" component="h1">
-                        {isTargetUser ? "Your social profile" : username + " social profile"}
+                        {isTargetUser ? "Your social profile" : username + " social"}
                     </Typography>
                 </Grid>
                 <Grid item xs={3}>
@@ -42,6 +42,20 @@ export default function SocialPage(props) {
                         Profile
                     </Button>
                 </Grid>
+                {!isTargetUser &&
+                    <Grid item xs={2}>
+                        <Button
+                            component={Link}
+                            to={"/profile/" + (isTargetUser ? "" : username)}
+                            variant="outlined"
+                            color="primary"
+                            size="large"
+                            fullWidth
+                        >
+                            Follow
+                    </Button>
+                    </Grid>
+                }
             </Grid>
             <br />
             {
@@ -54,7 +68,7 @@ export default function SocialPage(props) {
                     <br />
                 </>
             }
-            <Grid container>
+            <Grid container spacing={1}>
                 <Grid item xs={6}>
                     <Typography variant="h4" component="h2" align="center">
                         Followers
