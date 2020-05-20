@@ -56,6 +56,24 @@ export default function HomePage(props) {
           </Typography>
       </MyCard>
       <MyCard>
+        <Typography variant="h4" component='h2'>Explore movie statistics</Typography>
+        <br />
+        <Tabs
+          value={0}
+          variant="fullWidth"
+          aria-label="Explore movie statistics"
+          classes={{
+            root: classes.tabsRoot,
+            indicator: classes.tabsIndicator,
+          }}>
+          <MyTab component={Link} to="/stats/director" label="By Director" icon={<CameraRollIcon />} />
+          <MyTab component={Link} to="/stats/actor" label="By Actor" icon={<PersonIcon />} />
+          <MyTab component={Link} to="/stats/country" label="By Country" icon={<LanguageIcon />} />
+          <MyTab component={Link} to="/stats/year" label="By Year" icon={<DateRangeIcon />} />
+          <MyTab component={Link} to="/stats/genre" label="By Genre" icon={<MovieFilterIcon />} />
+        </Tabs>
+      </MyCard>
+      <MyCard>
         <Grid container>
           <Grid item xs={9}>
             <Typography variant="h4" component='h2'>Search a movie</Typography>
@@ -98,24 +116,6 @@ export default function HomePage(props) {
           </FormControl>
         </form>
         <br />
-      </MyCard>
-      <MyCard>
-        <Typography variant="h4" component='h2'>Explore movie statistics</Typography>
-        <br />
-        <Tabs
-          value={0}
-          variant="fullWidth"
-          aria-label="Explore movie statistics"
-          classes={{
-            root: classes.tabsRoot,
-            indicator: classes.tabsIndicator,
-          }}>
-          <MyTab component={Link} to="/stats/director" label="By Director" icon={<CameraRollIcon />} />
-          <MyTab component={Link} to="/stats/actor" label="By Actor" icon={<PersonIcon />} />
-          <MyTab component={Link} to="/stats/country" label="By Country" icon={<LanguageIcon />} />
-          <MyTab component={Link} to="/stats/year" label="By Year" icon={<DateRangeIcon />} />
-          <MyTab component={Link} to="/stats/genre" label="By Genre" icon={<MovieFilterIcon />} />
-        </Tabs>
       </MyCard>
       <MyCard>
         <Typography variant="h4" component="h2">Some movies you could like</Typography>
