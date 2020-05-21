@@ -4,13 +4,8 @@ import com.frelamape.task2.api.BaseResponse;
 import com.frelamape.task2.api.LoginResponse;
 import com.frelamape.task2.db.*;
 import com.google.gson.Gson;
-import org.apache.catalina.core.ApplicationContext;
 import org.bson.types.ObjectId;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Qualifier;
-import org.springframework.boot.SpringApplication;
-import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
-import org.springframework.context.ConfigurableApplicationContext;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.ArrayList;
@@ -26,7 +21,10 @@ import java.util.UUID;
 @RequestMapping("/api/v1")
 public class Controller {
     @Autowired
-    private DatabaseAdapter dba;
+    private MongoDBAdapter mongoDBAdapter;
+
+    @Autowired
+    private Neo4jAdapter neo4jAdapter;
 
     @CrossOrigin
     @RequestMapping(value={"/auth/login"}, method= RequestMethod.POST)
@@ -34,11 +32,11 @@ public class Controller {
                                       @RequestParam("password") String password){
         User u = new User(username);
         u.setPassword(password);
-        u = dba.authUser(u);
+        u = mongoDBAdapter.authUser(u);
         if (u != null){
             Session s = new Session(UUID.randomUUID().toString()); // TODO better session
             if (!u.isBanned()){
-                if (dba.addSession(u, s))
+                if (mongoDBAdapter.addSession(u, s))
                     return new Gson().toJson(new BaseResponse(true, null, new LoginResponse(s.getId(), u.isAdmin())));
                 else
                     return new Gson().toJson(new BaseResponse(true, "Error creating new user session", null));
@@ -59,10 +57,10 @@ public class Controller {
             return new Gson().toJson(new BaseResponse(false, null, null));
         }
         Session s = new Session(sid);
-        User u = dba.getUserFromSession(s);
+        User u = mongoDBAdapter.getUserFromSession(s);
         u.setPassword(password);
 
-        boolean result = dba.editUserPassword(u);
+        boolean result = mongoDBAdapter.editUserPassword(u);
         
         return new Gson().toJson(new BaseResponse(result, null, null));
     }
@@ -83,7 +81,7 @@ public class Controller {
         u.setEmail(email);
         Session s = new Session(UUID.randomUUID().toString()); // TODO better session
 
-        ObjectId userId = dba.addUser(u);
+        ObjectId userId = mongoDBAdapter.addUser(u);
 
         if (userId == null){
             return new Gson().toJson(new BaseResponse(false, null, null));
@@ -91,7 +89,7 @@ public class Controller {
 
         u.setId(userId);
 
-        if (dba.addSession(u, s)){
+        if (mongoDBAdapter.addSession(u, s)){
             return new Gson().toJson(new BaseResponse(true, null, new LoginResponse(s.getId(), u.isAdmin())));
         } else{
             return new Gson().toJson(new BaseResponse(false, null, null));
@@ -102,8 +100,8 @@ public class Controller {
     @RequestMapping(value={"/auth/logout"}, method= RequestMethod.POST)
     public @ResponseBody String logout(@RequestParam("sessionId") String sid){
         Session s = new Session(sid);
-        User u = dba.getUserFromSession(s);
-        return new Gson().toJson(new BaseResponse(dba.removeSession(u, s), null, null));
+        User u = mongoDBAdapter.getUserFromSession(s);
+        return new Gson().toJson(new BaseResponse(mongoDBAdapter.removeSession(u, s), null, null));
     }
 
     @CrossOrigin
@@ -125,7 +123,7 @@ public class Controller {
         User u = null;
         if (sid != null){
             Session s = new Session(sid);
-            u = dba.getUserFromSession(s);
+            u = mongoDBAdapter.getUserFromSession(s);
         }
         String realSortBy;
         switch (sortBy){
@@ -142,10 +140,10 @@ public class Controller {
                 return new Gson().toJson(new BaseResponse(false, "Unrecognized sortBy value: " + sortBy, null));
         }
 
-        QuerySubset<Movie> querySubset = dba.getMovieList(realSortBy, sortOrder, minRating, maxRating, director, actor, country,
+        QuerySubset<Movie> querySubset = mongoDBAdapter.getMovieList(realSortBy, sortOrder, minRating, maxRating, director, actor, country,
                                               fromYear, toYear, genre, n, page);
         if (u != null){
-            dba.fillUserRatings(u, querySubset.getList());
+            mongoDBAdapter.fillUserRatings(u, querySubset.getList());
         }
         return new Gson().toJson(new BaseResponse(true, null, querySubset));
     }
@@ -161,12 +159,12 @@ public class Controller {
         User u = null;
         if (sid != null){
             Session s = new Session(sid);
-            u = dba.getUserFromSession(s);
+            u = mongoDBAdapter.getUserFromSession(s);
         }
 
-        QuerySubset<Movie> movies = dba.searchMovie(query, n, page);
+        QuerySubset<Movie> movies = mongoDBAdapter.searchMovie(query, n, page);
         if (u != null){
-            dba.fillUserRatings(u, movies.getList());
+            mongoDBAdapter.fillUserRatings(u, movies.getList());
         }
         return new Gson().toJson(new BaseResponse(true, null, movies));
     }
@@ -179,13 +177,13 @@ public class Controller {
         User u = null;
         if (sid != null){
             Session s = new Session(sid);
-            u = dba.getUserFromSession(s);
+            u = mongoDBAdapter.getUserFromSession(s);
         }
 
-        Movie movie = dba.getMovieDetails(movieId);
+        Movie movie = mongoDBAdapter.getMovieDetails(movieId);
         if (movie != null) {
             if (u != null) {
-                Rating r = dba.getUserRating(u, movie);
+                Rating r = mongoDBAdapter.getUserRating(u, movie);
                 if (r != null && r.getRating() != null)
                     movie.setUserRating(r.getRating());
             }
@@ -203,15 +201,15 @@ public class Controller {
                                           @RequestParam(value = "rating", required = true) double ratingValue
     ){
         Session s = new Session(sid);
-        User u = dba.getUserFromSession(s);
+        User u = mongoDBAdapter.getUserFromSession(s);
 
         if (u == null){
             return new Gson().toJson(new BaseResponse(false, "Session ID does not match any active session. It may be expired.", null));
         }
 
-        Movie movie = dba.getMovieDetails(movieId);
+        Movie movie = mongoDBAdapter.getMovieDetails(movieId);
         Rating rating = new Rating(u, movie, ratingValue);
-        dba.insertRating(rating);
+        mongoDBAdapter.insertRating(rating);
         return new Gson().toJson(new BaseResponse(true, "Rating inserted successfully", null));
     }
 
@@ -221,15 +219,15 @@ public class Controller {
                                           @PathVariable("movieId") String movieId
     ){
         Session s = new Session(sid);
-        User u = dba.getUserFromSession(s);
+        User u = mongoDBAdapter.getUserFromSession(s);
 
         if (u == null){
             return new Gson().toJson(new BaseResponse(false, "Session ID does not match any active session. It may be expired.", null));
         }
 
-        Movie movie = dba.getMovieDetails(movieId);
+        Movie movie = mongoDBAdapter.getMovieDetails(movieId);
         Rating rating = new Rating(u, movie, 0.0);
-        boolean result = dba.deleteRating(rating);
+        boolean result = mongoDBAdapter.deleteRating(rating);
         if (result){
             return new Gson().toJson(new BaseResponse(true, null, null));
         } else {
@@ -270,7 +268,7 @@ public class Controller {
                 return new Gson().toJson(new BaseResponse(false, "Unrecognized sortBy value: " + sortBy, null));
         }
 
-        QuerySubset<Statistics<Statistics.Aggregator>> statistics = dba.getStatistics(groupBy, realSortBy, sortOrder,
+        QuerySubset<Statistics<Statistics.Aggregator>> statistics = mongoDBAdapter.getStatistics(groupBy, realSortBy, sortOrder,
                 minRating, maxRating, director, actor, country, fromYear, toYear, genre, n, page);
 
         return new Gson().toJson(new BaseResponse(true, null, statistics));
@@ -282,10 +280,10 @@ public class Controller {
                                          @PathVariable("username") String username
     ){
         Session s = new Session(sid);
-        User u = dba.getUserFromSession(s);
+        User u = mongoDBAdapter.getUserFromSession(s);
 
         if (u != null && (u.isAdmin() || u.getUsername().equals(username))){
-            User u2 = dba.getUserProfile(username);
+            User u2 = mongoDBAdapter.getUserProfile(username);
             if (u2 != null){
                 return new Gson().toJson(new BaseResponse(true, null, u2));
             } else {
@@ -304,12 +302,12 @@ public class Controller {
                                                @RequestParam(required = false, defaultValue = "1") int page
     ){
         Session s = new Session(sid);
-        User u = dba.getUserFromSession(s);
+        User u = mongoDBAdapter.getUserFromSession(s);
 
         if (u != null && (u.isAdmin() || u.getUsername().equals(username))){
-            User u2 = dba.getUserLoginInfo(username);
+            User u2 = mongoDBAdapter.getUserLoginInfo(username);
             if (u2 != null){
-                QuerySubset<RatingExtended> ratings = dba.getUserRatings(u2, n, page);
+                QuerySubset<RatingExtended> ratings = mongoDBAdapter.getUserRatings(u2, n, page);
                 return new Gson().toJson(new BaseResponse(true, null, ratings));
             } else {
                 return new Gson().toJson(new BaseResponse(false, "User not found", null));
@@ -326,12 +324,12 @@ public class Controller {
                                                @PathVariable("movieId") String movieId
     ){
         Session s = new Session(sid);
-        User u = dba.getUserFromSession(s);
+        User u = mongoDBAdapter.getUserFromSession(s);
 
         if (u != null && (u.isAdmin() || u.getUsername().equals(username))){
-            User u2 = dba.getUserLoginInfo(username);
+            User u2 = mongoDBAdapter.getUserLoginInfo(username);
             if (u2 != null){
-                Rating rating = dba.getUserRating(u2, new Movie(movieId));
+                Rating rating = mongoDBAdapter.getUserRating(u2, new Movie(movieId));
                 return new Gson().toJson(new BaseResponse(true, null, rating));
             } else {
                 return new Gson().toJson(new BaseResponse(false, "User not found", null));
@@ -349,14 +347,14 @@ public class Controller {
                                               @RequestParam("rating") double ratingVal
     ){
         Session s = new Session(sid);
-        User u = dba.getUserFromSession(s);
+        User u = mongoDBAdapter.getUserFromSession(s);
 
         if (u != null && (u.isAdmin() || u.getUsername().equals(username))){
-            User u2 = dba.getUserLoginInfo(username);
+            User u2 = mongoDBAdapter.getUserLoginInfo(username);
             if (u2 != null){
                 Movie movie = new Movie(movieId);
                 Rating rating = new Rating(u2, movie, ratingVal);
-                dba.insertRating(rating);
+                mongoDBAdapter.insertRating(rating);
                 return new Gson().toJson(new BaseResponse(true, "Rating added", null));
 
             } else {
@@ -374,13 +372,13 @@ public class Controller {
                                               @PathVariable("movieId") String movieId
     ){
         Session s = new Session(sid);
-        User u = dba.getUserFromSession(s);
+        User u = mongoDBAdapter.getUserFromSession(s);
 
         if (u != null && (u.isAdmin() || u.getUsername().equals(username))){
-            User u2 = dba.getUserLoginInfo(username);
+            User u2 = mongoDBAdapter.getUserLoginInfo(username);
             if (u2 != null){
                 Rating rating = new Rating(u2, new Movie(movieId), 0.0);
-                boolean result = dba.deleteRating(rating);
+                boolean result = mongoDBAdapter.deleteRating(rating);
                 if (result)
                     return new Gson().toJson(new BaseResponse(true, null, null));
                 else
@@ -399,12 +397,12 @@ public class Controller {
                                                  @PathVariable("username") String username
     ){
         Session s = new Session(sid);
-        User u = dba.getUserFromSession(s);
+        User u = mongoDBAdapter.getUserFromSession(s);
 
         if (u != null && u.isAdmin()){
-            User u2 = dba.getUserLoginInfo(username);
+            User u2 = mongoDBAdapter.getUserLoginInfo(username);
             if (u2 != null){
-                boolean result = dba.banUser(u2);
+                boolean result = mongoDBAdapter.banUser(u2);
                 if (result)  {
                     return new Gson().toJson(new BaseResponse(true, null, null));
                 } else
@@ -424,10 +422,10 @@ public class Controller {
                                            @RequestParam(required = false, defaultValue = "10") int limit
     ){
         Session s = new Session(sid);
-        User u = dba.getUserFromSession(s);
+        User u = mongoDBAdapter.getUserFromSession(s);
 
         if (u != null && u.isAdmin()){
-            QuerySubset<User> users = dba.searchUser(query, limit, 1);
+            QuerySubset<User> users = mongoDBAdapter.searchUser(query, limit, 1);
             List<String> result = new ArrayList<>();
             for (User user: users.getList()){
                 result.add(user.getUsername());
@@ -445,10 +443,10 @@ public class Controller {
                                            @RequestParam(required = false, defaultValue = "1") int page
     ){
         Session s = new Session(sid);
-        User u = dba.getUserFromSession(s);
+        User u = mongoDBAdapter.getUserFromSession(s);
 
         if (u != null && u.isAdmin()){
-            QuerySubset<RatingExtended> ratings = dba.getAllRatings(n, page);
+            QuerySubset<RatingExtended> ratings = mongoDBAdapter.getAllRatings(n, page);
             return new Gson().toJson(new BaseResponse(true, null, ratings));
         } else {
             return new Gson().toJson(new BaseResponse(false, "Unauthorized", null));

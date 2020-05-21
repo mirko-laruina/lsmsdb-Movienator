@@ -7,8 +7,8 @@ import org.junit.Test;
 import java.util.Date;
 import java.util.List;
 
-public class DatabaseAdapterTest {
-    private static DatabaseAdapter dba;
+public class MongoDBAdapterTest {
+    private static MongoDBAdapter dba;
     private static User user1;
     private static User user2;
     private static Movie movie1;

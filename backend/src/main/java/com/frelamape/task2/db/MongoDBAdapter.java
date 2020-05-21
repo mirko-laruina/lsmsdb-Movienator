@@ -14,12 +14,9 @@ import org.bson.types.ObjectId;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Configurable;
-import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.ApplicationArguments;
 import org.springframework.stereotype.Component;
-import org.springframework.stereotype.Service;
 
 import javax.annotation.PostConstruct;
 import java.util.*;
@@ -31,7 +28,7 @@ import static com.mongodb.client.model.Sorts.descending;
 import static com.mongodb.client.model.Updates.*;
 
 @Component
-public class DatabaseAdapter {
+public class MongoDBAdapter {
     private MongoClient mongoClient;
     private MongoDatabase database;
     private MongoCollection<Document> moviesCollection;
@@ -40,15 +37,15 @@ public class DatabaseAdapter {
     private MongoCollection<Document> usersCollectionPrimaryRead;
     private MongoCollection<Document> ratingsCollection;
 
-    private static final Logger logger = LoggerFactory.getLogger(DatabaseAdapter.class);
+    private static final Logger logger = LoggerFactory.getLogger(MongoDBAdapter.class);
 
-    @Value("${com.frelamape.task2.db.DatabaseAdapter.connectionURI}")
+    @Value("${com.frelamape.task2.db.MongoDBAdapter.connectionURI}")
     private String connectionURI;
-    @Value("${com.frelamape.task2.db.DatabaseAdapter.dbName}")
+    @Value("${com.frelamape.task2.db.MongoDBAdapter.dbName}")
     private String dbName;
 
     @Autowired
-    private DatabaseTaskExecutor executor;
+    private MongoDBTaskExecutor executor;
 
     @Autowired
     private ApplicationArguments args;
@@ -64,11 +61,16 @@ public class DatabaseAdapter {
 
         mongoClient = MongoClients.create(connectionURI);
         database = mongoClient.getDatabase(dbName);
-        moviesCollection = database.getCollection("movies").withReadPreference(ReadPreference.nearest());
-        usersCollection = database.getCollection("users").withReadPreference(ReadPreference.nearest());
-        usersCollectionMajorityWrite = database.getCollection("users").withWriteConcern(WriteConcern.MAJORITY);
-        usersCollectionPrimaryRead = database.getCollection("users").withReadPreference(ReadPreference.primary());
-        ratingsCollection = database.getCollection("ratings").withReadPreference(ReadPreference.nearest());
+        moviesCollection = database.getCollection("movies")
+                .withReadPreference(ReadPreference.nearest());
+        usersCollection = database.getCollection("users")
+                .withReadPreference(ReadPreference.nearest());
+        usersCollectionMajorityWrite = database.getCollection("users")
+                .withWriteConcern(WriteConcern.MAJORITY);
+        usersCollectionPrimaryRead = database.getCollection("users")
+                .withReadPreference(ReadPreference.primary());
+        ratingsCollection = database.getCollection("ratings")
+                .withReadPreference(ReadPreference.nearest());
     }
     /**
      * Inserts a rating.

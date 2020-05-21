@@ -1,14 +1,12 @@
 package com.frelamape.task2.db;
 
 
-import com.mongodb.client.result.UpdateResult;
 import org.bson.Document;
 import org.bson.conversions.Bson;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Repository;
-import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
 import java.util.Date;
@@ -18,12 +16,11 @@ import static com.mongodb.client.model.Filters.*;
 import static com.mongodb.client.model.Updates.*;
 
 @Repository
-public class DatabaseTaskExecutor{
+public class MongoDBTaskExecutor {
     private static final int MAX_RETRY = 5;
 
     @Autowired()
-    @Qualifier("databaseAdapter")
-    private DatabaseAdapter dba;
+    private MongoDBAdapter dba;
 
     /**
      * Updates the internal and total rating of the movie.
