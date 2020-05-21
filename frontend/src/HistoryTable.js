@@ -52,32 +52,41 @@ export default function HistoryTable(props) {
                         </TableRow>
                     </TableHead>
                     <TableBody>
-                        {props.data && props.data.map((row, i) => (
-                            <TableRow key={i} classes={{ root: classes.tableRow }}>
-                                {
-                                    props.adminView &&
-                                    <TableCell component='th' scope="row">
-                                        <Link to={"/profile/"+row.username}>
+                        {props.data && props.data.map((row, i) => {
+                            return (
+                                <TableRow key={i} classes={{ root: classes.tableRow }}>
+                                    {
+                                        props.adminView &&
+                                        <TableCell component='th' scope="row">
+                                            <Link to={"/profile/" + row.username}>
+                                                <Typography variant="body1" color="primary">
+                                                    {row.username}
+                                                </Typography>
+                                            </Link>
+                                        </TableCell>
+                                    }
+                                    <TableCell align="left">
+                                        <Link to={"/movie/" + row.movieId}>
                                             <Typography variant="body1" color="primary">
-                                            {row.username}
+                                                {row.title}
                                             </Typography>
                                         </Link>
                                     </TableCell>
-                                }
-                                <TableCell align="left">{row.title}</TableCell>
-                                <TableCell align="center">{row.year}</TableCell>
-                                <TableCell align="center">
-                                    <UserRating
-                                        showDelete
-                                        readOnly={props.readOnly}
-                                        rating={row.rating}
-                                        user={props.adminView ? row.username : false}
-                                        movieId={row.movieId}
-                                    />
-                                </TableCell>
-                                <TableCell align="center">{getDate(row.date)}</TableCell>
-                            </TableRow>
-                        ))}
+                                    <TableCell align="center">{row.year}</TableCell>
+                                    <TableCell align="center">
+                                        <UserRating
+                                            showDelete
+                                            readOnly={props.readOnly}
+                                            rating={row.rating}
+                                            user={props.adminView ? row.username : false}
+                                            movieId={row.movieId}
+                                        />
+                                    </TableCell>
+                                    <TableCell align="center">{getDate(row.date)}</TableCell>
+                                </TableRow>
+                            )
+                        }
+                        )}
                     </TableBody>
                 </Table>
             </TableContainer>

@@ -1,10 +1,9 @@
 import React, { useEffect } from 'react'
-import { Link } from 'react-router-dom'
-import { Typography, List, ListItem, ListItemAvatar, ListItemText, Avatar, Grid } from '@material-ui/core'
-import PersonIcon from '@material-ui/icons/Person'
+import { Typography, Grid } from '@material-ui/core'
 import RestrictedPage from './RestrictedPage'
 import axios from 'axios'
 import { baseUrl, errorHandler, force_disconnect } from './utils'
+import UsersListDisplay from './UsersListDisplay'
 
 export default function UserSearchPage(props) {
     const [users, setUsers] = React.useState([])
@@ -42,30 +41,7 @@ export default function UserSearchPage(props) {
                         No user found
                         </Typography>
                     :
-                    users.map((user, i) => {
-                        return (
-                            <Grid key={i} container>
-                                <Link to={"/profile/" + user}>
-                                    <Grid item xs={12}>
-                                        <div>
-                                            <List>
-                                                <ListItem>
-                                                    <ListItemAvatar>
-                                                        <Avatar>
-                                                            <PersonIcon />
-                                                        </Avatar>
-                                                    </ListItemAvatar>
-                                                    <ListItemText
-                                                        primary={user}
-                                                    />
-                                                </ListItem>
-                                            </List>
-                                        </div>
-                                    </Grid>
-                                </Link>
-                            </Grid>
-                        )
-                    })
+                    <UsersListDisplay users={users} />
             }
         </RestrictedPage>
     )

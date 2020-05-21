@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 import { Link } from 'react-router-dom';
 
 /* Graphical components material-ui */
@@ -17,6 +17,8 @@ import { makeStyles, withStyles } from '@material-ui/core/styles';
 
 import BasicPage from './BasicPage.js'
 import MyCard from './MyCard.js'
+import SuggestedMovies from './SuggestedMovies'
+
 
 const useStyles = makeStyles(theme => (
   {
@@ -39,6 +41,7 @@ const MyTab = withStyles({
 export default function HomePage(props) {
   const classes = useStyles()
   const [searchValue, setSearch] = React.useState("")
+
   return (
     <BasicPage noCard history={props.history}>
       <MyCard>
@@ -51,6 +54,24 @@ export default function HomePage(props) {
           align="center">
           The movie search engine you didn't know you needed
           </Typography>
+      </MyCard>
+      <MyCard>
+        <Typography variant="h4" component='h2'>Explore movie statistics</Typography>
+        <br />
+        <Tabs
+          value={0}
+          variant="fullWidth"
+          aria-label="Explore movie statistics"
+          classes={{
+            root: classes.tabsRoot,
+            indicator: classes.tabsIndicator,
+          }}>
+          <MyTab component={Link} to="/stats/director" label="By Director" icon={<CameraRollIcon />} />
+          <MyTab component={Link} to="/stats/actor" label="By Actor" icon={<PersonIcon />} />
+          <MyTab component={Link} to="/stats/country" label="By Country" icon={<LanguageIcon />} />
+          <MyTab component={Link} to="/stats/year" label="By Year" icon={<DateRangeIcon />} />
+          <MyTab component={Link} to="/stats/genre" label="By Genre" icon={<MovieFilterIcon />} />
+        </Tabs>
       </MyCard>
       <MyCard>
         <Grid container>
@@ -97,22 +118,9 @@ export default function HomePage(props) {
         <br />
       </MyCard>
       <MyCard>
-        <Typography variant="h4" component='h2'>Explore movie statistics</Typography>
+        <Typography variant="h4" component="h2">Some movies you could like</Typography>
         <br />
-        <Tabs
-          value={0}
-          variant="fullWidth"
-          aria-label="scrollable force tabs example"
-          classes={{
-            root: classes.tabsRoot,
-            indicator: classes.tabsIndicator,
-          }}>
-          <MyTab component={Link} to="/stats/director" label="By Director" icon={<CameraRollIcon />} />
-          <MyTab component={Link} to="/stats/actor" label="By Actor" icon={<PersonIcon />} />
-          <MyTab component={Link} to="/stats/country" label="By Country" icon={<LanguageIcon />} />
-          <MyTab component={Link} to="/stats/year" label="By Year" icon={<DateRangeIcon />} />
-          <MyTab component={Link} to="/stats/genre" label="By Genre" icon={<MovieFilterIcon />} />
-        </Tabs>
+        <SuggestedMovies />
       </MyCard>
     </BasicPage>
   );

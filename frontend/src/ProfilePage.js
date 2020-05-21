@@ -2,7 +2,7 @@ import React, { useEffect } from 'react'
 import { Link } from 'react-router-dom'
 import { Grid, Button, TextField } from '@material-ui/core'
 import Alert from '@material-ui/lab/Alert'
-import RestrictedPage from './RestrictedPage'
+import BasicPage from './BasicPage'
 import { baseUrl, errorHandler, force_disconnect } from './utils'
 import { Typography } from '@material-ui/core'
 import MostLikedTable from './MostLikedTable'
@@ -60,7 +60,7 @@ export default function ProfilePage(props) {
             // Admin requesting another user profile page 
             reqUser = urlUser
         }
-        let url = baseUrl + "/user/" + reqUser
+        let url = baseUrl + "/user/" + localStorage.getItem('username')// + reqUser
         axios.get(url, {
             params: {
                 sessionId: localStorage.getItem('sessionId')
@@ -94,28 +94,49 @@ export default function ProfilePage(props) {
     }
 
     return (
-        <RestrictedPage
+        <BasicPage
             history={props.history}
-            customAuthorization={() => {
-                return localStorage.getItem('is_admin') === 'true'
-                    || localStorage.getItem('username') === props.match.params.username
-                    || (localStorage.getItem('username') && !props.match.params.username)
-            }}>
-
+        >
             {
                 loading ?
-                    <ProfilePageSkeleton showPw={isUserSelf}/>
+                    <ProfilePageSkeleton showPw={isUserSelf} />
                     :
                     <React.Fragment>
-                        <Typography variant="h3" component="h1">
-                            Profile page
+                        <Grid container alignItems="center" spacing={1}>
+                            <Grid item xs={isUserSelf ? 9 : 7}>
+                                <Typography variant="h3" component="h1">
+                                    Profile page
                         </Typography>
+                            </Grid>
+                            <Grid item xs={3}>
+                                <Button fullWidth
+                                    variant="outlined"
+                                    size="large"
+                                    color="primary"
+                                    component={Link}
+                                    to={"/social/" + (isUserSelf ? "" : user)}>
+                                    Social profile
+                                    </Button>
+                            </Grid>
+                            {!isUserSelf &&
+                                <Grid item xs={2}>
+                                    <Button fullWidth
+                                        variant="outlined"
+                                        size="large"
+                                        color="primary"
+                                        onClick={alert}>
+                                        Follow
+                                    </Button>
+                                </Grid>
+                            }
+                        </Grid>
+
                         <br />
-                        <Grid container>
+                        <Grid container spacing={1}>
                             <Grid item xs={9}>
                                 <Typography variant="h4" component='h2'>
                                     Account details
-                                </Typography>
+                                        </Typography>
                             </Grid>
                             <Grid item xs={3}>
                                 {
@@ -126,41 +147,51 @@ export default function ProfilePage(props) {
                                         color="primary"
                                         onClick={banUser}>
                                         Ban user
-                                    </Button>
+                                            </Button>
                                 }
                             </Grid>
                         </Grid>
+
                         <br />
                         <Typography variant="h5" component='p'>
                             Username: {infos.username}
                         </Typography>
-                        <Typography variant="h5" component='p'>
-                            Email: {infos.email}
-                        </Typography>
+                        {
+                            (admin !== 'false'
+                                ||
+                                isUserSelf) &&
+
+                            <Typography variant="h5" component='p'>
+                                Email: {infos.email}
+                            </Typography>
+                        }
                         <br />
-                        <Grid container>
+                        <Grid container spacing={1}>
                             <Grid item xs={9}>
                                 <Typography variant="h4" component='h2'>
-                                    The things you like
+                                    {isUserSelf ? "The things you like" : "The things he/she likes"}
                                 </Typography>
                             </Grid>
-                            <Grid item xs={3}>
-                                <Button fullWidth
-                                    variant="outlined"
-                                    size="large"
-                                    color="primary"
-                                    component={Link}
-                                    to={
-                                        admin === 'false' || !props.match.params.username
-                                            ?
-                                            "/history"
-                                            :
-                                            "/history/" + props.match.params.username
-                                    }
-                                >
-                                    Rating history
-                                </Button>
-                            </Grid>
+                            {
+                             (isUserSelf || admin !== 'false') &&
+                                <Grid item xs={3}>
+                                    <Button fullWidth
+                                        variant="outlined"
+                                        size="large"
+                                        color="primary"
+                                        component={Link}
+                                        to={
+                                            admin === 'false' || !props.match.params.username
+                                                ?
+                                                "/history"
+                                                :
+                                                "/history/" + props.match.params.username
+                                        }
+                                    >
+                                        Rating history
+                                    </Button>
+                                </Grid>
+                            }
                         </Grid>
                         <br />
                         <Typography variant="h5" component='h3'>
@@ -225,6 +256,6 @@ export default function ProfilePage(props) {
                         }
                     </React.Fragment>
             }
-        </RestrictedPage>
+        </BasicPage>
     )
 }
