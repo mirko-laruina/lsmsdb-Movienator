@@ -1,0 +1,4 @@
+neo4j==1.7.6
+neobolt==1.7.17
+neotime==1.7.4
+py2neo==4.3.0
