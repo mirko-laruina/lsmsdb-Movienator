@@ -147,6 +147,33 @@ the overall rating.
 }
 ```
 
+
+## `GET /movie/suggestion`
+Returns a list of movies that the user might like.
+
+The totalCount in this case is the number of results, not the total number.
+
+NB: only registered users.
+
+### URL parameters
+ - n: number of suggestions (default: 5)
+
+### Output
+```json
+{
+	"list": [
+		{
+			"_id": "tt7286456",
+			"title": "Joker",
+			"year": 2019,
+			"poster": "https://m.media-amazon.com/images/M/[...].jpg"
+		},
+		...
+	],
+	"totalCount": 5
+}
+```
+
 ## `GET /movie/<id>`
 Returns detailed information about a movie.
 
@@ -270,13 +297,13 @@ Default behaviour is sorting by rating (descending).
 Returns user information (username, email, top-3 most liked actors, directors, 
 genres).
 
-NB: only the user himself and admins are allowed.
-
 ### Output
 ```json
 {
     "username": "joker",
     "email": "joker@dccomics.com",
+	"followed": true,
+	"following": false,
     "favourite_actors": [
 		{
 			"aggregator": {
@@ -317,8 +344,6 @@ NB: only the user himself and admins are allowed.
 Returns a list of movies rated by the user.
 Paging is supported.
 
-NB: only the user herself and admins are allowed.
-
 ### URL parameters
  - n: number of elements per page (optional, default: 10)
  - page: page number (optional, default: 1)
@@ -339,6 +364,130 @@ NB: only the user herself and admins are allowed.
 		...
 	],
 	"totalCount": 5
+}
+```
+
+## `GET /user/<username>/followers`
+Returns a list of users following the given user.
+
+If the user issuing the query is registered, he will also receive information
+about whether the queried user is following him or being followed by him.
+
+Paging is supported.
+
+### URL parameters
+ - n: number of elements per page (optional, default: 10)
+ - page: page number (optional, default: 1)
+
+### Output
+```json
+{
+	"list": [
+		{
+			"username": "joker",
+			"followed": true
+		},
+		...
+	],
+	"totalCount": 25
+}
+```
+
+## `GET /user/<username>/followings`
+Returns a list of users following the given user.
+
+If the user issuing the query is registered, he will also receive information
+about whether the queried user is following him or being followed by him.
+
+Paging is supported.
+
+### URL parameters
+ - n: number of elements per page (optional, default: 10)
+ - page: page number (optional, default: 1)
+
+### Output
+```json
+{
+	"list": [
+		{
+			"username": "joker"
+		},
+		...
+	],
+	"totalCount": 25
+}
+```
+
+
+## `GET /users/suggested`
+Returns a list of user suggestions.
+
+Output is paged-like to uniform with the other APIs but paging is not supported.
+
+The totalCount in this case is the number of results, not the total number.
+
+NB: only the user himself can call this API.
+
+### URL parameters
+ - n: number of suggestions (optional, default: 10)
+
+### Output
+```json
+{
+	"list": [
+		{
+			"username": "joker"
+		},
+		...
+	],
+	"totalCount": 10
+}
+```
+
+## `GET /user/<username>/social`
+Returns the result of the 3 above APIs aggretated in a single one since they 
+are usually called together.
+
+Only first page is retrieved for each query.
+
+NB: only the user himself will receive the list of suggested users
+
+### URL parameters
+ - n_followed: number of followed users to show (optional, default: 10)
+ - n_following: number of following users to show (optional, default: 10)
+ - n_suggestions: number of suggestions to show (optional, default: 10)
+
+### Output
+```json
+{
+	"followers": {
+		"list": [
+			{
+				"username": "joker",
+				"followed": true
+			},
+			...
+		],
+		"totalCount": 25
+	},
+	"followings": {
+		"list": [
+			{
+				"username": "joker"
+			},
+			...
+		],
+		"totalCount": 25
+	},
+	"suggestions": {
+		"list": [
+			{
+				"username": "joker"
+			},
+			...
+		],
+		"totalCount": 10
+	},
 }
 ```
 
@@ -372,17 +521,26 @@ NB: only admins are allowed.
 None (just success/failure).
 
 ## `GET /user/search`
-Searches a user from a username (or part of).
-
-NB: only admins are allowed.
+Searches a user from a username (or part of). Paging is supported.
 
 ### URL parameters
  - query: the query that the username (required)
- - limit: maximum number of results (optional, default = 10)
+ - n: number of elements per page (optional, default: 10)
+ - page: page number (optional, default: 1)
 
 ### Output
-```
-["username1, "username2", "usernameN"]
+```json
+{
+	"list": [
+		{
+			"username": "joker",
+			"followed": true,
+			"following": false
+		},
+		...
+	],
+	"totalCount": 100
+}
 ```
 
 ## `GET /ratings`
@@ -390,6 +548,34 @@ Returns the list of all ratings, sorted by date (descending).
 Paging is supported.
 
 NB: only admins are allowed.
+
+### URL parameters
+ - n: number of elements per page (optional, default: 10)
+ - page: page number (optional, default: 1)
+
+### Output
+```json
+{
+	"list": [
+		{
+			"username": "topolino.hackerino",
+			"movieId": "tt7286456",
+			"title": "Joker",
+			"year": 2019,
+			"rating": 1,
+			"date": "2020-07-15"
+		},
+		...
+	],
+	"totalCount": 5100
+}
+```
+
+## `GET /ratings/friends`
+Returns the list of all ratings from friends, sorted by date (descending).
+Paging is supported.
+
+NB: only registered users are allowed.
 
 ### URL parameters
  - n: number of elements per page (optional, default: 10)
