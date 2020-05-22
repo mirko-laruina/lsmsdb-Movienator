@@ -13,6 +13,8 @@ public class User {
     private String email;
     private Boolean isAdmin;
     private Boolean isBanned;
+    private Boolean follower;
+    private Boolean following;
     private List<Statistics<Statistics.Aggregator>> favouriteActors = new ArrayList<>();
     private List<Statistics<Statistics.Aggregator>> favouriteDirectors = new ArrayList<>();
     private List<Statistics<Statistics.Aggregator>> favouriteGenres = new ArrayList<>();
@@ -113,6 +115,22 @@ public class User {
         sessions.remove(session);
     }
 
+    public Boolean isFollower() {
+        return follower;
+    }
+
+    public void setFollower(Boolean follower) {
+        this.follower = follower;
+    }
+
+    public Boolean isFollowing() {
+        return following;
+    }
+
+    public void setFollowing(Boolean following) {
+        this.following = following;
+    }
+
     public static class Adapter {
         public static User fromDBObject (Document d){
             if (d == null)
@@ -200,5 +218,10 @@ public class User {
 
             return d;
         }
+    }
+
+    public static class Relationship{
+        public boolean following;
+        public boolean follower;
     }
 }

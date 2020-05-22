@@ -2,6 +2,7 @@ package com.frelamape.task2;
 
 import com.frelamape.task2.api.BaseResponse;
 import com.frelamape.task2.api.LoginResponse;
+import com.frelamape.task2.api.SocialProfileResponse;
 import com.frelamape.task2.db.*;
 import com.google.gson.Gson;
 import org.bson.types.ObjectId;
@@ -11,6 +12,8 @@ import org.springframework.web.bind.annotation.*;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
+import java.util.concurrent.ExecutionException;
+import java.util.concurrent.Future;
 
 /**
  * Main class
@@ -25,6 +28,9 @@ public class Controller {
 
     @Autowired
     private Neo4jAdapter neo4jAdapter;
+
+    @Autowired
+    private Neo4jTaskExecutor neo4jTaskExecutor;
 
     @CrossOrigin
     @RequestMapping(value={"/auth/login"}, method= RequestMethod.POST)
@@ -89,6 +95,8 @@ public class Controller {
 
         u.setId(userId);
 
+        neo4jTaskExecutor.insertUser(u);
+
         if (mongoDBAdapter.addSession(u, s)){
             return new Gson().toJson(new BaseResponse(true, null, new LoginResponse(s.getId(), u.isAdmin())));
         } else{
@@ -147,6 +155,25 @@ public class Controller {
         }
         return new Gson().toJson(new BaseResponse(true, null, querySubset));
     }
+
+
+    @CrossOrigin
+    @RequestMapping(value={"/movie/suggestion"}, method= RequestMethod.GET)
+    public @ResponseBody String suggestMovies(@RequestParam(value = "sessionId") String sid,
+                                              @RequestParam int n
+    ){
+        User u = null;
+        Session s = new Session(sid);
+        u = mongoDBAdapter.getUserFromSession(s);
+
+        if (u == null){
+            return new Gson().toJson(new BaseResponse(false, "User is not logged in", null));
+        }
+
+        QuerySubset<Movie> movies = neo4jAdapter.getMovieSuggestions(u, n);
+        return new Gson().toJson(new BaseResponse(true, null, movies));
+    }
+
 
 
     @CrossOrigin
@@ -210,6 +237,9 @@ public class Controller {
         Movie movie = mongoDBAdapter.getMovieDetails(movieId);
         Rating rating = new Rating(u, movie, ratingValue);
         mongoDBAdapter.insertRating(rating);
+
+        neo4jTaskExecutor.insertRating(rating);
+
         return new Gson().toJson(new BaseResponse(true, "Rating inserted successfully", null));
     }
 
@@ -229,6 +259,7 @@ public class Controller {
         Rating rating = new Rating(u, movie, 0.0);
         boolean result = mongoDBAdapter.deleteRating(rating);
         if (result){
+            neo4jTaskExecutor.deleteRating(rating);
             return new Gson().toJson(new BaseResponse(true, null, null));
         } else {
             return new Gson().toJson(new BaseResponse(false, null, null));
@@ -282,15 +313,29 @@ public class Controller {
         Session s = new Session(sid);
         User u = mongoDBAdapter.getUserFromSession(s);
 
-        if (u != null && (u.isAdmin() || u.getUsername().equals(username))){
-            User u2 = mongoDBAdapter.getUserProfile(username);
-            if (u2 != null){
-                return new Gson().toJson(new BaseResponse(true, null, u2));
-            } else {
-                return new Gson().toJson(new BaseResponse(false, "User not found", null));
+        Future<User.Relationship> relationshipFuture = null;
+        if (!u.getUsername().equals(username))
+            relationshipFuture = neo4jTaskExecutor.getUserRelationship(u, new User(username));
+        User u2 = mongoDBAdapter.getUserProfile(username);
+
+        if (u2 != null){
+            User.Relationship relationship = null;
+
+            if (relationshipFuture != null) {
+                try{
+                    relationship = relationshipFuture.get(); // Wait for result
+                } catch (InterruptedException | ExecutionException e) {
+                    e.printStackTrace();
+                }
             }
+
+            if (relationship != null){
+                u2.setFollower(relationship.follower);
+                u2.setFollowing(relationship.following);
+            }
+            return new Gson().toJson(new BaseResponse(true, null, u2));
         } else {
-            return new Gson().toJson(new BaseResponse(false, "Unauthorized", null));
+            return new Gson().toJson(new BaseResponse(false, "User not found", null));
         }
     }
 
@@ -301,19 +346,105 @@ public class Controller {
                                                @RequestParam(required = false, defaultValue = "10") int n,
                                                @RequestParam(required = false, defaultValue = "1") int page
     ){
+        User u2 = mongoDBAdapter.getUserLoginInfo(username);
+        if (u2 != null){
+            QuerySubset<RatingExtended> ratings = mongoDBAdapter.getUserRatings(u2, n, page);
+            return new Gson().toJson(new BaseResponse(true, null, ratings));
+        } else {
+            return new Gson().toJson(new BaseResponse(false, "User not found", null));
+        }
+
+    }
+
+    @CrossOrigin
+    @RequestMapping(value={"/user/{username}/followers"}, method= RequestMethod.GET)
+    public @ResponseBody String getUserFollowers(@RequestParam(value = "sessionId") String sid,
+                                               @PathVariable("username") String username,
+                                               @RequestParam(required = false, defaultValue = "10") int n,
+                                               @RequestParam(required = false, defaultValue = "1") int page
+    ){
+        QuerySubset<User> followers = neo4jAdapter.getFollowers(new User(username), n, page);
+
+        if (followers != null){
+            return new Gson().toJson(new BaseResponse(true, null, followers));
+        } else {
+            return new Gson().toJson(new BaseResponse(false, "User not found", null));
+        }
+    }
+
+    @CrossOrigin
+    @RequestMapping(value={"/user/{username}/followings"}, method= RequestMethod.GET)
+    public @ResponseBody String getUserFollowings(@RequestParam(value = "sessionId") String sid,
+                                               @PathVariable("username") String username,
+                                               @RequestParam(required = false, defaultValue = "10") int n,
+                                               @RequestParam(required = false, defaultValue = "1") int page
+    ){
+        QuerySubset<User> followings = neo4jAdapter.getFollowings(new User(username), n, page);
+
+        if (followings != null){
+            return new Gson().toJson(new BaseResponse(true, null, followings));
+        } else {
+            return new Gson().toJson(new BaseResponse(false, "User not found", null));
+        }
+    }
+
+    @CrossOrigin
+    @RequestMapping(value={"/users/suggested"}, method= RequestMethod.GET)
+    public @ResponseBody String getSuggestedUsers(@RequestParam(value = "sessionId") String sid,
+                                               @RequestParam(required = false, defaultValue = "10") int n
+    ){
         Session s = new Session(sid);
         User u = mongoDBAdapter.getUserFromSession(s);
 
-        if (u != null && (u.isAdmin() || u.getUsername().equals(username))){
-            User u2 = mongoDBAdapter.getUserLoginInfo(username);
-            if (u2 != null){
-                QuerySubset<RatingExtended> ratings = mongoDBAdapter.getUserRatings(u2, n, page);
-                return new Gson().toJson(new BaseResponse(true, null, ratings));
-            } else {
-                return new Gson().toJson(new BaseResponse(false, "User not found", null));
-            }
+        QuerySubset<User> suggestions = neo4jAdapter.getUserSuggestions(new User(u.getUsername()), n);
+
+        if (suggestions != null){
+            return new Gson().toJson(new BaseResponse(true, null, suggestions));
         } else {
-            return new Gson().toJson(new BaseResponse(false, "Unauthorized", null));
+            return new Gson().toJson(new BaseResponse(false, "Error", null));
+        }
+    }
+
+
+
+    @CrossOrigin
+    @RequestMapping(value={"/user/{username}/social"}, method= RequestMethod.GET)
+    public @ResponseBody String getUserSocialProfile(@RequestParam(value = "sessionId") String sid,
+                                                     @PathVariable("username") String username,
+                                                     @RequestParam(required = false, defaultValue = "10") int n_followers,
+                                                     @RequestParam(required = false, defaultValue = "10") int n_followings,
+                                                     @RequestParam(required = false, defaultValue = "10") int n_suggestions
+    ){
+        User u = new User(username);
+        Future<QuerySubset<User>> followersFuture = neo4jTaskExecutor.getFollowers(u, n_followers, 1);
+        Future<QuerySubset<User>> followingsFuture = neo4jTaskExecutor.getFollowings(u, n_followings, 1);
+        Future<QuerySubset<User>> suggestionsFuture = null;
+
+        Session s = new Session(sid);
+        User su = mongoDBAdapter.getUserFromSession(s);
+
+        if (su != null && su.getUsername().equals(username)) {
+            suggestionsFuture = neo4jTaskExecutor.getUserSuggestions(u, n_suggestions);
+        }
+
+        QuerySubset<User> followers = null;
+        QuerySubset<User> followings = null;
+        QuerySubset<User> suggestions = null;
+
+        try {
+            followers = followersFuture.get();
+            followings = followingsFuture.get();
+            if (suggestionsFuture != null)
+                suggestions = suggestionsFuture.get();
+        } catch (InterruptedException | ExecutionException e) {
+            e.printStackTrace();
+        }
+
+        if (!(followers == null && followings == null && suggestions == null)){
+            SocialProfileResponse response = new SocialProfileResponse(followers, followings, suggestions);
+            return new Gson().toJson(new BaseResponse(true, null, response));
+        } else{
+            return new Gson().toJson(new BaseResponse(false, "User not found", null));
         }
     }
 
@@ -323,19 +454,12 @@ public class Controller {
                                                @PathVariable("username") String username,
                                                @PathVariable("movieId") String movieId
     ){
-        Session s = new Session(sid);
-        User u = mongoDBAdapter.getUserFromSession(s);
-
-        if (u != null && (u.isAdmin() || u.getUsername().equals(username))){
-            User u2 = mongoDBAdapter.getUserLoginInfo(username);
-            if (u2 != null){
-                Rating rating = mongoDBAdapter.getUserRating(u2, new Movie(movieId));
-                return new Gson().toJson(new BaseResponse(true, null, rating));
-            } else {
-                return new Gson().toJson(new BaseResponse(false, "User not found", null));
-            }
+        User u2 = mongoDBAdapter.getUserLoginInfo(username);
+        if (u2 != null){
+            Rating rating = mongoDBAdapter.getUserRating(u2, new Movie(movieId));
+            return new Gson().toJson(new BaseResponse(true, null, rating));
         } else {
-            return new Gson().toJson(new BaseResponse(false, "Unauthorized", null));
+            return new Gson().toJson(new BaseResponse(false, "User not found", null));
         }
     }
 
@@ -355,6 +479,7 @@ public class Controller {
                 Movie movie = new Movie(movieId);
                 Rating rating = new Rating(u2, movie, ratingVal);
                 mongoDBAdapter.insertRating(rating);
+                neo4jTaskExecutor.insertRating(rating);
                 return new Gson().toJson(new BaseResponse(true, "Rating added", null));
 
             } else {
@@ -379,9 +504,10 @@ public class Controller {
             if (u2 != null){
                 Rating rating = new Rating(u2, new Movie(movieId), 0.0);
                 boolean result = mongoDBAdapter.deleteRating(rating);
-                if (result)
+                if (result) {
+                    neo4jTaskExecutor.deleteRating(rating);
                     return new Gson().toJson(new BaseResponse(true, null, null));
-                else
+                }else
                     return new Gson().toJson(new BaseResponse(false, "Error deleting rating", null));
             } else {
                 return new Gson().toJson(new BaseResponse(false, "User not found", null));
@@ -419,21 +545,35 @@ public class Controller {
     @RequestMapping(value={"/user/search"}, method= RequestMethod.GET)
     public @ResponseBody String searchUser(@RequestParam(value = "sessionId") String sid,
                                            @RequestParam String query,
-                                           @RequestParam(required = false, defaultValue = "10") int limit
+                                           @RequestParam(required = false, defaultValue = "10") int n,
+                                           @RequestParam(required = false, defaultValue = "10") int page
     ){
+        QuerySubset<User> users = mongoDBAdapter.searchUser(query, n, page);
+
         Session s = new Session(sid);
         User u = mongoDBAdapter.getUserFromSession(s);
-
-        if (u != null && u.isAdmin()){
-            QuerySubset<User> users = mongoDBAdapter.searchUser(query, limit, 1);
-            List<String> result = new ArrayList<>();
-            for (User user: users.getList()){
-                result.add(user.getUsername());
+        if (u != null) {
+            // Find relationships asynchronously
+            List<Future<User.Relationship>> relationshipFutureList = new ArrayList<>();
+            for (User user : users.getList()) {
+                relationshipFutureList.add(neo4jTaskExecutor.getUserRelationship(u, user));
             }
-            return new Gson().toJson(new BaseResponse(true, null, result));
-        } else {
-            return new Gson().toJson(new BaseResponse(false, "Unauthorized", null));
+
+            for (int i = 0; i< relationshipFutureList.size(); i++){
+                Future<User.Relationship> future = relationshipFutureList.get(i);
+                User.Relationship rel = null;
+                try {
+                    rel = future.get();
+                } catch (InterruptedException | ExecutionException e) {
+                    e.printStackTrace();
+                }
+                if (rel != null){
+                    users.getList().get(i).setFollower(rel.follower);
+                    users.getList().get(i).setFollowing(rel.following);
+                }
+            }
         }
+        return new Gson().toJson(new BaseResponse(true, null, users));
     }
 
     @CrossOrigin
@@ -447,6 +587,24 @@ public class Controller {
 
         if (u != null && u.isAdmin()){
             QuerySubset<RatingExtended> ratings = mongoDBAdapter.getAllRatings(n, page);
+            return new Gson().toJson(new BaseResponse(true, null, ratings));
+        } else {
+            return new Gson().toJson(new BaseResponse(false, "Unauthorized", null));
+        }
+    }
+
+
+    @CrossOrigin
+    @RequestMapping(value={"/ratings/friends"}, method= RequestMethod.GET)
+    public @ResponseBody String getFriendsRatings(@RequestParam(value = "sessionId") String sid,
+                                              @RequestParam(required = false, defaultValue = "10") int n,
+                                              @RequestParam(required = false, defaultValue = "1") int page
+    ){
+        Session s = new Session(sid);
+        User u = mongoDBAdapter.getUserFromSession(s);
+
+        if (u != null){
+            QuerySubset<RatingExtended> ratings = neo4jAdapter.getFriendsRatings(u, n, page);
             return new Gson().toJson(new BaseResponse(true, null, ratings));
         } else {
             return new Gson().toJson(new BaseResponse(false, "Unauthorized", null));
