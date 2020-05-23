@@ -15,7 +15,7 @@ import { fade, makeStyles } from '@material-ui/core/styles';
 import MyCard from './MyCard'
 import LoginForm from './LoginForm'
 import './App.css'
-import { baseUrl } from './utils'
+import { baseUrl, httpErrorhandler } from './utils'
 import axios from 'axios';
 
 const Transition = React.forwardRef(function Transition(props, ref) {
@@ -115,7 +115,7 @@ export default function BasicPage(props) {
             params: {
                 sessionId: sid
             }
-        })
+        }).catch((error) => httpErrorhandler(error))
         // Since the user wants to be disconnected
         // we can remove the infos anyway
         localStorage.removeItem('sessionId');

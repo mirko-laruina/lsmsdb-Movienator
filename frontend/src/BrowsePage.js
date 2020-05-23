@@ -9,7 +9,7 @@ import FilterDisplay from './FilterDisplay.js';
 import Sorting from './Sorting.js';
 import MovieListDisplay from './MovieListDisplay'
 
-import { baseUrl, errorHandler } from './utils.js'
+import { baseUrl, errorHandler, httpErrorhandler } from './utils.js'
 import axios from 'axios';
 
 export default function BrowsePage(props) {
@@ -26,7 +26,7 @@ export default function BrowsePage(props) {
         const browseRequest = () => {
             var reqParams = {
                 ...filters,
-                sortBy: typeof(sortOpt.sortBy) !== 'undefined' ? sorts[sortOpt.sortBy].toLowerCase() : undefined,
+                sortBy: typeof (sortOpt.sortBy) !== 'undefined' ? sorts[sortOpt.sortBy].toLowerCase() : undefined,
                 sortOrder: sortOpt.sortOrder,
                 page: currentPage,
                 n: filmPerPage
@@ -39,16 +39,15 @@ export default function BrowsePage(props) {
             console.log(reqParams)
             axios.get(baseUrl + "movie/browse", {
                 params: reqParams
-            })
-                .then(function (res) {
-                    if (res.data.success) {
-                        setMovies(res.data.response.list)
-                        setPageCount(Math.ceil(parseInt(res.data.response.totalCount) / filmPerPage))
-                        setLoading(false);
-                    } else {
-                        errorHandler(res.data.code, res.data.message)
-                    }
-                })
+            }).then(function (res) {
+                if (res.data.success) {
+                    setMovies(res.data.response.list)
+                    setPageCount(Math.ceil(parseInt(res.data.response.totalCount) / filmPerPage))
+                    setLoading(false);
+                } else {
+                    errorHandler(res.data.code, res.data.message)
+                }
+            }).catch((error) => httpErrorhandler(error))
         }
 
         setLoading(true)

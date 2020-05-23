@@ -4,7 +4,7 @@ import { Pagination } from '@material-ui/lab'
 import RestrictedPage from './RestrictedPage'
 import HistoryTable from './HistoryTable'
 import HistoryPageSkeleton from './HistoryPageSkeleton'
-import { baseUrl, errorHandler } from './utils'
+import { baseUrl, errorHandler, httpErrorhandler } from './utils'
 import { Typography, Grid, Button } from '@material-ui/core'
 import axios from 'axios'
 
@@ -41,7 +41,7 @@ export default function HistoryPage(props) {
             } else {
                 errorHandler(data.data.code, data.data.message)
             }
-        })
+        }).catch((error) => httpErrorhandler(error))
     }, [currentPage])
 
 

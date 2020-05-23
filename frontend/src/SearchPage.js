@@ -6,7 +6,7 @@ import SearchIcon from '@material-ui/icons/Search'
 import Pagination from '@material-ui/lab/Pagination';
 import MovieListDisplay from './MovieListDisplay'
 
-import { baseUrl, errorHandler } from './utils.js'
+import { baseUrl, errorHandler, httpErrorhandler } from './utils.js'
 import axios from 'axios';
 
 export default function BrowsePage(props) {
@@ -28,16 +28,17 @@ export default function BrowsePage(props) {
             params.sessionId = localStorage.getItem('sessionId')
         }
         const searchRequest = () => {
-            axios.get(baseUrl + "movie/search", { params: params })
-                .then(function (res) {
-                    if (res.data.success) {
-                        setMovies(res.data.response.list)
-                        setPageCount(Math.ceil(parseInt(res.data.response.totalCount) / filmPerPage))
-                        setLoading(false);
-                    } else {
-                        errorHandler(res.data.code, res.data.message)
-                    }
-                })
+            axios.get(baseUrl + "movie/search", {
+                params: params
+            }).then(function (res) {
+                if (res.data.success) {
+                    setMovies(res.data.response.list)
+                    setPageCount(Math.ceil(parseInt(res.data.response.totalCount) / filmPerPage))
+                    setLoading(false);
+                } else {
+                    errorHandler(res.data.code, res.data.message)
+                }
+            }).catch((error) => httpErrorhandler(error))
         }
 
         setLoading(true)

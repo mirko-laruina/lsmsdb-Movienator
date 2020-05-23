@@ -3,7 +3,7 @@ import { Rating } from '@material-ui/lab'
 import { Typography, Grid, Chip } from '@material-ui/core'
 import axios from 'axios'
 
-import { baseUrl, getDate, errorHandler } from './utils'
+import { baseUrl, getDate, errorHandler, httpErrorhandler } from './utils'
 import BasicPage from './BasicPage'
 import UserRating from './UserRating'
 import MoviePageSkeleton from './MoviePageSkeleton'
@@ -82,7 +82,7 @@ export default function MoviePage(props) {
             } else {
                 errorHandler(data.data.code, data.data.message)
             }
-        })
+        }).catch((error) => httpErrorhandler(error))
     }, [props.match.params.id])
 
     return (

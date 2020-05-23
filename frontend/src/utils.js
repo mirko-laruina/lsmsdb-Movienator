@@ -42,6 +42,10 @@ export function errorHandler(error_code, error_msg) {
     }
 }
 
+export function httpErrorhandler(error){
+    window.location.href = "/maintenance"
+}
+
 export function disconnect() {
     localStorage.removeItem('sessionId')
     localStorage.removeItem('username')
