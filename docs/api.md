@@ -512,6 +512,22 @@ NB: only the user herself and admins are allowed.
 ### Output
 None (just success/failure).
 
+## `POST /user/<username>/follow`
+Follows the user.
+
+NB: only registered users are allowed.
+
+### Output
+None (just success/failure).
+
+## `POST /user/<username>/unfollow`
+Unfollows the user.
+
+NB: only registered users are allowed.
+
+### Output
+None (just success/failure).
+
 ## `POST /user/<username>/ban`
 Bans the user and deletes all his ratings.
 

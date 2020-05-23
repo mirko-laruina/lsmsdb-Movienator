@@ -83,4 +83,16 @@ public class Neo4jAdapter {
         // TODO
         return false;
     }
+
+    public boolean follow(User a, User b){
+        // TODO
+        // a follows b
+        return false;
+    }
+
+    public boolean unfollow(User a, User b){
+        // TODO
+        // a unfollows b
+        return false;
+    }
 }

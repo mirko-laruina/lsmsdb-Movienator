@@ -518,6 +518,46 @@ public class Controller {
     }
 
     @CrossOrigin
+    @RequestMapping(value={"/user/{username}/follow"}, method= RequestMethod.POST)
+    public @ResponseBody String followUser(@RequestParam(value = "sessionId") String sid,
+                                                 @PathVariable("username") String username
+    ){
+        Session s = new Session(sid);
+        User u = mongoDBAdapter.getUserFromSession(s);
+
+        if (u != null){
+            User u2 = new User(username);
+            boolean result = neo4jAdapter.follow(u, u2);
+            if (result)  {
+                return new Gson().toJson(new BaseResponse(true, null, null));
+            } else
+                return new Gson().toJson(new BaseResponse(false, "Error following user", null));
+        } else {
+            return new Gson().toJson(new BaseResponse(false, "Unauthorized", null));
+        }
+    }
+
+    @CrossOrigin
+    @RequestMapping(value={"/user/{username}/unfollow"}, method= RequestMethod.POST)
+    public @ResponseBody String unfollowUser(@RequestParam(value = "sessionId") String sid,
+                                                 @PathVariable("username") String username
+    ){
+        Session s = new Session(sid);
+        User u = mongoDBAdapter.getUserFromSession(s);
+
+        if (u != null){
+            User u2 = new User(username);
+            boolean result = neo4jAdapter.unfollow(u, u2);
+            if (result)  {
+                return new Gson().toJson(new BaseResponse(true, null, null));
+            } else
+                return new Gson().toJson(new BaseResponse(false, "Error unfollowing user", null));
+        } else {
+            return new Gson().toJson(new BaseResponse(false, "Unauthorized", null));
+        }
+    }
+
+    @CrossOrigin
     @RequestMapping(value={"/user/{username}/ban"}, method= RequestMethod.POST)
     public @ResponseBody String banUser(@RequestParam(value = "sessionId") String sid,
                                                  @PathVariable("username") String username
