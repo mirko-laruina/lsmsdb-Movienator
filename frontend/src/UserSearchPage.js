@@ -2,8 +2,8 @@ import React, { useEffect } from 'react'
 import { Typography, Grid } from '@material-ui/core'
 import RestrictedPage from './RestrictedPage'
 import axios from 'axios'
-import { baseUrl, errorHandler, force_disconnect } from './utils'
 import UsersListDisplay from './UsersListDisplay'
+import { baseUrl, errorHandler } from './utils'
 
 export default function UserSearchPage(props) {
     const [users, setUsers] = React.useState([])
@@ -20,10 +20,9 @@ export default function UserSearchPage(props) {
                 setUsers(data.data.response)
                 setLoading(false)
             } else {
-                alert(data.data.message)
-                force_disconnect()
+                errorHandler(data.data.code, data.data.message)
             }
-        }).catch((response) => errorHandler(response))
+        })
     }, [props.match.params.query])
 
     return (

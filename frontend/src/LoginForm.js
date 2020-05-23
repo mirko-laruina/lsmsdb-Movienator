@@ -2,7 +2,7 @@ import React from 'react'
 import { Typography, TextField, Button } from '@material-ui/core'
 import { Alert } from '@material-ui/lab'
 import axios from 'axios'
-import { baseUrl, errorHandler } from './utils.js'
+import { baseUrl, errorHandler, CODE_WRONG_CREDENTIALS } from './utils.js'
 import MyBackdrop from './MyBackdrop'
 
 export default function LoginForm(props) {
@@ -36,15 +36,17 @@ export default function LoginForm(props) {
                     localStorage.setItem('username', username)
                     props.setOpen(false)
                     window.location.reload()
-                } else {
+                } else if (pkt.data.code === CODE_WRONG_CREDENTIALS){
                     if(props.isRegistering){
                         setErrorMsg("Registration failed")
                     } else {
                         setErrorMsg("Login failed")
                     }
+                } else {
+                    errorHandler(pkt.data.code, pkt.data.message)
                 }
                 setLoading(false)
-            }).catch((response) => errorHandler(response))
+            })
     }
 
     return (

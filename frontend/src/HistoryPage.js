@@ -4,7 +4,7 @@ import { Pagination } from '@material-ui/lab'
 import RestrictedPage from './RestrictedPage'
 import HistoryTable from './HistoryTable'
 import HistoryPageSkeleton from './HistoryPageSkeleton'
-import { baseUrl, errorHandler, force_disconnect } from './utils'
+import { baseUrl, errorHandler } from './utils'
 import { Typography, Grid, Button } from '@material-ui/core'
 import axios from 'axios'
 
@@ -39,10 +39,9 @@ export default function HistoryPage(props) {
                 setPageCount(Math.ceil(parseInt(data.data.response.totalCount) / filmPerPage))
                 setLoading(false);
             } else {
-                alert(data.data.message)
-                force_disconnect()
+                errorHandler(data.data.code, data.data.message)
             }
-        }).catch((response) => errorHandler(response))
+        })
     }, [currentPage])
 
 

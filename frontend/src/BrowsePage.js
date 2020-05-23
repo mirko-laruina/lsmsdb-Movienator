@@ -41,19 +41,14 @@ export default function BrowsePage(props) {
                 params: reqParams
             })
                 .then(function (res) {
-                    console.log(res)
                     if (res.data.success) {
                         setMovies(res.data.response.list)
                         setPageCount(Math.ceil(parseInt(res.data.response.totalCount) / filmPerPage))
                         setLoading(false);
-                        console.log(res.data)
                     } else {
-                        alert(res.data.message)
-                        alert("You will be disconnected")
-                        localStorage.removeItem('sessionId')
-                        window.location.reload()
+                        errorHandler(res.data.code, res.data.message)
                     }
-                }).catch((response) => errorHandler(response))
+                })
         }
 
         setLoading(true)
