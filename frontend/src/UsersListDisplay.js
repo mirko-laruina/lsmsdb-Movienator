@@ -12,20 +12,20 @@ export default function UsersListDisplay(props) {
                         <Grid key={i} container item xs={props.horizontal ? 3 : 12} alignItems='center'>
                             {
                                 !props.showFollow ?
-                                    <Link to={"/profile/" + user}>
-                                        <UsersListElement user={user} />
+                                    <Link to={"/profile/" + user.username}>
+                                        <UsersListElement user={user.username} />
                                     </Link>
                                     :
                                     <>
                                         <Grid item xs={8}>
-                                            <Link to={"/profile/" + user}>
-                                                <UsersListElement user={user} />
+                                            <Link to={"/profile/" + user.username}>
+                                                <UsersListElement user={user.username} />
                                             </Link>
                                         </Grid>
                                         <Grid item xs={3}>
                                             {
-                                                Math.random() < 0.5 ?
-                                                    <Button
+                                                !user.followed ? 
+                                                <Button
                                                         fullWidth
                                                         variant="outlined"
                                                         color="primary"
@@ -33,7 +33,7 @@ export default function UsersListDisplay(props) {
                                                         Follow
                                                 </Button>
                                                     :
-                                                    <Button
+                                                <Button
                                                         fullWidth
                                                         variant="contained"
                                                         color="primary"

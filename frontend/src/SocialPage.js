@@ -2,22 +2,29 @@ import React, { useEffect } from 'react';
 import { Grid, Typography, Button } from '@material-ui/core'
 import { Link } from 'react-router-dom'
 
+import axios from 'axios'
+
 import Pagination from '@material-ui/lab/Pagination'
 import BasicPage from './BasicPage.js'
 import UsersListDisplay from './UsersListDisplay'
+import { baseUrl } from './utils'
 
 export default function SocialPage(props) {
     const [isAdmin, setIsAdmin] = React.useState(false);
     //True if the page we are trying to show regards the user who wants to display it
     const [isTargetUser, setIsTargetUser] = React.useState(false);
     const username = props.match.params.username;
-    const users = ["username1", "username2", "usernameN", "username2", "usernameN", "username2", "usernameN"]
-    const [shownFollowers, setShownFollowers] = React.useState(users.slice(1, 6));
-    const [shownFollowings, setShownFollowings] = React.useState(users.slice(1, 6));
+    const [suggestedUsers, setSuggestedUsers] = React.useState([]);
+    const [shownFollowers, setShownFollowers] = React.useState([]);
+    const [shownFollowings, setShownFollowings] = React.useState([]);
     const [followersCurrentPage, setFollowersCurrentPage] = React.useState(1);
     const [followingsCurrentPage, setFollowingsCurrentPage] = React.useState(1);
-    const [followersPageCount, setFollowersPageCount] = React.useState(Math.ceil(users.length/5));
-    const [followingsPageCount, setFollowingsPageCount] = React.useState(Math.ceil(users.length/5));
+    const [followersPageCount, setFollowersPageCount] = React.useState(0);
+    const [followingsPageCount, setFollowingsPageCount] = React.useState(0);
+
+    const followingsPerPage = 5;
+    const followersPerPage = 5;
+    const suggestionsPerPage = (isTargetUser ? 8 : null);
 
 
     useEffect(() => {
@@ -29,15 +36,93 @@ export default function SocialPage(props) {
             setIsTargetUser(true);
         }
 
+        getAllSocial()
     }, [])
 
+    const getAllSocial = () => {
+        axios.get(baseUrl + "/user/" + username + "/social", {
+            params: {
+                sessionId: localStorage.getItem('sessionId'),
+                n_followings: followingsPerPage,
+                n_followers: followersPerPage,
+                n_suggestions: suggestionsPerPage
+            }
+        }).then((data) => {
+            if (data.data.success) {
+                setFollowers(data.data.followers);
+                setFollowings(data.data.followings);
+                if(isTargetUser){
+                    setSuggested(data.data.suggested);
+                }
+            } else {
+                alert(data.data.message)
+            }
+        })
+    }
+
+    const getFollowers = () => {
+        axios.get(baseUrl + "/user/" + username + "/followers", {
+            params: {
+                sessionId: localStorage.getItem('sessionsId'),
+                n: followersPerPage,
+                page: followersCurrentPage
+            }
+        }).then((data) => {
+            if(data.data.success){
+                setFollowers(data.data)
+            }
+        })
+    }
+
+    const getFollowings = () => {
+        axios.get(baseUrl + "/user/" + username + "/followings", {
+            params: {
+                sessionId: localStorage.getItem('sessionsId'),
+                n: followingsPerPage,
+                page: followingsCurrentPage
+            }
+        }).then((data) => {
+            if(data.data.success){
+                setFollowings(data.data)
+            }
+        })
+    }
+
+    const followHandler = (user, toFollow = true) => {
+        axios.post(baseUrl + "/user/" + user + (toFollow ? "/follow" : "/unfollow"), null, {
+            params: {
+                sessionId: localStorage.getItem('sessionId'),
+            }
+        }).then((data) => {
+            if(!data.data.success){
+                alert("I couldn't " +(toFollow ? "follow" : "unfollow") + " the user!");
+            }
+        })
+    }
+
+    const setFollowers = (followers) => {
+        setShownFollowers(followers.list);
+        setFollowersPageCount(Math.ceil(followers.totalCount/followersPerPage))
+    }
+
+    const setFollowings = (followings) => {
+        setShownFollowings(followings.list);
+        setFollowingsPageCount(Math.ceil(followings.totalCount/followingsPerPage))
+    }
+
+    const setSuggested = (suggested) => {
+        setSuggestedUsers(suggested.list);
+    }
+
+
     useEffect(() => {
-        setShownFollowers(users.slice((followersCurrentPage-1)*5, followersCurrentPage*5))
+        getFollowers()
     }, [followersCurrentPage])
 
     useEffect(() => {
-        setShownFollowings(users.slice((followingsCurrentPage-1)*5, followingsCurrentPage*5))
+        getFollowings()
     }, [followingsCurrentPage])
+    
 
     return (
         <BasicPage history={props.history}>
@@ -81,7 +166,7 @@ export default function SocialPage(props) {
                     <Typography variant="h4" component="h2">
                         {"Share interests with " + (isTargetUser ? "you" : username) + ":"}
                     </Typography>
-                    <UsersListDisplay users={users} horizontal />
+                    <UsersListDisplay users={suggestedUsers} horizontal />
                     <br />
                 </>
             }
@@ -91,7 +176,10 @@ export default function SocialPage(props) {
                         Followers
                     </Typography>
                     <br />
-                    <UsersListDisplay showFollow users={shownFollowers} />
+                    <UsersListDisplay
+                        showFollow
+                        users={shownFollowers}
+                        followHandler />
                     <Grid container justify="center">
                             <Pagination shape="rounded"
                                 showFirstButton
@@ -108,7 +196,10 @@ export default function SocialPage(props) {
                         Following
                     </Typography>
                     <br />
-                    <UsersListDisplay showFollow users={shownFollowings} />
+                    <UsersListDisplay
+                        showFollow
+                        users={shownFollowings}
+                        followHandler/>
                     <Grid container justify="center">
                             <Pagination shape="rounded"
                                 showFirstButton

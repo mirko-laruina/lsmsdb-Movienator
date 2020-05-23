@@ -6,16 +6,17 @@ import { baseUrl, errorHandler } from './utils';
 
 export default function SuggestedMovies() {
     const [movies, setMovies] = React.useState([])
+    const movieNumber = 5;
 
     useEffect(() => {
-        axios.get(baseUrl + "movie/browse", {
-            params: {}
+        axios.get(baseUrl + "movie/suggestion", {
+            params: {
+                n: movieNumber
+            }
         })
             .then(function (res) {
-                console.log(res)
                 if (res.data.success) {
                     setMovies(res.data.response.list)
-                    console.log(movies)
                 } else {
                     alert(res.data.message)
                     alert("You will be disconnected")

@@ -60,7 +60,7 @@ export default function ProfilePage(props) {
             // Admin requesting another user profile page 
             reqUser = urlUser
         }
-        let url = baseUrl + "/user/" + localStorage.getItem('username')// + reqUser
+        let url = baseUrl + "/user/" + reqUser
         axios.get(url, {
             params: {
                 sessionId: localStorage.getItem('sessionId')
@@ -120,18 +120,36 @@ export default function ProfilePage(props) {
                             </Grid>
                             {!isUserSelf &&
                                 <Grid item xs={2}>
-                                    <Button fullWidth
-                                        variant="outlined"
-                                        size="large"
-                                        color="primary"
-                                        onClick={alert}>
-                                        Follow
+                                    {infos.followed ?
+                                        <Button fullWidth
+                                            variant="contained"
+                                            size="large"
+                                            color="primary"
+                                            onClick={alert}>
+                                            Unfollow
                                     </Button>
+                                        :
+                                        <Button fullWidth
+                                            variant="outlined"
+                                            size="large"
+                                            color="primary"
+                                            onClick={alert}>
+                                            Follow
+                                    </Button>
+                                    }
                                 </Grid>
                             }
                         </Grid>
-
                         <br />
+                        {
+                            !isUserSelf && infos.following &&
+                            <>
+                                <Typography variant="h5" component="h2">
+                                    {user + " is following you"}
+                                </Typography>
+                                <br />
+                            </>
+                        }
                         <Grid container spacing={1}>
                             <Grid item xs={9}>
                                 <Typography variant="h4" component='h2'>
@@ -169,11 +187,10 @@ export default function ProfilePage(props) {
                         <Grid container spacing={1}>
                             <Grid item xs={9}>
                                 <Typography variant="h4" component='h2'>
-                                    {isUserSelf ? "The things you like" : "The things he/she likes"}
+                                    {isUserSelf ? "The things you like" : ("The things " + user + " likes")}
                                 </Typography>
                             </Grid>
                             {
-                             (isUserSelf || admin !== 'false') &&
                                 <Grid item xs={3}>
                                     <Button fullWidth
                                         variant="outlined"
@@ -181,11 +198,11 @@ export default function ProfilePage(props) {
                                         color="primary"
                                         component={Link}
                                         to={
-                                            admin === 'false' || !props.match.params.username
+                                            isUserSelf
                                                 ?
                                                 "/history"
                                                 :
-                                                "/history/" + props.match.params.username
+                                                "/history/" + user
                                         }
                                     >
                                         Rating history
