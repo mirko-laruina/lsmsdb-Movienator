@@ -3,10 +3,10 @@ import { Link } from 'react-router-dom'
 import { Grid, Button, TextField } from '@material-ui/core'
 import Alert from '@material-ui/lab/Alert'
 import BasicPage from './BasicPage'
-import { baseUrl, errorHandler, force_disconnect } from './utils'
+import { baseUrl, errorHandler, httpErrorhandler } from '../utils'
 import { Typography } from '@material-ui/core'
-import MostLikedTable from './MostLikedTable'
-import ProfilePageSkeleton from './ProfilePageSkeleton'
+import MostLikedTable from '../components/MostLikedTable'
+import ProfilePageSkeleton from '../skeletons/ProfilePageSkeleton'
 import axios from 'axios'
 
 export default function ProfilePage(props) {
@@ -30,7 +30,7 @@ export default function ProfilePage(props) {
             } else {
                 setErrorPw(true)
             }
-        }).catch((response) => errorHandler(response))
+        }).catch((error) => httpErrorhandler(error))
         setErrorPw(false)
     }
 
@@ -70,10 +70,9 @@ export default function ProfilePage(props) {
                 setInfos(data.data.response)
                 setLoading(false)
             } else {
-                alert(data.data.message)
-                force_disconnect()
+                errorHandler(data.data.code, data.data.message)
             }
-        }).catch((response) => errorHandler(response))
+        }).catch((error) => httpErrorhandler(error))
 
         setLoading(true)
     }, [props.match.params.username])
@@ -87,10 +86,9 @@ export default function ProfilePage(props) {
             if (data.data.success) {
                 props.history.push('/admin')
             } else {
-                alert(data.data.message)
-                force_disconnect()
+                errorHandler(data.data.code, data.data.message)
             }
-        }).catch((response) => errorHandler(response))
+        }).catch((error) => httpErrorhandler(error))
     }
 
     return (

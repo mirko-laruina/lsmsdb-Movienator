@@ -4,20 +4,21 @@ import {
   Switch,
   Route
 } from "react-router-dom";
-import './App.css';
+import './assets/App.css';
 import { CssBaseline, ThemeProvider } from '@material-ui/core';
 import { createMuiTheme } from '@material-ui/core/styles';
 
-import HomePage from './HomePage.js'
-import SearchPage from './SearchPage.js'
-import StatsPage from './StatsPage.js'
-import BrowsePage from './BrowsePage'
-import MoviePage from './MoviePage'
-import ProfilePage from './ProfilePage'
-import HistoryPage from './HistoryPage'
-import ControlPanel from './ControlPanel'
-import UserSearchPage from './UserSearchPage'
-import SocialPage from './SocialPage'
+import HomePage from './pages/HomePage.js'
+import SearchPage from './pages/SearchPage.js'
+import StatsPage from './pages/StatsPage.js'
+import BrowsePage from './pages/BrowsePage'
+import MoviePage from './pages/MoviePage'
+import ProfilePage from './pages/ProfilePage'
+import HistoryPage from './pages/HistoryPage'
+import ControlPanel from './pages/ControlPanelPage'
+import SocialPage from './pages/SocialPage'
+import UserSearchPage from './pages/UserSearchPage';
+import MaintenancePage from './pages/MaintenancePage';
 
 const theme = createMuiTheme({
   palette: {
@@ -69,6 +70,7 @@ function App() {
           <Route path="/stats/:group/" component={StatsPage} />
           <Route path="/results/:query" component={SearchPage} />
           <Route path="/movie/:id" component={MoviePage} />
+          <Route path="/maintenance" component={MaintenancePage} />
           <Route path="/" component={HomePage} />
         </Switch>
       </Router>

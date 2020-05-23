@@ -453,8 +453,8 @@ Only first page is retrieved for each query.
 NB: only the user himself will receive the list of suggested users
 
 ### URL parameters
- - n_followed: number of followed users to show (optional, default: 10)
- - n_following: number of following users to show (optional, default: 10)
+ - n_followers: number of followers to show (optional, default: 10)
+ - n_followings: number of followed users to show (optional, default: 10)
  - n_suggestions: number of suggestions to show (optional, default: 10)
 
 ### Output
@@ -508,6 +508,22 @@ None (just success/failure).
 Deletes the user rating.
 
 NB: only the user herself and admins are allowed.
+
+### Output
+None (just success/failure).
+
+## `POST /user/<username>/follow`
+Follows the user.
+
+NB: only registered users are allowed.
+
+### Output
+None (just success/failure).
+
+## `POST /user/<username>/unfollow`
+Unfollows the user.
+
+NB: only registered users are allowed.
 
 ### Output
 None (just success/failure).

@@ -9,9 +9,9 @@ import { Pagination, Skeleton } from '@material-ui/lab'
 
 import { makeStyles } from '@material-ui/core/styles';
 
-import FilterDisplay from './FilterDisplay'
-import Sorting from './Sorting'
-import { aggregation_fields, baseUrl, errorHandler } from './utils.js';
+import FilterDisplay from '../components/FilterDisplay'
+import Sorting from '../components/Sorting'
+import { aggregation_fields, baseUrl, errorHandler, httpErrorhandler } from '../utils.js';
 
 import axios from 'axios'
 
@@ -51,7 +51,7 @@ export default function StatsPage(props) {
         let aggr_index = aggregation_fields.findIndex((e) => {
             return e.toLowerCase() === props.match.params.group.toLowerCase()
         });
-        if(aggr_index > -1){
+        if (aggr_index > -1) {
             let options = Object.assign({}, sortOpt);
             options.groupBy = aggr_index
             setSortOpt(options)
@@ -75,21 +75,17 @@ export default function StatsPage(props) {
                     page: currentPage,
                     n: filmPerPage
                 }
-            })
-                .then(function (res) {
-                    if (res.data.success) {
-                        setData(res.data.response.list)
-                        if (res.data.response.list.length === filmPerPage) {
-                            setPageCount(currentPage + 1)
-                        }
-                        setLoading(false)
-                    } else {
-                        alert(res.data.message)
-                        alert("You will be disconnected")
-                        localStorage.removeItem('sessionId')
-                        window.location.reload()
+            }).then(function (res) {
+                if (res.data.success) {
+                    setData(res.data.response.list)
+                    if (res.data.response.list.length === filmPerPage) {
+                        setPageCount(currentPage + 1)
                     }
-                }).catch((response) => errorHandler(response))
+                    setLoading(false)
+                } else {
+                    errorHandler(res.data.code, res.data.message)
+                }
+            }).catch((error) => httpErrorhandler(error))
         }
     }, [sortOpt, filters, currentPage])
 
@@ -135,28 +131,28 @@ export default function StatsPage(props) {
                                 </Table>
                                 :
                                 <>
-                                { [...Array(filmPerPage + 1)].map((e, i) => <Skeleton key={i} style={{margin: '0 5%'}} height={50} />) }
-                                <br />
+                                    {[...Array(filmPerPage + 1)].map((e, i) => <Skeleton key={i} style={{ margin: '0 5%' }} height={50} />)}
+                                    <br />
                                 </>
                             }
                         </TableContainer>
                         <br />
-                        {!loading ? 
-                        <Grid container justify="center">
-                            <Pagination shape="rounded"
-                                color="primary"
-                                size="large"
-                                count={pageCount}
-                                page={currentPage}
-                                siblingCount={0}
-                                boundaryCount={1}
-                                onChange={(e, v) => {
-                                    setCurrentPage(v)
-                                }}
-                            />
-                        </Grid>  
-                        :
-                            <Skeleton style={{margin: '0 30%'}} height={70} />
+                        {!loading ?
+                            <Grid container justify="center">
+                                <Pagination shape="rounded"
+                                    color="primary"
+                                    size="large"
+                                    count={pageCount}
+                                    page={currentPage}
+                                    siblingCount={0}
+                                    boundaryCount={1}
+                                    onChange={(e, v) => {
+                                        setCurrentPage(v)
+                                    }}
+                                />
+                            </Grid>
+                            :
+                            <Skeleton style={{ margin: '0 30%' }} height={70} />
                         }
                         <br />
                     </>

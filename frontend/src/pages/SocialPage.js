@@ -6,8 +6,8 @@ import axios from 'axios'
 
 import Pagination from '@material-ui/lab/Pagination'
 import BasicPage from './BasicPage.js'
-import UsersListDisplay from './UsersListDisplay'
 import { baseUrl } from './utils'
+import UsersListDisplay from '../components/UsersListDisplay'
 
 export default function SocialPage(props) {
     const [isAdmin, setIsAdmin] = React.useState(false);

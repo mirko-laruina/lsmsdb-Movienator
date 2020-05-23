@@ -2,7 +2,7 @@ import React from 'react'
 import { Typography, TextField, Button } from '@material-ui/core'
 import { Alert } from '@material-ui/lab'
 import axios from 'axios'
-import { baseUrl, errorHandler } from './utils.js'
+import { baseUrl, errorHandler, httpErrorhandler, CODE_WRONG_CREDENTIALS } from '../utils.js'
 import MyBackdrop from './MyBackdrop'
 
 export default function LoginForm(props) {
@@ -27,24 +27,25 @@ export default function LoginForm(props) {
 
         axios.post(requestUrl, null, {
             params: postParams
-        })
-            .then(function (pkt) {
-                console.log(pkt.data)
-                if (pkt.data.success) {
-                    localStorage.setItem('sessionId', pkt.data.response.sessionId)
-                    localStorage.setItem('is_admin', pkt.data.response.is_admin)
-                    localStorage.setItem('username', username)
-                    props.setOpen(false)
-                    window.location.reload()
+        }).then(function (pkt) {
+            console.log(pkt.data)
+            if (pkt.data.success) {
+                localStorage.setItem('sessionId', pkt.data.response.sessionId)
+                localStorage.setItem('is_admin', pkt.data.response.is_admin)
+                localStorage.setItem('username', username)
+                props.setOpen(false)
+                window.location.reload()
+            } else if (pkt.data.code === CODE_WRONG_CREDENTIALS) {
+                if (props.isRegistering) {
+                    setErrorMsg("Registration failed")
                 } else {
-                    if(props.isRegistering){
-                        setErrorMsg("Registration failed")
-                    } else {
-                        setErrorMsg("Login failed")
-                    }
+                    setErrorMsg("Login failed")
                 }
-                setLoading(false)
-            }).catch((response) => errorHandler(response))
+            } else {
+                errorHandler(pkt.data.code, pkt.data.message)
+            }
+            setLoading(false)
+        }).catch((error) => httpErrorhandler(error))
     }
 
     return (

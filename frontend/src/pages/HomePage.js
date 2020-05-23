@@ -16,9 +16,8 @@ import SearchIcon from '@material-ui/icons/Search';
 import { makeStyles, withStyles } from '@material-ui/core/styles';
 
 import BasicPage from './BasicPage.js'
-import MyCard from './MyCard.js'
-import SuggestedMovies from './SuggestedMovies'
-
+import SuggestedMovies from '../components/SuggestedMovies'
+import MyCard from '../components/MyCard.js'
 
 const useStyles = makeStyles(theme => (
   {

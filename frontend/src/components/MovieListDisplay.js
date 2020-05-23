@@ -4,7 +4,7 @@ import { List, ListItem, ListItemAvatar, ListItemText, Typography, Divider, Chip
 import { Rating } from '@material-ui/lab'
 import UserRating from './UserRating'
 
-import FilmListSkeleton from './MovieListSkeleton'
+import FilmListSkeleton from '../skeletons/MovieListSkeleton'
 
 const styles = {
     img: {
@@ -36,7 +36,7 @@ export default function MovieListDisplay(props) {
                         <ListItem component={Link} to={"/movie/" + data.id} alignItems="flex-start">
                             <ListItemAvatar children={
                                 <img alt={data.title}
-                                    src={data.poster ? data.poster : require('./blank_poster.png')}
+                                    src={data.poster ? data.poster : require('../assets/blank_poster.png')}
                                     style={styles.img} />
                             }>
                             </ListItemAvatar>

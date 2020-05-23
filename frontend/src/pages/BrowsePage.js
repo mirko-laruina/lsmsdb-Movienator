@@ -5,11 +5,11 @@ import { Typography, Grid } from '@material-ui/core'
 
 import Pagination from '@material-ui/lab/Pagination';
 
-import FilterDisplay from './FilterDisplay.js';
-import Sorting from './Sorting.js';
-import MovieListDisplay from './MovieListDisplay'
+import FilterDisplay from '../components/FilterDisplay.js';
+import Sorting from '../components/Sorting.js';
+import MovieListDisplay from '../components/MovieListDisplay'
 
-import { baseUrl, errorHandler } from './utils.js'
+import { baseUrl, errorHandler, httpErrorhandler } from '../utils.js'
 import axios from 'axios';
 
 export default function BrowsePage(props) {
@@ -26,7 +26,7 @@ export default function BrowsePage(props) {
         const browseRequest = () => {
             var reqParams = {
                 ...filters,
-                sortBy: typeof(sortOpt.sortBy) !== 'undefined' ? sorts[sortOpt.sortBy].toLowerCase() : undefined,
+                sortBy: typeof (sortOpt.sortBy) !== 'undefined' ? sorts[sortOpt.sortBy].toLowerCase() : undefined,
                 sortOrder: sortOpt.sortOrder,
                 page: currentPage,
                 n: filmPerPage
@@ -39,21 +39,15 @@ export default function BrowsePage(props) {
             console.log(reqParams)
             axios.get(baseUrl + "movie/browse", {
                 params: reqParams
-            })
-                .then(function (res) {
-                    console.log(res)
-                    if (res.data.success) {
-                        setMovies(res.data.response.list)
-                        setPageCount(Math.ceil(parseInt(res.data.response.totalCount) / filmPerPage))
-                        setLoading(false);
-                        console.log(res.data)
-                    } else {
-                        alert(res.data.message)
-                        alert("You will be disconnected")
-                        localStorage.removeItem('sessionId')
-                        window.location.reload()
-                    }
-                }).catch((response) => errorHandler(response))
+            }).then(function (res) {
+                if (res.data.success) {
+                    setMovies(res.data.response.list)
+                    setPageCount(Math.ceil(parseInt(res.data.response.totalCount) / filmPerPage))
+                    setLoading(false);
+                } else {
+                    errorHandler(res.data.code, res.data.message)
+                }
+            }).catch((error) => httpErrorhandler(error))
         }
 
         setLoading(true)
