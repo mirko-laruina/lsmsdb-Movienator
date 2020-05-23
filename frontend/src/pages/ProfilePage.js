@@ -3,10 +3,10 @@ import { Link } from 'react-router-dom'
 import { Grid, Button, TextField } from '@material-ui/core'
 import Alert from '@material-ui/lab/Alert'
 import RestrictedPage from './RestrictedPage'
-import { baseUrl, errorHandler, httpErrorhandler } from './utils'
+import { baseUrl, errorHandler, httpErrorhandler } from '../utils'
 import { Typography } from '@material-ui/core'
-import MostLikedTable from './MostLikedTable'
-import ProfilePageSkeleton from './ProfilePageSkeleton'
+import MostLikedTable from '../components/MostLikedTable'
+import ProfilePageSkeleton from '../skeletons/ProfilePageSkeleton'
 import axios from 'axios'
 
 export default function ProfilePage(props) {

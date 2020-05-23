@@ -4,7 +4,7 @@ import { Typography, List, ListItem, ListItemAvatar, ListItemText, Avatar, Grid 
 import PersonIcon from '@material-ui/icons/Person'
 import RestrictedPage from './RestrictedPage'
 import axios from 'axios'
-import { baseUrl, errorHandler, httpErrorhandler } from './utils'
+import { baseUrl, errorHandler, httpErrorhandler } from '../utils'
 
 export default function UserSearchPage(props) {
     const [users, setUsers] = React.useState([])

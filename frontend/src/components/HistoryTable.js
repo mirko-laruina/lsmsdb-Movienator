@@ -5,7 +5,7 @@ import {
     Table, TableBody, TableCell, TableContainer, TableHead, TableRow,
     Paper, Typography
 } from '@material-ui/core';
-import { getDate } from './utils'
+import { getDate } from '../utils'
 
 import UserRating from './UserRating'
 

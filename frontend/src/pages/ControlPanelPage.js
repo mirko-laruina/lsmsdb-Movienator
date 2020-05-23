@@ -3,9 +3,9 @@ import { Typography, FormControl, OutlinedInput, InputAdornment, IconButton, Gri
 import Pagination from '@material-ui/lab/Pagination'
 import SearchIcon from '@material-ui/icons/Search'
 import RestrictedPage from './RestrictedPage'
-import HistoryTable from './HistoryTable'
-import ControlPanelSkeleton from './ControlPanelSkeleton'
-import { baseUrl, errorHandler, httpErrorhandler } from './utils'
+import HistoryTable from '../components/HistoryTable'
+import ControlPanelSkeleton from '../skeletons/ControlPanelSkeleton'
+import { baseUrl, errorHandler, httpErrorhandler } from '../utils'
 import axios from 'axios'
 
 export default function ControlPanel(props) {

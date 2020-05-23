@@ -9,9 +9,9 @@ import { Pagination, Skeleton } from '@material-ui/lab'
 
 import { makeStyles } from '@material-ui/core/styles';
 
-import FilterDisplay from './FilterDisplay'
-import Sorting from './Sorting'
-import { aggregation_fields, baseUrl, errorHandler, httpErrorhandler } from './utils.js';
+import FilterDisplay from '../components/FilterDisplay'
+import Sorting from '../components/Sorting'
+import { aggregation_fields, baseUrl, errorHandler, httpErrorhandler } from '../utils.js';
 
 import axios from 'axios'
 
