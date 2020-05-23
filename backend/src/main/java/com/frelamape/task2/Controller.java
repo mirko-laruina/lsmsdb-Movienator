@@ -1,16 +1,10 @@
 package com.frelamape.task2;
 
-import com.frelamape.task2.api.BaseResponse;
 import com.frelamape.task2.api.LoginResponse;
+import com.frelamape.task2.api.ResponseHelper;
 import com.frelamape.task2.db.*;
-import com.google.gson.Gson;
-import org.apache.catalina.core.ApplicationContext;
 import org.bson.types.ObjectId;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Qualifier;
-import org.springframework.boot.SpringApplication;
-import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
-import org.springframework.context.ConfigurableApplicationContext;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.ArrayList;
@@ -35,19 +29,20 @@ public class Controller {
         User u = new User(username);
         u.setPassword(password);
         u = dba.authUser(u);
-        if (u != null){
-            Session s = new Session(UUID.randomUUID().toString()); // TODO better session
-            if (!u.isBanned()){
-                if (dba.addSession(u, s))
-                    return new Gson().toJson(new BaseResponse(true, null, new LoginResponse(s.getId(), u.isAdmin())));
-                else
-                    return new Gson().toJson(new BaseResponse(true, "Error creating new user session", null));
-            } else {
-                return new Gson().toJson(new BaseResponse(false, "User is banned.", null));
-            }
+
+        if (u == null)
+            return ResponseHelper.wrongCredentials();
+
+        Session s = new Session(UUID.randomUUID().toString()); // TODO better session
+        if (!u.isBanned()){
+            if (dba.addSession(u, s))
+                return ResponseHelper.success(new LoginResponse(s.getId(), u.isAdmin()));
+            else
+                return ResponseHelper.mongoError("Error creating new user session");
         } else {
-            return new Gson().toJson(new BaseResponse(false, "Wrong username or password.", null));
+            return ResponseHelper.userBanned();
         }
+
     }
 
     @CrossOrigin
@@ -56,15 +51,23 @@ public class Controller {
                                       @RequestParam("password") String password){
         password = password.trim();
         if(password.equals("")){
-            return new Gson().toJson(new BaseResponse(false, null, null));
+            return ResponseHelper.genericError("Password cannot be empty");
         }
+
         Session s = new Session(sid);
         User u = dba.getUserFromSession(s);
+
+        if (u == null)
+            return ResponseHelper.invalidSession();
+
         u.setPassword(password);
 
         boolean result = dba.editUserPassword(u);
-        
-        return new Gson().toJson(new BaseResponse(result, null, null));
+        if (result){
+            return ResponseHelper.success(null);
+        } else{
+            return ResponseHelper.mongoError("Unknown error");
+        }
     }
 
     @CrossOrigin
@@ -75,9 +78,11 @@ public class Controller {
         email = email.trim();
         username = username.trim();
         password = password.trim();
+
         if(password.equals("") || username.equals("") || email.equals("")){
-            return new Gson().toJson(new BaseResponse(false, null, null));
+            return ResponseHelper.genericError("One of the field is empty");
         }
+
         User u = new User(username);
         u.setPassword(password);
         u.setEmail(email);
@@ -86,15 +91,15 @@ public class Controller {
         ObjectId userId = dba.addUser(u);
 
         if (userId == null){
-            return new Gson().toJson(new BaseResponse(false, null, null));
+            return ResponseHelper.genericError("User already exists.");
         }
 
         u.setId(userId);
 
         if (dba.addSession(u, s)){
-            return new Gson().toJson(new BaseResponse(true, null, new LoginResponse(s.getId(), u.isAdmin())));
+            return ResponseHelper.success(new LoginResponse(s.getId(), u.isAdmin()));
         } else{
-            return new Gson().toJson(new BaseResponse(false, null, null));
+            return ResponseHelper.mongoError("Unknown error");
         }
     }
 
@@ -103,7 +108,15 @@ public class Controller {
     public @ResponseBody String logout(@RequestParam("sessionId") String sid){
         Session s = new Session(sid);
         User u = dba.getUserFromSession(s);
-        return new Gson().toJson(new BaseResponse(dba.removeSession(u, s), null, null));
+
+        if (u == null)
+            return ResponseHelper.invalidSession();
+
+        if (dba.removeSession(u, s)) {
+            return ResponseHelper.success(null);
+        } else {
+            return ResponseHelper.mongoError("Unknown error");
+        }
     }
 
     @CrossOrigin
@@ -127,6 +140,7 @@ public class Controller {
             Session s = new Session(sid);
             u = dba.getUserFromSession(s);
         }
+
         String realSortBy;
         switch (sortBy){
             case  "release":
@@ -139,7 +153,7 @@ public class Controller {
                 realSortBy = "title";
                 break;
             default:
-                return new Gson().toJson(new BaseResponse(false, "Unrecognized sortBy value: " + sortBy, null));
+                return ResponseHelper.genericError("Unrecognized sortBy value: " + sortBy);
         }
 
         QuerySubset<Movie> querySubset = dba.getMovieList(realSortBy, sortOrder, minRating, maxRating, director, actor, country,
@@ -147,7 +161,7 @@ public class Controller {
         if (u != null){
             dba.fillUserRatings(u, querySubset.getList());
         }
-        return new Gson().toJson(new BaseResponse(true, null, querySubset));
+        return ResponseHelper.success(querySubset);
     }
 
 
@@ -168,7 +182,7 @@ public class Controller {
         if (u != null){
             dba.fillUserRatings(u, movies.getList());
         }
-        return new Gson().toJson(new BaseResponse(true, null, movies));
+        return ResponseHelper.success(movies);
     }
 
     @CrossOrigin
@@ -189,9 +203,9 @@ public class Controller {
                 if (r != null && r.getRating() != null)
                     movie.setUserRating(r.getRating());
             }
-            return new Gson().toJson(new BaseResponse(true, null, movie));
+            return ResponseHelper.success(movie);
         } else {
-            return new Gson().toJson(new BaseResponse(false, "Not found", null));
+            return ResponseHelper.notFound();
 
         }
     }
@@ -206,13 +220,14 @@ public class Controller {
         User u = dba.getUserFromSession(s);
 
         if (u == null){
-            return new Gson().toJson(new BaseResponse(false, "Session ID does not match any active session. It may be expired.", null));
+            return ResponseHelper.invalidSession();
         }
 
         Movie movie = dba.getMovieDetails(movieId);
         Rating rating = new Rating(u, movie, ratingValue);
         dba.insertRating(rating);
-        return new Gson().toJson(new BaseResponse(true, "Rating inserted successfully", null));
+
+        return ResponseHelper.success(null);
     }
 
     @CrossOrigin
@@ -224,16 +239,16 @@ public class Controller {
         User u = dba.getUserFromSession(s);
 
         if (u == null){
-            return new Gson().toJson(new BaseResponse(false, "Session ID does not match any active session. It may be expired.", null));
+            return ResponseHelper.invalidSession();
         }
 
         Movie movie = dba.getMovieDetails(movieId);
         Rating rating = new Rating(u, movie, 0.0);
         boolean result = dba.deleteRating(rating);
         if (result){
-            return new Gson().toJson(new BaseResponse(true, null, null));
+            return ResponseHelper.success(null);
         } else {
-            return new Gson().toJson(new BaseResponse(false, null, null));
+            return ResponseHelper.mongoError("Unknown error");
         }
     }
 
@@ -267,13 +282,13 @@ public class Controller {
                 realSortBy = "name";
                 break;
             default:
-                return new Gson().toJson(new BaseResponse(false, "Unrecognized sortBy value: " + sortBy, null));
+                return ResponseHelper.genericError("Unrecognized sortBy value: " + sortBy);
         }
 
         QuerySubset<Statistics<Statistics.Aggregator>> statistics = dba.getStatistics(groupBy, realSortBy, sortOrder,
                 minRating, maxRating, director, actor, country, fromYear, toYear, genre, n, page);
 
-        return new Gson().toJson(new BaseResponse(true, null, statistics));
+        return ResponseHelper.success(statistics);
     }
 
     @CrossOrigin
@@ -284,15 +299,18 @@ public class Controller {
         Session s = new Session(sid);
         User u = dba.getUserFromSession(s);
 
-        if (u != null && (u.isAdmin() || u.getUsername().equals(username))){
+        if (u == null)
+            return ResponseHelper.invalidSession();
+
+        if (u.isAdmin() || u.getUsername().equals(username)){
             User u2 = dba.getUserProfile(username);
             if (u2 != null){
-                return new Gson().toJson(new BaseResponse(true, null, u2));
+                return ResponseHelper.success(u2);
             } else {
-                return new Gson().toJson(new BaseResponse(false, "User not found", null));
+                return ResponseHelper.notFound();
             }
         } else {
-            return new Gson().toJson(new BaseResponse(false, "Unauthorized", null));
+            return ResponseHelper.unauthorized();
         }
     }
 
@@ -306,16 +324,19 @@ public class Controller {
         Session s = new Session(sid);
         User u = dba.getUserFromSession(s);
 
-        if (u != null && (u.isAdmin() || u.getUsername().equals(username))){
+        if (u == null)
+            return ResponseHelper.invalidSession();
+
+        if (u.isAdmin() || u.getUsername().equals(username)){
             User u2 = dba.getUserLoginInfo(username);
             if (u2 != null){
                 QuerySubset<RatingExtended> ratings = dba.getUserRatings(u2, n, page);
-                return new Gson().toJson(new BaseResponse(true, null, ratings));
+                return ResponseHelper.success(ratings);
             } else {
-                return new Gson().toJson(new BaseResponse(false, "User not found", null));
+                return ResponseHelper.notFound();
             }
         } else {
-            return new Gson().toJson(new BaseResponse(false, "Unauthorized", null));
+            return ResponseHelper.unauthorized();
         }
     }
 
@@ -328,16 +349,19 @@ public class Controller {
         Session s = new Session(sid);
         User u = dba.getUserFromSession(s);
 
-        if (u != null && (u.isAdmin() || u.getUsername().equals(username))){
+        if (u == null)
+            return ResponseHelper.invalidSession();
+
+        if (u.isAdmin() || u.getUsername().equals(username)){
             User u2 = dba.getUserLoginInfo(username);
             if (u2 != null){
                 Rating rating = dba.getUserRating(u2, new Movie(movieId));
-                return new Gson().toJson(new BaseResponse(true, null, rating));
+                return ResponseHelper.success(rating);
             } else {
-                return new Gson().toJson(new BaseResponse(false, "User not found", null));
+                return ResponseHelper.notFound();
             }
         } else {
-            return new Gson().toJson(new BaseResponse(false, "Unauthorized", null));
+            return ResponseHelper.unauthorized();
         }
     }
 
@@ -351,19 +375,22 @@ public class Controller {
         Session s = new Session(sid);
         User u = dba.getUserFromSession(s);
 
-        if (u != null && (u.isAdmin() || u.getUsername().equals(username))){
+        if (u == null)
+            return ResponseHelper.invalidSession();
+
+        if (u.isAdmin() || u.getUsername().equals(username)){
             User u2 = dba.getUserLoginInfo(username);
             if (u2 != null){
                 Movie movie = new Movie(movieId);
                 Rating rating = new Rating(u2, movie, ratingVal);
                 dba.insertRating(rating);
-                return new Gson().toJson(new BaseResponse(true, "Rating added", null));
+                return ResponseHelper.success(null);
 
             } else {
-                return new Gson().toJson(new BaseResponse(false, "User not found", null));
+                return ResponseHelper.notFound();
             }
         } else {
-            return new Gson().toJson(new BaseResponse(false, "Unauthorized", null));
+            return ResponseHelper.unauthorized();
         }
     }
 
@@ -376,20 +403,23 @@ public class Controller {
         Session s = new Session(sid);
         User u = dba.getUserFromSession(s);
 
-        if (u != null && (u.isAdmin() || u.getUsername().equals(username))){
+        if (u == null)
+            return ResponseHelper.invalidSession();
+
+        if (u.isAdmin() || u.getUsername().equals(username)){
             User u2 = dba.getUserLoginInfo(username);
             if (u2 != null){
                 Rating rating = new Rating(u2, new Movie(movieId), 0.0);
                 boolean result = dba.deleteRating(rating);
                 if (result)
-                    return new Gson().toJson(new BaseResponse(true, null, null));
+                    return ResponseHelper.success(null);
                 else
-                    return new Gson().toJson(new BaseResponse(false, "Error deleting rating", null));
+                    return ResponseHelper.mongoError("Unknown erorr");
             } else {
-                return new Gson().toJson(new BaseResponse(false, "User not found", null));
+                return ResponseHelper.notFound();
             }
         } else {
-            return new Gson().toJson(new BaseResponse(false, "Unauthorized", null));
+            return ResponseHelper.unauthorized();
         }
     }
 
@@ -401,19 +431,22 @@ public class Controller {
         Session s = new Session(sid);
         User u = dba.getUserFromSession(s);
 
-        if (u != null && u.isAdmin()){
+        if (u == null)
+            return ResponseHelper.invalidSession();
+
+        if (u.isAdmin()){
             User u2 = dba.getUserLoginInfo(username);
             if (u2 != null){
                 boolean result = dba.banUser(u2);
                 if (result)  {
-                    return new Gson().toJson(new BaseResponse(true, null, null));
+                    return ResponseHelper.success(null);
                 } else
-                    return new Gson().toJson(new BaseResponse(false, "Error banning user", null));
+                    return ResponseHelper.mongoError("Unknown error");
             } else {
-                return new Gson().toJson(new BaseResponse(false, "User not found", null));
+                return ResponseHelper.notFound();
             }
         } else {
-            return new Gson().toJson(new BaseResponse(false, "Unauthorized", null));
+            return ResponseHelper.unauthorized();
         }
     }
 
@@ -426,15 +459,18 @@ public class Controller {
         Session s = new Session(sid);
         User u = dba.getUserFromSession(s);
 
-        if (u != null && u.isAdmin()){
+        if (u == null)
+            return ResponseHelper.invalidSession();
+
+        if (u.isAdmin()){
             QuerySubset<User> users = dba.searchUser(query, limit, 1);
             List<String> result = new ArrayList<>();
             for (User user: users.getList()){
                 result.add(user.getUsername());
             }
-            return new Gson().toJson(new BaseResponse(true, null, result));
+            return ResponseHelper.success(result);
         } else {
-            return new Gson().toJson(new BaseResponse(false, "Unauthorized", null));
+            return ResponseHelper.unauthorized();
         }
     }
 
@@ -447,11 +483,14 @@ public class Controller {
         Session s = new Session(sid);
         User u = dba.getUserFromSession(s);
 
-        if (u != null && u.isAdmin()){
+        if (u == null)
+            return ResponseHelper.invalidSession();
+
+        if (u.isAdmin()){
             QuerySubset<RatingExtended> ratings = dba.getAllRatings(n, page);
-            return new Gson().toJson(new BaseResponse(true, null, ratings));
+            return ResponseHelper.success(ratings);
         } else {
-            return new Gson().toJson(new BaseResponse(false, "Unauthorized", null));
+            return ResponseHelper.unauthorized();
         }
     }
 }
