@@ -1,14 +1,48 @@
-export const baseUrl = 'http://' + window.location.hostname + ':8080/api/v1/'
+export const baseUrl = 'http://45.76.92.122:8080/api/v1/'
 
 export const aggregation_fields = ["Country", "Year", "Director", "Actor", "Genre"]
 
-export function errorHandler(data) {
-    console.log(data.response)
-    force_disconnect()
+const CODE_INVALID_SESSION = 1;
+const CODE_MONGO_ERROR = 2;
+const CODE_USER_BANNED = 3;
+export const CODE_WRONG_CREDENTIALS = 4;
+const CODE_NOT_FOUND = 5;
+const CODE_UNAUTHORIZED = 6;
+const CODE_GENERIC_ERROR = 7;
+
+export function errorHandler(error_code, error_msg) {
+    if(error_code === CODE_INVALID_SESSION){
+        //Invalid session ID: expired?
+        alert("Your user session has expired. Login again.");
+        disconnect();
+        return
+    }
+
+    if(error_code === CODE_USER_BANNED){
+        alert("You have been banned");
+        disconnect();
+        return
+    }
+
+    if(error_code === CODE_NOT_FOUND){
+        alert("The resource you are looking for is not found");
+        window.location.href = '/'  
+        return
+    }
+
+    if(error_code === CODE_UNAUTHORIZED){
+        alert("You are not authorized to access this resource");
+        window.location.href = '/'  
+        return
+    }
+
+    if(error_code === CODE_GENERIC_ERROR){
+        alert("Generic error: " + error_msg);
+        return
+    }
 }
 
-export function force_disconnect() {
-    alert("You will be disconnected")
+export function disconnect() {
     localStorage.removeItem('sessionId')
     localStorage.removeItem('username')
     localStorage.removeItem('is_admin')

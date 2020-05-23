@@ -84,12 +84,9 @@ export default function StatsPage(props) {
                         }
                         setLoading(false)
                     } else {
-                        alert(res.data.message)
-                        alert("You will be disconnected")
-                        localStorage.removeItem('sessionId')
-                        window.location.reload()
+                        errorHandler(res.data.code, res.data.message)
                     }
-                }).catch((response) => errorHandler(response))
+                })
         }
     }, [sortOpt, filters, currentPage])
 
