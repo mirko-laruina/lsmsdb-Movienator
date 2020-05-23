@@ -2,7 +2,7 @@ import React, { useEffect } from 'react'
 import Skeleton from '@material-ui/lab/Skeleton'
 import MovieCarousel from './MovieCarousel'
 import axios from 'axios';
-import { baseUrl, errorHandler } from '../utils';
+import { baseUrl, errorHandler, httpErrorhandler } from '../utils';
 
 export default function SuggestedMovies() {
     const [movies, setMovies] = React.useState([])
@@ -18,12 +18,9 @@ export default function SuggestedMovies() {
                 if (res.data.success) {
                     setMovies(res.data.response.list)
                 } else {
-                    alert(res.data.message)
-                    alert("You will be disconnected")
-                    localStorage.removeItem('sessionId')
-                    window.location.reload()
+                    errorHandler(res.data.code, res.data.message)
                 }
-            }).catch((response) => errorHandler(response))
+            }).catch((response) => httpErrorhandler(response))
     }, [])
 
     return (

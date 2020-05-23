@@ -6,7 +6,7 @@ import axios from 'axios'
 
 import Pagination from '@material-ui/lab/Pagination'
 import BasicPage from './BasicPage.js'
-import { baseUrl } from './utils'
+import { baseUrl, errorHandler, httpErrorhandler } from '../utils'
 import UsersListDisplay from '../components/UsersListDisplay'
 
 export default function SocialPage(props) {
@@ -55,9 +55,9 @@ export default function SocialPage(props) {
                     setSuggested(data.data.suggested);
                 }
             } else {
-                alert(data.data.message)
+                errorHandler(data.data.success, data.data.message)
             }
-        })
+        }).catch((error) => httpErrorhandler(error))
     }
 
     const getFollowers = () => {
@@ -70,8 +70,10 @@ export default function SocialPage(props) {
         }).then((data) => {
             if(data.data.success){
                 setFollowers(data.data)
+            } else {
+                errorHandler(data.data.success, data.data.message)
             }
-        })
+        }).catch((error) => httpErrorhandler(error))
     }
 
     const getFollowings = () => {
@@ -84,8 +86,10 @@ export default function SocialPage(props) {
         }).then((data) => {
             if(data.data.success){
                 setFollowings(data.data)
+            } else {
+                errorHandler(data.data.success, data.data.message)
             }
-        })
+        }).catch((error) => httpErrorhandler(error))
     }
 
     const followHandler = (user, toFollow = true) => {
@@ -96,8 +100,10 @@ export default function SocialPage(props) {
         }).then((data) => {
             if(!data.data.success){
                 alert("I couldn't " +(toFollow ? "follow" : "unfollow") + " the user!");
+            } else {
+                errorHandler(data.data.success, data.data.message)
             }
-        })
+        }).catch((error) => httpErrorhandler(error))
     }
 
     const setFollowers = (followers) => {
