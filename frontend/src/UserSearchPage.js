@@ -3,7 +3,7 @@ import { Typography, Grid } from '@material-ui/core'
 import RestrictedPage from './RestrictedPage'
 import axios from 'axios'
 import UsersListDisplay from './UsersListDisplay'
-import { baseUrl, errorHandler } from './utils'
+import { baseUrl, errorHandler, httpErrorhandler } from './utils'
 
 export default function UserSearchPage(props) {
     const [users, setUsers] = React.useState([])
@@ -22,7 +22,7 @@ export default function UserSearchPage(props) {
             } else {
                 errorHandler(data.data.code, data.data.message)
             }
-        })
+        }).catch((error) => httpErrorhandler(error))
     }, [props.match.params.query])
 
     return (

@@ -3,7 +3,7 @@ import { Link } from 'react-router-dom'
 import { Grid, Button, TextField } from '@material-ui/core'
 import Alert from '@material-ui/lab/Alert'
 import BasicPage from './BasicPage'
-import { baseUrl, errorHandler } from './utils'
+import { baseUrl, errorHandler, httpErrorhandler } from './utils'
 import { Typography } from '@material-ui/core'
 import MostLikedTable from './MostLikedTable'
 import ProfilePageSkeleton from './ProfilePageSkeleton'
@@ -30,7 +30,7 @@ export default function ProfilePage(props) {
             } else {
                 setErrorPw(true)
             }
-        })
+        }).catch((error) => httpErrorhandler(error))
         setErrorPw(false)
     }
 
@@ -72,7 +72,7 @@ export default function ProfilePage(props) {
             } else {
                 errorHandler(data.data.code, data.data.message)
             }
-        })
+        }).catch((error) => httpErrorhandler(error))
 
         setLoading(true)
     }, [props.match.params.username])
@@ -88,7 +88,7 @@ export default function ProfilePage(props) {
             } else {
                 errorHandler(data.data.code, data.data.message)
             }
-        })
+        }).catch((error) => httpErrorhandler(error))
     }
 
     return (
