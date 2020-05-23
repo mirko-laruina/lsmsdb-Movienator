@@ -39,7 +39,7 @@ export default function MovieCarousel(props) {
                         label={movie.title}
                         icon={
                             <img
-                                src={movie.poster ? movie.poster : require('./blank_poster.png')}
+                                src={movie.poster ? movie.poster : require('../assets/blank_poster.png')}
                                 style={{ width: '140px' }} />
                         }
                     />

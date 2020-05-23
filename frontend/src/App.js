@@ -16,7 +16,7 @@ import MoviePage from './pages/MoviePage'
 import ProfilePage from './pages/ProfilePage'
 import HistoryPage from './pages/HistoryPage'
 import ControlPanel from './pages/ControlPanelPage'
-import SocialPage from './SocialPage'
+import SocialPage from './pages/SocialPage'
 import UserSearchPage from './pages/UserSearchPage';
 import MaintenancePage from './pages/MaintenancePage';
 

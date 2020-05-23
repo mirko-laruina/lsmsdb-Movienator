@@ -2,7 +2,7 @@ import React, { useEffect } from 'react'
 import Skeleton from '@material-ui/lab/Skeleton'
 import MovieCarousel from './MovieCarousel'
 import axios from 'axios';
-import { baseUrl, errorHandler } from './utils';
+import { baseUrl, errorHandler } from '../utils';
 
 export default function SuggestedMovies() {
     const [movies, setMovies] = React.useState([])
