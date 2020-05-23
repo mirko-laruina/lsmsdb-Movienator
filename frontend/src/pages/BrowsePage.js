@@ -5,11 +5,11 @@ import { Typography, Grid } from '@material-ui/core'
 
 import Pagination from '@material-ui/lab/Pagination';
 
-import FilterDisplay from './FilterDisplay.js';
-import Sorting from './Sorting.js';
-import MovieListDisplay from './MovieListDisplay'
+import FilterDisplay from '../components/FilterDisplay.js';
+import Sorting from '../components/Sorting.js';
+import MovieListDisplay from '../components/MovieListDisplay'
 
-import { baseUrl, errorHandler, httpErrorhandler } from './utils.js'
+import { baseUrl, errorHandler, httpErrorhandler } from '../utils.js'
 import axios from 'axios';
 
 export default function BrowsePage(props) {

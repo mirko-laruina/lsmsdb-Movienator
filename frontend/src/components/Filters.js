@@ -7,7 +7,7 @@ import Rating from '@material-ui/lab/Rating';
 import StarBorderIcon from '@material-ui/icons/StarBorder';
 import PeopleIcon from '@material-ui/icons/People';
 import TheatersIcon from '@material-ui/icons/Theaters';
-import { countryToFlag, countries } from './utils.js';
+import { countryToFlag, countries } from '../utils.js';
 
 const genres = ["Action", "Adult", "Adventure",
     "Animation", "Biography", "Comedy",

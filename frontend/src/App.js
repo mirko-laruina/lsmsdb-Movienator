@@ -4,21 +4,21 @@ import {
   Switch,
   Route
 } from "react-router-dom";
-import './App.css';
+import './assets/App.css';
 import { CssBaseline, ThemeProvider } from '@material-ui/core';
 import { createMuiTheme } from '@material-ui/core/styles';
 
-import HomePage from './HomePage.js'
-import SearchPage from './SearchPage.js'
-import StatsPage from './StatsPage.js'
-import BrowsePage from './BrowsePage'
-import MoviePage from './MoviePage'
-import ProfilePage from './ProfilePage'
-import HistoryPage from './HistoryPage'
-import ControlPanel from './ControlPanel'
+import HomePage from './pages/HomePage.js'
+import SearchPage from './pages/SearchPage.js'
+import StatsPage from './pages/StatsPage.js'
+import BrowsePage from './pages/BrowsePage'
+import MoviePage from './pages/MoviePage'
+import ProfilePage from './pages/ProfilePage'
+import HistoryPage from './pages/HistoryPage'
+import ControlPanel from './pages/ControlPanelPage'
 import SocialPage from './SocialPage'
-import UserSearchPage from './UserSearchPage';
-import MaintenancePage from './MaintenancePage';
+import UserSearchPage from './pages/UserSearchPage';
+import MaintenancePage from './pages/MaintenancePage';
 
 const theme = createMuiTheme({
   palette: {

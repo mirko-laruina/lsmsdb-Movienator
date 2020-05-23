@@ -2,8 +2,8 @@ import React, { useEffect } from 'react'
 import { Typography, Grid } from '@material-ui/core'
 import RestrictedPage from './RestrictedPage'
 import axios from 'axios'
-import UsersListDisplay from './UsersListDisplay'
-import { baseUrl, errorHandler, httpErrorhandler } from './utils'
+import UsersListDisplay from '../components/UsersListDisplay'
+import { baseUrl, errorHandler, httpErrorhandler } from '../utils'
 
 export default function UserSearchPage(props) {
     const [users, setUsers] = React.useState([])

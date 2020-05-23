@@ -4,9 +4,9 @@ import BasicPage from './BasicPage.js'
 import { Typography, Grid, FormControl, InputBase } from '@material-ui/core'
 import SearchIcon from '@material-ui/icons/Search'
 import Pagination from '@material-ui/lab/Pagination';
-import MovieListDisplay from './MovieListDisplay'
+import MovieListDisplay from '../components/MovieListDisplay'
 
-import { baseUrl, errorHandler, httpErrorhandler } from './utils.js'
+import { baseUrl, errorHandler, httpErrorhandler } from '../utils.js'
 import axios from 'axios';
 
 export default function BrowsePage(props) {

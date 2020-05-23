@@ -2,7 +2,7 @@ import React from 'react'
 import { Typography, TextField, Button } from '@material-ui/core'
 import { Alert } from '@material-ui/lab'
 import axios from 'axios'
-import { baseUrl, errorHandler, httpErrorhandler, CODE_WRONG_CREDENTIALS } from './utils.js'
+import { baseUrl, errorHandler, httpErrorhandler, CODE_WRONG_CREDENTIALS } from '../utils.js'
 import MyBackdrop from './MyBackdrop'
 
 export default function LoginForm(props) {

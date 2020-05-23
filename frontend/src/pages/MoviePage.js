@@ -3,10 +3,10 @@ import { Rating } from '@material-ui/lab'
 import { Typography, Grid, Chip } from '@material-ui/core'
 import axios from 'axios'
 
-import { baseUrl, getDate, errorHandler, httpErrorhandler } from './utils'
+import { baseUrl, getDate, errorHandler, httpErrorhandler } from '../utils'
 import BasicPage from './BasicPage'
-import UserRating from './UserRating'
-import MoviePageSkeleton from './MoviePageSkeleton'
+import UserRating from '../components/UserRating'
+import MoviePageSkeleton from '../skeletons/MoviePageSkeleton'
 
 const styles = {
     img: {
@@ -111,7 +111,7 @@ export default function MoviePage(props) {
                         <Grid container spacing={4}>
                             <Grid item xs={4}>
                                 <img alt={movie.title}
-                                    src={movie.poster ? movie.poster : require('./blank_poster.png')}
+                                    src={movie.poster ? movie.poster : require('../assets/blank_poster.png')}
                                     style={styles.img} />
                             </Grid>
                             <Grid item xs={8}>
