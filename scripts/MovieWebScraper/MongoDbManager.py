@@ -199,54 +199,42 @@ class MongoManager:
                         }}
                     ),
                 ]
-                
-            if operations:
-                self.db['movies'].bulk_write(operations)
-            
-            del upd_dic['ratings']
 
-            upd_dic['last_scraped'] = datetime.now()
+            # merge ratings
+            ratings = {}
+            for r in movie_in_db['ratings']:
+                if r['source'] == 'internal':
+                    if r['count'] > 0:
+                        r['avgrating'] = r['sum'] / r['count']
+                        ratings['internal'] = r
+                else:
+                    ratings[r['source']] = r
+            for r in upd_dic['ratings']:
+                ratings[r['source']] = r # override existing ratings
+
+            pprint(ratings)
+
+            # calculate new total_rating
+            rating_sum = sum([r['avgrating']*r['weight'] for s,r in ratings.items()])
+            denominator = len(ratings)
+            if denominator != 0:
+                upd_dic['total_rating'] = rating_sum/denominator
+                pprint(upd_dic['total_rating'])
+
             # update other info
-            self.db["movies"].find_one_and_update({
+            del upd_dic['ratings'] # remove ratings since already updated
+            upd_dic['last_scraped'] = datetime.now()
+            operations.append(UpdateOne({
                     '_id': movie['_id']
                 }, {
                     '$set': upd_dic
-            })
+            }))
 
-            # update total_rating
-            movie_upd = self.db["movies"].find_one({
-                    '_id': movie['_id']
-                }, 
-                projection = ['ratings']
-            )
-
-            pprint(movie_upd)
-
-            rating_sum = sum([r['avgrating']*r['weight'] for r in movie_upd['ratings']])
-            denominator = len(movie_upd['ratings'])
+            if operations:
+                self.db['movies'].bulk_write(operations)
             
-            if denominator != 0:
-                total_rating = rating_sum/denominator
-
-                self.db["movies"].find_one_and_update({
-                        '_id': movie['_id']
-                    }, 
-                    {
-                        '$set': {
-                            'total_rating': total_rating
-                        }
-                    }
-                )
-
             print("\n---movie updated---")
-        
-        # #update index
-        # print("\nupdate effettuato\n")
-        # skipIdx+=nrows
-        # f=open("UpdateIndex.txt", "w")
-        # f.write(str(skipIdx))
-        # f.close()
-        
+
          
 if __name__ == "__main__":#test
     """INIT"""
