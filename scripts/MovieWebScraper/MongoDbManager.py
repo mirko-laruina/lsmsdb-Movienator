@@ -78,9 +78,12 @@ class MongoManager:
         coll_iterator = self.getMoviesByLastScraped(nrows)
         
         for movie in coll_iterator:
+            print("\n--getting movie--\n")
+            print(movie["_id"], movie["title"], movie["title_ita"])
+
             # mark movie as scraped to prevent other scrapers to scrape the same
             # movie
-            self.db['movies'].find_one_and_update({
+            movie_in_db = self.db['movies'].find_one_and_update({
                 '_id': movie['_id']
             }, {
                 '$set': {
@@ -88,7 +91,13 @@ class MongoManager:
                 }
             })
 
-            print("\n--getting movie--\n")
+            # check if copy in db changed since last fetch
+            if movie_in_db['last_scraped'] > movie['last_scraped']:
+                # another scraper took it
+                print("\n--already scraped--\n")
+                continue
+
+            
             #extract movie by source
             #data from mymovies
             scrape = ms.MovieScraper()
