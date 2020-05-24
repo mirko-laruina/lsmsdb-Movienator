@@ -398,13 +398,66 @@ The application will be made of the following 4 components:
 \subsection{Creation of the database}
 The database is created from scratch starting from the public IMDb dataset available at the link \href{https://www.imdb.com/interfaces/}{https://www.imdb.com/interfaces/}.
 
-We developed a Python script, in order to obtain the data in the form described in the Data Model. However, some information where missing. So we integrated missing information scraping them from other movie's sites while we were scraping for ratings.
+We developed a Python script, in order to obtain the data in the form described in the Data Model. However, some information where missing. So we integrated missing information scraping them from the external rating sources while we were scraping for ratings.
 
-Collections are saved into Json files and then upserted in MongoDB database with another simple python script with the use of the \textbf{UpdateOne} module. Update requests are inserted in append into an array and served through the \textbf{bulk\_write()} function.
+Movies are saved into Json files and then upserted in MongoDB database with another simple python script with the use of the \textbf{UpdateOne} module. Update requests are appended to an array and served through the \textbf{bulk\_write()} function.
 
-\subsection{Scraping}
+By enabling the \emph{upsert} functionality, we can reuse the same script to 
+update the movie collection since movies that are not in the DB will be
+inserted and movies that are already present will be updated. Note that it is
+rare that a movie information will change so most of the time the \emph{upsert}
+will do nothing to the stored movies.
 
-\subsection{Updating the database}
+\subsection{Scraping bot}
+The aim of this bot, developed in Python (3.7) language, is to solve the problem of lack of data, indeed Movienator app needs a lot of movie information and details to work sensibly, so the scraper works providing from two main Web sources, MyMovies and IMDb, all types of data required, according to the ETL ("Extract-Transform-Load") paradigm.
+
+We can identify two main uses of the scraper, as follow:
+\begin{enumerate}
+    \item Find missing sensible informations for stored movies.
+    \item Update movies with most recent data, this operation is carried out periodically on each movie.
+\end{enumerate}
+Below are listed all the attributes collected by the scraper for each movie:\newline
+\begin{itemize}
+    \item movie title;
+    \item movie genre;
+    \item URL to movie poster;
+    \item movie description;
+    \item public release date;
+    \item aggregate rate of external source;
+    \item extra attributes (storyline, tagline, production country, budget ..)
+\end{itemize}
+
+\subsubsection{Software design according to ETL model}
+% --------------------
+\paragraph{Data extraction}
+The very first step is data extraction, made possible by sequential HTTP requests (performed by Requests module), followed by the utilization of Beautiful Soup, a Python library for pulling data out of HTML and XML files.
+Data, among different http responses, are retrieved by a JSON-LD tag, contained within html body of every single movie page.
+\lstinputlisting[language=Python]{figs/code/get_ld_json.py}
+
+Web indexing is made agile through two separate techniques:
+
+\begin{enumerate}
+    \item Across IMDb pages, every movie page is uniquely identified by imdb\_id, exploiting a standard URL format, "\emph{https://www.imdb.com/title/ttxxxxxxx/}", where \emph{"xxxxxxx"} is the integer id to locate the source. Since our database was built from IMDb, our DB uses the IMDB id, therefore we can just fetch the correct page.
+    \item Exploiting MyMovies Web API, it's possible to find movies URL starting from their titles; "\emph{https://www.mymovies.it/ricerca/ricerca.php?limit=true\&q=yyyyyyy}", this is the query format, where the real argument (passed by GET method) is actually just one, \emph{"q"} and \emph{"yyyyyyy"} rapresents movie title (in Italian).
+\end{enumerate}
+% --------------------
+\subsubsection{Data transformation}
+All the input data, retrieved from Web, are parsed into Python dictionaries, exploiting json library methods applied to deserialized data content, which is obtained by the \emph{``soup''} in the previous phase.
+
+\lstinputlisting[language=Python]{figs/code/load_movie.py}
+% --------------------
+In the listing above, we can look at the code that performs a first processing of data, retrieved by the dictionary resulting from the deserialization of the json content. Missing features are converted in properties with \emph{None} as a value, the objetive is to deal with standard format dictionaries, solving the problem of heterogeneous data sources.
+
+\subsubsection{Data loading: updating the database}
+New scraped data, both for features update and addition, once parsed, are stored on MongoDB server by means of PyMongo API for Mongo DBMS. BSON is the standard format used to store documents and make remote procedure calls in MongoDB, luckily python dictionares are directly mapped to BSON type as object and vice versa, so serialization (writings to Mongo) and deserialization (readings from Mongo) processes are easily managed.
+
+In order to perform the update on the least recently scraped movies, a \emph{last\_scraped} attribute is added (and modified) every time an update operation is executed from the script. The code listing below shows how to process consecutive movies, getting them by \emph{self.\-get\-Movies\-By\-Last\-Scraped} method and proceeding on integrating scraped data.
+The scraper first marks the movie as scraped by updating the \emph{last\_scraped} attribute and then checks whether another scraper is scraping the same movie by comparing the \emph{last\_scraped} attribute that the \emph{find\_one\_and\_update} method returned (original db document) with the one that the scraper retrieved earlier from the db.
+
+After having build the update dictionary, the scraper builds the list of operations to perform to the movie. In particular, old ratings are pulled and replaced with new ratings, then the \emph{total\_rating} is computed and updated along with other information (e.g. \emph{synopsis}, \emph{poster}, ...). In order to interact with Mongo database we exploited several methods from PyMongo module, such as: \texttt{find()}, \texttt{find\_one\_and\_update()}, \texttt{updateOne()}, \texttt{bulk\_write()}
+All these methods take dictionaries as argument, with the exception of \emph{bulk\_write}, that is used for efficiency's sake.
+
+\lstinputlisting[language=Python]{figs/code/update_mongo_movies.py}
 
 % ------------------------------------------------------------------------------
 
