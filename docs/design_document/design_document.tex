@@ -730,35 +730,7 @@ For what concerns the other requests, consistency is not strictly necessary and 
 \subsection{Test and evaluation}
 \subsubsection{Election}
 A test of the election mechanism has been done,
-\begin{lstlisting}[language={}, basicstyle=\small]
-2020-05-16T19:55:36.242+0100 I  ELECTION [replexec-0] Starting an election, since we've seen no PRIMARY in the past 10000ms                                                                                        
-2020-05-16T19:55:36.242+0100 I  ELECTION [replexec-0] conducting a dry run election to see if we could be elected. current term: 41                                                                                
-2020-05-16T19:55:36.242+0100 I  REPL     [replexec-0] Scheduling remote command request for vote request: RemoteCommand 305 -- target:172.16.1.162:27017 db:admin cmd:{ replSetRequestVotes: 1, setName: "replicase
-t0", dryRun: true, term: 41, candidateIndex: 0, configVersion: 6, lastCommittedOp: { ts: Timestamp(1589655321, 1), t: 41 } }                                                                                       
-2020-05-16T19:55:36.242+0100 I  REPL     [replexec-0] Scheduling remote command request for vote request: RemoteCommand 306 -- target:172.16.1.195:27017 db:admin cmd:{ replSetRequestVotes: 1, setName: "replicase
-t0", dryRun: true, term: 41, candidateIndex: 0, configVersion: 6, lastCommittedOp: { ts: Timestamp(1589655321, 1), t: 41 } }                                                                                       
-2020-05-16T19:55:36.242+0100 I  ELECTION [replexec-5] VoteRequester(term 41 dry run) failed to receive response from 172.16.1.162:27017: HostUnreachable: Error connecting to 172.16.1.162:27017 :: caused by :: C$nnection refused
-2020-05-16T19:55:36.244+0100 I  ELECTION [replexec-2] VoteRequester(term 41 dry run) received a yes vote from 172.16.1.195:27017; response message: { term: 41, voteGranted: true, reason: "", ok: 1.0, $clusterTi$e: { clusterTime: Timestamp(1589655321, 1), signature: { hash: BinData(0, 0000000000000000000000000000000000000000), keyId: 0 } }, operationTime: Timestamp(1589655321, 1) }
-2020-05-16T19:55:36.244+0100 I  ELECTION [replexec-2] dry election run succeeded, running for election in term 42
-2020-05-16T19:55:36.250+0100 I  REPL     [replexec-2] Scheduling remote command request for vote request: RemoteCommand 307 -- target:172.16.1.162:27017 db:admin cmd:{ replSetRequestVotes: 1, setName: "replicas$t0", dryRun: false, term: 42, candidateIndex: 0, configVersion: 6, lastCommittedOp: { ts: Timestamp(1589655321, 1), t: 41 } }
-2020-05-16T19:55:36.251+0100 I  REPL     [replexec-2] Scheduling remote command request for vote request: RemoteCommand 308 -- target:172.16.1.195:27017 db:admin cmd:{ replSetRequestVotes: 1, setName: "replicas$t0", dryRun: false, term: 42, candidateIndex: 0, configVersion: 6, lastCommittedOp: { ts: Timestamp(1589655321, 1), t: 41 } }
-2020-05-16T19:55:36.251+0100 I  ELECTION [replexec-5] VoteRequester(term 42) failed to receive response from 172.16.1.162:27017: HostUnreachable: Error connecting to 172.16.1.162:27017 :: caused by :: Connectio$ refused
-2020-05-16T19:55:36.265+0100 I  ELECTION [replexec-3] VoteRequester(term 42) received a yes vote from 172.16.1.195:27017; response message: { term: 42, voteGranted: true, reason: "", ok: 1.0, $clusterTime: { cl$sterTime: Timestamp(1589655321, 1), signature: { hash: BinData(0, 0000000000000000000000000000000000000000), keyId: 0 } }, operationTime: Timestamp(1589655321, 1) }
-2020-05-16T19:55:36.265+0100 I  ELECTION [replexec-3] election succeeded, assuming primary role in term 42
-2020-05-16T19:55:36.265+0100 I  REPL     [replexec-3] transition to PRIMARY from SECONDARY
-2020-05-16T19:55:36.265+0100 I  REPL     [replexec-3] Resetting sync source to empty, which was :27017
-2020-05-16T19:55:36.266+0100 I  REPL     [replexec-3] Entering primary catch-up mode.
-2020-05-16T19:55:36.268+0100 I  REPL_HB  [replexec-5] Heartbeat to 172.16.1.162:27017 failed after 2 retries, response status: HostUnreachable: Error connecting to 172.16.1.162:27017 :: caused by :: Connection $efused
-2020-05-16T19:55:36.268+0100 I  REPL     [replexec-5] Caught up to the latest optime known via heartbeats after becoming primary. Target optime: { ts: Timestamp(1589655321, 1), t: 41 }. My Last Applied: { ts: T$mestamp(1589655321, 1), t: 41 }
-2020-05-16T19:55:36.268+0100 I  REPL     [replexec-5] Exited primary catch-up mode.
-2020-05-16T19:55:36.268+0100 I  REPL     [replexec-5] Stopping replication producer
-2020-05-16T19:55:36.268+0100 I  REPL     [ReplBatcher] Oplog buffer has been drained in term 42
-2020-05-16T19:55:36.268+0100 I  REPL     [ReplBatcher] Oplog buffer has been drained in term 42
-2020-05-16T19:55:36.268+0100 I  REPL     [RstlKillOpThread] Starting to kill user operations
-2020-05-16T19:55:36.269+0100 I  REPL     [RstlKillOpThread] Stopped killing user operations
-2020-05-16T19:55:36.269+0100 I  REPL     [RstlKillOpThread] State transition ops metrics: { lastStateTransition: "stepUp", userOpsKilled: 0, userOpsRunning: 0 }
-2020-05-16T19:55:36.269+0100 I  REPL     [rsSync-0] transition to primary complete; database writes are now permitted
-\end{lstlisting}
+\lstinputlisting[language={}]{figs/code/election.log}
 
 As we can see, it worked flawlessly: no primary was seen for 10 seconds, this triggered an election (or, to be precise, a dry run followed by a \textit{real} run).
 The candidate node was \lstinline{172.16.1.251} and received a positive vote from \lstinline{172.16.1.195}, while \lstinline{172.16.1.162} was unreachable (since it was down). A majority (2 out of 3) was reached and the secondary node transitioned to primary. It then caught up with the latest optime (row 19), cleaned the oplog and killed all the current user operations (row 25).
