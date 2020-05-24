@@ -1,0 +1,472 @@
+@startuml
+
+  namespace com.frelamape.task2 {
+    namespace api {
+      class com.frelamape.task2.api.BaseResponse {
+          {static} + CODE_GENERIC_ERROR : int
+          {static} + CODE_INVALID_SESSION : int
+          {static} + CODE_MONGO_ERROR : int
+          {static} + CODE_NOT_FOUND : int
+          {static} + CODE_OK : int
+          {static} + CODE_UNAUTHORIZED : int
+          {static} + CODE_USER_BANNED : int
+          {static} + CODE_WRONG_CREDENTIALS : int
+          ~ response : Object
+          - code : int
+          - message : String
+          - success : boolean
+      }
+    }
+  }
+  
+
+  namespace com.frelamape.task2 {
+    namespace api {
+      class com.frelamape.task2.api.LoginResponse {
+          - is_admin : Boolean
+          - sessionId : String
+      }
+    }
+  }
+  
+
+  namespace com.frelamape.task2 {
+    namespace api {
+      class com.frelamape.task2.api.ResponseHelper {
+          {static} + error()
+          {static} + genericError()
+          {static} + invalidSession()
+          {static} + mongoError()
+          {static} + notFound()
+          {static} + response2Json()
+          {static} + success()
+          {static} + unauthorized()
+          {static} + userBanned()
+          {static} + wrongCredentials()
+      }
+    }
+  }
+
+ namespace com.frelamape.task2 {
+    namespace db {
+      class com.frelamape.task2.db.AggregatedRating {
+          - avgRating : Double
+          - count : Integer
+          - lastUpdate : Date
+          - source : String
+          - sum : Double
+          - weight : Double
+      }
+    }
+  }
+  
+
+  namespace com.frelamape.task2 {
+    namespace db {
+      class com.frelamape.task2.db.AggregatedRating.Adapter {
+          {static} + fromDBObject()
+          {static} + toDBObject()
+      }
+    }
+  }
+  
+
+  namespace com.frelamape.task2 {
+    namespace db {
+      class com.frelamape.task2.db.BsonAutoCast {
+          {static} + asDate()
+          {static} + asDouble()
+          {static} + asInteger()
+      }
+    }
+  }
+  
+
+  namespace com.frelamape.task2 {
+    namespace db {
+      class com.frelamape.task2.db.Character {
+          - name : String
+      }
+    }
+  }
+  
+
+  namespace com.frelamape.task2 {
+    namespace db {
+      class com.frelamape.task2.db.Character.Adapter {
+          {static} + fromDBObject()
+      }
+    }
+  }
+  
+
+  namespace com.frelamape.task2 {
+    namespace db {
+      class com.frelamape.task2.db.Country {
+          - name : String
+          + fromDBObject()
+      }
+    }
+  }
+  
+
+  namespace com.frelamape.task2 {
+    namespace db {
+      class com.frelamape.task2.db.Country.Adapter {
+          {static} + fromDBObject()
+          {static} + fromDBObjectIterable()
+      }
+    }
+  }
+  
+
+  namespace com.frelamape.task2 {
+    namespace db {
+      class com.frelamape.task2.db.DatabaseAdapter {
+          - args : ApplicationArguments
+          - connectionURI : String
+          - database : MongoDatabase
+          - dbName : String
+          {static} - logger : Logger
+          - mongoClient : MongoClient
+          - moviesCollection : MongoCollection<Document>
+          - ratingsCollection : MongoCollection<Document>
+          - usersCollection : MongoCollection<Document>
+          - usersCollectionMajorityWrite : MongoCollection<Document>
+          - usersCollectionPrimaryRead : MongoCollection<Document>
+          + addSession()
+          + addUser()
+          + authUser()
+          + banUser()
+          + deleteRating()
+          + deleteRatings()
+          + editUserPassword()
+          + existsSession()
+          + fillUserRatings()
+          + getAllRatings()
+          + getDatabase()
+          + getMongoClient()
+          + getMovieDetails()
+          + getMovieList()
+          + getMoviesCollection()
+          + getRatingsCollection()
+          + getStatistics()
+          + getUserById()
+          + getUserFromSession()
+          + getUserLoginInfo()
+          + getUserProfile()
+          + getUserRating()
+          + getUserRatings()
+          + getUsersCollection()
+          + init()
+          + insertRating()
+          + removeSession()
+          + searchMovie()
+          + searchUser()
+          + updateSession()
+          - fillRatingExtended()
+      }
+    }
+  }
+  
+
+  namespace com.frelamape.task2 {
+    namespace db {
+      class com.frelamape.task2.db.DatabaseTaskExecutor {
+          {static} - MAX_RETRY : int
+          + updateInternalRating()
+      }
+    }
+  }
+  
+
+  namespace com.frelamape.task2 {
+    namespace db {
+      class com.frelamape.task2.db.Genre {
+          - name : String
+          + fromDBObject()
+      }
+    }
+  }
+  
+
+  namespace com.frelamape.task2 {
+    namespace db {
+      class com.frelamape.task2.db.Genre.Adapter {
+          {static} + fromDBObject()
+      }
+    }
+  }
+  
+
+  namespace com.frelamape.task2 {
+    namespace db {
+      class com.frelamape.task2.db.Movie {
+          - budget : Integer
+          - characters : List<Character>
+          - countries : List<String>
+          - date : Date
+          - description : String
+          - directors : List<Person>
+          - genres : List<String>
+          - gross : Integer
+          - id : String
+          - mpaa : String
+          - originalLanguage : String
+          - originalTitle : String
+          - poster : String
+          - ratings : List<AggregatedRating>
+          - runtime : Integer
+          - storyline : String
+          - tagline : String
+          - title : String
+          - totalRating : Double
+          - userRating : Double
+          - year : Integer
+      }
+    }
+  }
+  
+
+  namespace com.frelamape.task2 {
+    namespace db {
+      class com.frelamape.task2.db.Movie.Adapter {
+          {static} + fromDBObject()
+          {static} + fromDBObjectIterable()
+      }
+    }
+  }
+  
+
+  namespace com.frelamape.task2 {
+    namespace db {
+      class com.frelamape.task2.db.Person {
+          - id : String
+          - name : String
+          + fromDBObject()
+      }
+    }
+  }
+  
+
+  namespace com.frelamape.task2 {
+    namespace db {
+      class com.frelamape.task2.db.Person.Adapter {
+          {static} + fromDBObject()
+          {static} + fromDBObjectIterable()
+      }
+    }
+  }
+  
+
+  namespace com.frelamape.task2 {
+    namespace db {
+      class com.frelamape.task2.db.QuerySubset {
+          - list : List<T>
+          - totalCount : long
+      }
+    }
+  }
+  
+
+  namespace com.frelamape.task2 {
+    namespace db {
+      class com.frelamape.task2.db.Rating {
+          - date : Date
+          - movieId : String
+          - rating : Double
+          - userId : ObjectId
+      }
+    }
+  }
+  
+
+  namespace com.frelamape.task2 {
+    namespace db {
+      class com.frelamape.task2.db.Rating.Adapter {
+          {static} + fromDBObject()
+          {static} + fromDBObjectIterable()
+          {static} + toDBObject()
+      }
+    }
+  }
+  
+
+  namespace com.frelamape.task2 {
+    namespace db {
+      class com.frelamape.task2.db.RatingExtended {
+          - title : String
+          - username : String
+          - year : Integer
+      }
+    }
+  }
+  
+
+  namespace com.frelamape.task2 {
+    namespace db {
+      class com.frelamape.task2.db.Session {
+          {static} + EXPIRAL_DAYS : int
+          - expiry : Date
+          - id : String
+      }
+    }
+  }
+  
+
+  namespace com.frelamape.task2 {
+    namespace db {
+      class com.frelamape.task2.db.Session.Adapter {
+          {static} + fromDBObject()
+          {static} + toDBObject()
+      }
+    }
+  }
+  
+
+  namespace com.frelamape.task2 {
+    namespace db {
+      class com.frelamape.task2.db.Statistics {
+          - avgRating : Double
+          - movieCount : Integer
+      }
+    }
+  }
+  
+
+  namespace com.frelamape.task2 {
+    namespace db {
+      class com.frelamape.task2.db.Statistics.Adapter {
+          {static} + fromDBObject()
+          {static} + fromDBObjectIterable()
+      }
+    }
+  }
+  
+
+  namespace com.frelamape.task2 {
+    namespace db {
+      interface com.frelamape.task2.db.Statistics.Aggregator {
+          {abstract} + fromDBObject()
+          {abstract} + getId()
+          {abstract} + getName()
+      }
+    }
+  }
+  
+
+  namespace com.frelamape.task2 {
+    namespace db {
+      class com.frelamape.task2.db.User {
+          - email : String
+          - favouriteActors : List<Statistics<Aggregator>>
+          - favouriteDirectors : List<Statistics<Aggregator>>
+          - favouriteGenres : List<Statistics<Aggregator>>
+          - id : ObjectId
+          - isAdmin : Boolean
+          - isBanned : Boolean
+          - password : String
+          - sessions : List<Session>
+          - username : String
+      }
+    }
+  }
+  
+
+  namespace com.frelamape.task2 {
+    namespace db {
+      class com.frelamape.task2.db.User.Adapter {
+          {static} + fromDBObject()
+          {static} + fromDBObjectIterable()
+          {static} + toDBObject()
+      }
+    }
+  }
+  
+
+  namespace com.frelamape.task2 {
+    namespace db {
+      class com.frelamape.task2.db.Year {
+          - year : Integer
+          + fromDBObject()
+      }
+    }
+  }
+  
+
+  namespace com.frelamape.task2 {
+    namespace db {
+      class com.frelamape.task2.db.Year.Adapter {
+          {static} + fromDBObject()
+      }
+    }
+  }
+  
+
+  com.frelamape.task2.db.AggregatedRating +-down- com.frelamape.task2.db.AggregatedRating.Adapter
+  com.frelamape.task2.db.Character o-- com.frelamape.task2.db.Person : actor
+  com.frelamape.task2.db.Character +-down- com.frelamape.task2.db.Character.Adapter
+  com.frelamape.task2.db.Country .up.|> com.frelamape.task2.db.Statistics.Aggregator
+  com.frelamape.task2.db.Country +-down- com.frelamape.task2.db.Country.Adapter
+  com.frelamape.task2.db.DatabaseAdapter o-- com.frelamape.task2.db.DatabaseTaskExecutor : executor
+  com.frelamape.task2.db.DatabaseTaskExecutor o-- com.frelamape.task2.db.DatabaseAdapter : dba
+  com.frelamape.task2.db.Genre .up.|> com.frelamape.task2.db.Statistics.Aggregator
+  com.frelamape.task2.db.Genre +-down- com.frelamape.task2.db.Genre.Adapter
+  com.frelamape.task2.db.Movie +-down- com.frelamape.task2.db.Movie.Adapter
+  com.frelamape.task2.db.Person .up.|> com.frelamape.task2.db.Statistics.Aggregator
+  com.frelamape.task2.db.Person +-down- com.frelamape.task2.db.Person.Adapter
+  com.frelamape.task2.db.Rating +-down- com.frelamape.task2.db.Rating.Adapter
+  com.frelamape.task2.db.RatingExtended -up-|> com.frelamape.task2.db.Rating
+  com.frelamape.task2.db.Session +-down- com.frelamape.task2.db.Session.Adapter
+  com.frelamape.task2.db.Statistics +-down- com.frelamape.task2.db.Statistics.Adapter
+  com.frelamape.task2.db.Statistics +-down- com.frelamape.task2.db.Statistics.Aggregator
+  com.frelamape.task2.db.User +-down- com.frelamape.task2.db.User.Adapter
+  com.frelamape.task2.db.Year .up.|> com.frelamape.task2.db.Statistics.Aggregator
+  com.frelamape.task2.db.Year +-down- com.frelamape.task2.db.Year.Adapter
+
+namespace com.frelamape.task2 {
+    class com.frelamape.task2.AsyncApplication {
+        {static} - logger : Logger
+        {static} + main()
+        + run()
+    }
+  }
+  
+
+  namespace com.frelamape.task2 {
+    class com.frelamape.task2.AsyncConfiguration {
+        + taskExecutor()
+    }
+  }
+  
+
+  namespace com.frelamape.task2 {
+    class com.frelamape.task2.Controller {
+        + banUser()
+        + browseMovies()
+        + changePassword()
+        + deleteRating()
+        + deleteUserRating()
+        + getAllRatings()
+        + getMovie()
+        + getUserProfile()
+        + getUserRating()
+        + getUserRatings()
+        + login()
+        + logout()
+        + movieStatistics()
+        + putRating()
+        + putUserRating()
+        + register()
+        + searchMovie()
+        + searchUser()
+    }
+  }
+  
+
+  com.frelamape.task2.Controller o-- com.frelamape.task2.db.DatabaseAdapter : dba
+  com.frelamape.task2.Controller ..> com.frelamape.task2.api.ResponseHelper
+  com.frelamape.task2.api.ResponseHelper ..> com.frelamape.task2.api.BaseResponse
+  com.frelamape.task2.api.ResponseHelper ..> com.frelamape.task2.api.LoginResponse
+
+@enduml
