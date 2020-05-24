@@ -100,13 +100,20 @@ class MongoManager:
             
             #extract movie by source
             #data from mymovies
-            scrape = ms.MovieScraper()
-            mm_movie_info = scrape.getMovieFromMyMovie(movie)
+            try:
+                scrape = ms.MovieScraper()
+                mm_movie_info = scrape.getMovieFromMyMovie(movie)
+            except Exception as e:
+                print(e)
+                mm_movie_info = None
             #data from imdb
-            """aggiungere dati di imdb per film con stesso id"""
-            im_movie_info = scrape.LoadMovie(movie["_id"])
+            try:
+                """aggiungere dati di imdb per film con stesso id"""
+                im_movie_info = scrape.LoadMovie(movie["_id"])
+            except Exception as e:
+                print(e)
+                im_movie_info = None
 
-            pprint(im_movie_info)
             pprint(mm_movie_info)
             
             #updatedinfo
