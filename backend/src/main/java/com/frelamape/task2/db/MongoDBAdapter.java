@@ -211,7 +211,7 @@ public class MongoDBAdapter {
 
         return new QuerySubset<>(
                 fillRatingExtended(ratings),
-               ratingsCollection.countDocuments()
+               -1
         );
     }
 
@@ -234,7 +234,7 @@ public class MongoDBAdapter {
 
         return new QuerySubset<>(
                 fillRatingExtended(ratings),
-                ratingsCollection.countDocuments(filter)
+                -1
         );
     }
 
@@ -559,7 +559,7 @@ public class MongoDBAdapter {
 
         return new QuerySubset<>(
                 Movie.Adapter.fromDBObjectIterable(movieIterable),
-                moviesCollection.countDocuments(filters)
+                -1
         );
     }
 
@@ -606,7 +606,7 @@ public class MongoDBAdapter {
 
         return new QuerySubset<>(
                 Movie.Adapter.fromDBObjectIterable(movieIterable),
-                moviesCollection.countDocuments(filter)
+                -1
         );
     }
 
@@ -866,7 +866,7 @@ public class MongoDBAdapter {
 
         return new QuerySubset<>(
                 User.Adapter.fromDBObjectIterable(userIterable),
-                usersCollection.countDocuments(filter));
+                -1);
     }
 
     /**
