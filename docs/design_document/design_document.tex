@@ -182,7 +182,7 @@ The \textbf{updater ``bot''} is not a real user but an entity used to periodical
 	\item \textbf{Availability}: the Database must be replicated in order to be always available.
 	Write operations on the Database can be eventually consistent.
 	\item \textbf{Scalability}: the application must be able to scale to an arbitrary number of servers.
-	\item \textbf{Security}: passwards must be stored in a secure way.
+	\item \textbf{Security}: passwords must be stored in a secure way.
 	\item \textbf{Responsive UI}: Client-side application must provide a responsive view both for pc, 
 	laptops and mobile devices.
 \end{itemize}
@@ -281,12 +281,12 @@ In each following subsection, an example document is shown for every collection.
 \end{lstlisting}
 
 \paragraph{Notes}
-Character and director nested documents contain redoundant data (person's name) that is introduced to reduce the number of seeks necessary to return the movie details
+Character and director nested documents contain redundant data (person's name) that is introduced to reduce the number of seeks necessary to return the movie details
 to the user.
 
 This collection is mainly read-heavy since most fields will be written only once.
 The only fields subject to change are the ones related to ratings. For these reasons,
-we can affort many indices to speed-up the aggregations.
+we can afford many indices to speed-up the aggregations.
 
 \paragraph{Indices} 
 Indices on the following fields will be set for this collection:
@@ -331,7 +331,7 @@ The raw ratings are kept separated from the movie they refer for three reasons:
 			statistics) and globally (by the administrator). The optimization for one use-case would influence the performance of another.
 	\item new ratings are expected to be frequently added and, thus, the use of 
 		a nested document inside the \emph{movies} collection would be 
-		infeasible beacause it would grow indefinitely. 
+		infeasible because it would grow indefinitely. 
 \end{enumerate} 
 
 However, this choice mandates the introduction of indices for efficiently 
@@ -372,23 +372,23 @@ obtaining ratings of a user or ratings of a movies are required.
 	\item \texttt{username} (text index): find user by username
 	\item \texttt{username}: find user by exact username
 	\item \texttt{email}: find user by email
-	\item \texttt{sessions.session\_id} (multikey index): find user by session id
+	\item \texttt{sessions.session\_id} (multi-key index): find user by session id
 \end{itemize}
 
 \subsection{Software Architecture}
 
 The application will be made of the following 4 components:
 \begin{itemize}
-	\item \textbf{Mongo DB}: a MongoDB cluster will be deployed with
+	\item \textbf{MongoDB}: a MongoDB cluster will be deployed with
 		replication.
-	\item \textbf{React Frontend}: web-based UI.
-	\item \textbf{Java Backend}: using \emph{Spring}, the \emph{Java backend} will provide REST APIs to the \emph{React frontent}.
+	\item \textbf{React Front-end}: web-based UI.
+	\item \textbf{Java Back-end}: using \emph{Spring}, the \emph{Java back-end} will provide REST APIs to the \emph{React front-end}.
 	\item \textbf{Updater ``bot''}: two Python scripts are needed in order to nightly update the DB with the latest movies and ratings: 
 	\begin{enumerate}
-		\item the \textbf{IMDB parser} periodically parses the IMDb dataset to add the latest movies.
+		\item the \textbf{IMDb parser} periodically parses the IMDb dataset to add the latest movies.
 		\item the \textbf{scraper} continuously parses the rating sources to update the ratings.
 	\end{enumerate}
-	These scripts will executes asynchronously from the \emph{Java backend}.
+	These scripts will executes asynchronously from the \emph{Java back-end}.
 \end{itemize}
 
 % ------------------------------------------------------------------------------
@@ -400,7 +400,7 @@ The database is created from scratch starting from the public IMDb dataset avail
 
 We developed a Python script, in order to obtain the data in the form described in the Data Model. However, some information where missing. So we integrated missing information scraping them from the external rating sources while we were scraping for ratings.
 
-Movies are saved into Json files and then upserted in MongoDB database with another simple python script with the use of the \textbf{UpdateOne} module. Update requests are appended to an array and served through the \textbf{bulk\_write()} function.
+Movies are saved into Json files and then ``upserted'' in MongoDB database with another simple python script with the use of the \textbf{UpdateOne} module. Update requests are appended to an array and served through the \textbf{bulk\_write()} function.
 
 By enabling the \emph{upsert} functionality, we can reuse the same script to 
 update the movie collection since movies that are not in the DB will be
@@ -424,7 +424,7 @@ Below are listed all the attributes collected by the scraper for each movie:\new
     \item movie description;
     \item public release date;
     \item aggregate rate of external source;
-    \item extra attributes (storyline, tagline, production country, budget ..)
+    \item extra attributes (storyline, tag-line, production country, budget ..)
 \end{itemize}
 
 \subsubsection{Software design according to ETL model}
@@ -438,18 +438,18 @@ Web indexing is made agile through two separate techniques:
 
 \begin{enumerate}
     \item Across IMDb pages, every movie page is uniquely identified by imdb\_id, exploiting a standard URL format, "\emph{https://www.imdb.com/title/ttxxxxxxx/}", where \emph{"xxxxxxx"} is the integer id to locate the source. Since our database was built from IMDb, our DB uses the IMDB id, therefore we can just fetch the correct page.
-    \item Exploiting MyMovies Web API, it's possible to find movies URL starting from their titles; "\emph{https://www.mymovies.it/ricerca/ricerca.php?limit=true\&q=yyyyyyy}", this is the query format, where the real argument (passed by GET method) is actually just one, \emph{"q"} and \emph{"yyyyyyy"} rapresents movie title (in Italian).
+    \item Exploiting MyMovies Web API, it's possible to find movies URL starting from their titles; "\emph{https://www.mymovies.it/ricerca/ricerca.php?limit=true\&q=yyyyyyy}", this is the query format, where the real argument (passed by GET method) is actually just one, \emph{"q"} and \emph{"yyyyyyy"} represents movie title (in Italian).
 \end{enumerate}
 % --------------------
 \subsubsection{Data transformation}
-All the input data, retrieved from Web, are parsed into Python dictionaries, exploiting json library methods applied to deserialized data content, which is obtained by the \emph{``soup''} in the previous phase.
+All the input data, retrieved from Web, are parsed into Python dictionaries, exploiting json library methods applied to de-serialized data content, which is obtained by the \emph{``soup''} in the previous phase.
 
 \lstinputlisting[language=Python]{figs/code/load_movie.py}
 % --------------------
-In the listing above, we can look at the code that performs a first processing of data, retrieved by the dictionary resulting from the deserialization of the json content. Missing features are converted in properties with \emph{None} as a value, the objetive is to deal with standard format dictionaries, solving the problem of heterogeneous data sources.
+In the listing above, we can look at the code that performs a first processing of data, retrieved by the dictionary resulting from the de-serialization of the json content. Missing features are converted in properties with \emph{None} as a value, the objective is to deal with standard format dictionaries, solving the problem of heterogeneous data sources.
 
 \subsubsection{Data loading: updating the database}
-New scraped data, both for features update and addition, once parsed, are stored on MongoDB server by means of PyMongo API for Mongo DBMS. BSON is the standard format used to store documents and make remote procedure calls in MongoDB, luckily python dictionares are directly mapped to BSON type as object and vice versa, so serialization (writings to Mongo) and deserialization (readings from Mongo) processes are easily managed.
+New scraped data, both for features update and addition, once parsed, are stored on MongoDB server by means of PyMongo API for Mongo DBMS. BSON is the standard format used to store documents and make remote procedure calls in MongoDB, luckily python dictionaries are directly mapped to BSON type as object and vice versa, so serialization (writings to Mongo) and de-serialization (readings from Mongo) processes are easily managed.
 
 In order to perform the update on the least recently scraped movies, a \emph{last\_scraped} attribute is added (and modified) every time an update operation is executed from the script. The code listing below shows how to process consecutive movies, getting them by \emph{self.\-get\-Movies\-By\-Last\-Scraped} method and proceeding on integrating scraped data.
 The scraper first marks the movie as scraped by updating the \emph{last\_scraped} attribute and then checks whether another scraper is scraping the same movie by comparing the \emph{last\_scraped} attribute that the \emph{find\_one\_and\_update} method returned (original db document) with the one that the scraper retrieved earlier from the db.
@@ -461,7 +461,7 @@ All these methods take dictionaries as argument, with the exception of \emph{bul
 
 % ------------------------------------------------------------------------------
 
-\section{Backend Implementation}
+\section{Back-end Implementation}
 The API specification can be found in the \texttt{docs/api.md} file. This section will go through the implementation of the main APIs. 
 
 \subsection{Java classes overview}
@@ -509,9 +509,9 @@ Returns a list of filtered movies with the given sorting. The result is paged.
 
 \begin{enumerate}
 	\item build a list of filters based on user specifications. People names are
-			matched if all words in the query sring are substrings of the full 
+			matched if all words in the query string are sub-strings of the full 
 			name (this is done using a regex).
-	\item Make the filter to pass to the \emph{find} function by and-ing all 
+	\item Make the filter to pass to the \emph{find} function by ``and-ing'' all 
 			conditions.
 	\item Make the query:
 		\begin{description}
@@ -592,16 +592,16 @@ By building the array of identifiers, just one query to the database is necessar
 \lstinputlisting[language=Java]{figs/code/fill_user_ratings.java}
 
 \subsubsection{Browse All}
-Admins can browse all ratings in the collection in descendig date order. Results are paged as seen in previous sections. Related code snippet is not shown for brevity's sake.
+Admins can browse all ratings in the collection in descending date order. Results are paged as seen in previous sections. Related code snippet is not shown for brevity's sake.
 
 \subsubsection{Browse User Ratings}
-Users can browse all their ratings in descendig date order. Results are paged as seen in previous sections. Related code snippet is not shown for brevity's sake.
+Users can browse all their ratings in descending date order. Results are paged as seen in previous sections. Related code snippet is not shown for brevity's sake.
 
 \subsubsection{Update Internal Rating}
 \label{sssec:updateInternalRating}
 After a rating is changed, the average internal rating and the total rating of the movie should be updated. This is done asynchronously after the update in order not to make the client wait for this additional operation.
 
-The update takes in input the old and the new rating (one of them can be null in case of insertion or delition) and consists in three parts:
+The update takes in input the old and the new rating (one of them can be null in case of insertion or deletion) and consists in three parts:
 \begin{enumerate}
 	\item fetch the movie from the DB
 	\item build the update request
@@ -611,14 +611,14 @@ The update takes in input the old and the new rating (one of them can be null in
 	\end{enumerate}
 \end{enumerate}
 
-\textbf{NB: } the internal rating update is protected from concurrent modifications since it uses the atomic update operation \texttt{\$inc} to update the sum and the count. Furthermore, note also that all other aggregate ratings do not have the sum attribute but drectly the average attribute since they are scraped. On the other hand, the update of the total rating is not consistent since another asynchronous entity (e.g. scraper) may overwrite it with stale information. However, this is not a big issue since at maximum just a few ratings will be lost among a big pool (thousands and more) so the average does not change much.
+\textbf{NB: } the internal rating update is protected from concurrent modifications since it uses the atomic update operation \texttt{\$inc} to update the sum and the count. Furthermore, note also that all other aggregate ratings do not have the sum attribute but directly the average attribute since they are scraped. On the other hand, the update of the total rating is not consistent since another asynchronous entity (e.g. scraper) may overwrite it with stale information. However, this is not a big issue since at maximum just a few ratings will be lost among a big pool (thousands and more) so the average does not change much.
 
 \lstinputlisting[language=Java]{figs/code/update_internal_rating.java}
 
 \subsection{Users}
 \subsubsection{Get Profile}
-The user profile is composed by his anagraphic information and his rating
-statistics. The first part is just a \emph{find} operation. The second part uses an aggregation pipeline similar to the one used to find movie statistics with th difference that in the end results are sorted by descending rating and only first 3 results are shown to the user.
+The user profile is composed by his personal information and his rating
+statistics. The first part is just a \emph{find} operation. The second part uses an aggregation pipeline similar to the one used to find movie statistics with the difference that in the end results are sorted by descending rating and only first 3 results are shown to the user.
 
 Note that this aggregation pipeline is, in a real scenario, very fast since a user will not have more than a few hundreds of ratings and ratings are indexed also by \texttt{user\_id} (so the match stage is extremely fast).
 
@@ -634,7 +634,7 @@ User search works alike the movie search, taking advantage of a \emph{text index
 \subsection{Configuration of the replica set}
 Replication has been achieved through the set up of a MongoDB replica set in a remote cluster of 3 virtual machines provided by the University of Pisa.
 
-A configuration document has been written, specifying the id of the replica set and the addresses of the machines. Additionally, a location tag was included. This could be useful if, in the future, the application is deployed to multiple datacenters for a more fine-grained control over the database requests (e.g. writes could be applied to at least one machine in every datacenter before returning ). 
+A configuration document has been written, specifying the id of the replica set and the addresses of the machines. Additionally, a location tag was included. This could be useful if, in the future, the application is deployed to multiple data-centers for a more fine-grained control over the database requests (e.g. writes could be applied to at least one machine in every data-center before returning ). 
 
 \begin{lstlisting}[language=json]	
 rsconf = {
@@ -682,8 +682,7 @@ db.createUser(
 \end{lstlisting}
 
 The \lstinline{passwordDigestor} is an optional parameter which allows us to specify who has to digest the password (client or server). Since we use the SCRAM-SHA-256 mechanism, which is not compatible with the client, the server choice was forced.
-\\
-\\
+
 After the users have been created, we run the MongoDB daemon with the authentication enabled, adding the \lstinline{--auth} flag:
 
 \begin{lstlisting}[language=bash]
@@ -697,12 +696,12 @@ mongod 	--replSet replicaset0
 All the connections from our Spring Boot server will now have to be authenticated with the \textit{lsmsdb} user we just created, while the administration of the cluster or of its node is to be done with \textit{lsmsdb\_admin}.
 
 \subsection{Consistency, Availability and Partition tolerance}
-The CAP theorem states that only two between consistency, availability and partition tolerance could be achieved in a database: our main service, providning movies infos and ratings, could work well even if with outdated data.
-Movie's description or title rarely chages while ratings should have a low variability: it is therefore the most convenient choise to increase our availability and partition tolerance.
+The CAP theorem states that only two between consistency, availability and partition tolerance could be achieved in a database: our main service, providing movies infos and ratings, could work well even with outdated data.
+Movie's description or title rarely change while average ratings should have a low variability: it is therefore the most convenient choice to increase our availability and partition tolerance.
 This is not true for what concerns logins and accounts in general: e.g a password change should be set in stone or the user creation should grant login consistency. A bad user experience is the consequence of not handling correctly this aspects.
 
 Different handling of the write and read requests depending on the data we want could be a reasonable solution.
-The drivers connecting to the database can specify a WriteConcern and a ReadPreference: the first determines the number of members of the replica set that should have written the new data before a positive response is sent to the driver, the second option is about the possibility of reading from nodes other than the master.
+The drivers connecting to the database can specify a \emph{WriteConcern} and a \emph{ReadPreference}: the first determines the number of members of the replica set that should have written the new data before a positive response is sent to the driver, the second option is about the possibility of reading from nodes other than the master.
 The default configuration of MongoDB is a WriteConcern equal to 1 (only the primary server is updated) and a ReadPreference of 'primary' (we can read only from the primary). This means that, in case of a network partition excluding a number of nodes less than the majority and including the master, thus with the election of a new primary, consistency is not guaranteed since a write could have been made just before the partitioning (and the read would work just fine from the newly elected master).
 
 What has been chosen, as already anticipated, is a differentiated approach depending on the request. To access the \lstinline{users} collection, the driver establishes three different connections with the database.
@@ -722,7 +721,7 @@ usersCollectionPrimaryRead = database.getCollection("users").withReadPreference(
 ratingsCollection = database.getCollection("ratings").withReadPreference(ReadPreference.nearest());
 \end{lstlisting}
 
-\lstinline{usersCollection} will be used for all the requests where we want high availabillity, like showing up the profile page or finding the user from the admin control page.
+\lstinline{usersCollection} will be used for all the requests where we want high availability, like showing up the profile page or finding the user from the admin control page.
 \\
 \lstinline{usersCollectionMajorityWrite} handles all the requests for which we want the updates to be permanent (e.g. password changes, new session id etc.): a write concern of 'majority' (which is computed against the total nodes in the replica set) protects us against network partition since no matter what happens to the nodes, as long as a majority is reached, the election system will make sure the successive primary node will have our write. Since the secondaries could or could not have it, when we want consistency we have to read only from the primary. Therefore, the \lstinline{usersCollectionPrimaryRead} will set the correct ReadPreference and will be used accordingly.
 
