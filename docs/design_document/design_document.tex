@@ -412,10 +412,26 @@ Collections are saved into Json files and then upserted in MongoDB database with
 The API specification can be found in the \texttt{docs/api.md} file. This section will go through the implementation of the main APIs. 
 
 \subsection{Java classes overview}
-TODO
- - Class diagram
- - Some words
- - Each class has an Adapter to conveniently convert from/to Mongo Document
+\begin{figure}
+	\vspace{-2cm}
+	\hspace{-1cm}
+	\includegraphics[height=18cm,angle=90]{figs/backend.pdf}
+\end{figure}
+
+In the next page you can see the class diagram of the Java implementation.
+The code is structured in 3 modules: 
+
+\begin{itemize}
+	\item the root module contains the Spring REST controller and other Spring-related classes;
+	\item the \texttt{api} module contains the helper classes for formatting the output to the client as a JSON format
+	\item the \texttt{db} module contains:
+	\begin{itemize}
+		\item the definition of the Java database objects (\emph{User}, \emph{Movie}, \emph{Rating}, ...). In addition, each object has an utility \emph{Adapter} nested class that provides static methods to easily convert a BSON document to the class instance.
+		\item the \emph{DatabaseAdapter} class that contains the definition of all possible operation to the database.
+		\item the \emph{DatabaseTaskExecutor} class that provides the definition of the asynchronous tasks that operate on the database (they are explained more in detail in the following sections).
+		\item other utility classes (\emph{BsonAutoCast}, \emph{QuerySubset}, ...).
+	\end{itemize}
+\end{itemize}
 
 \subsection{Authentication}
 
