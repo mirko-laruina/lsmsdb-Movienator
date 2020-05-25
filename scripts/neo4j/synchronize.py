@@ -19,6 +19,7 @@ def sync_movie(m):
     graph.merge(n, "Movie", "_id")
 
 def sync_user(u):
+    u['_id'] = u['_id'].__str__()
     user = {k:v for k,v in u.items() if k in keep_user_attrs}
     m = Node("User", **user)
     graph.merge(m, "User", "_id")
@@ -26,7 +27,7 @@ def sync_user(u):
 def sync_rating(r):
     RATED = Relationship.type("RATED")
 
-    u = Node("User", _id=r["_id"]["user_id"])
+    u = Node("User", _id=r["_id"]["user_id"].__str__())
     u.__primarylabel__ = "User"
     u.__primarykey__ = "_id"
     m = Node("Movie", _id=r["_id"]["movie_id"])
