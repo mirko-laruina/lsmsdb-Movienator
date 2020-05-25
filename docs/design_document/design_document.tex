@@ -336,11 +336,10 @@ The raw ratings are kept separated from the movie they refer for three reasons:
 \end{enumerate} 
 
 However, this choice mandates the introduction of indices for efficiently 
-obtaining ratings of a user or ratings of a movies are required.
+obtaining ratings of a single user and for getting the most recent ratings (admin use-case).
 
 \paragraph{Indices} 
 \begin{itemize}
-	\item \texttt{\_id.movie\_id}: speed up aggregations on movie.
 	\item \texttt{\_id.user\_id}: speed up user ratings browse.
 	\item \texttt{date}: speed up browsing user and global ratings.
 \end{itemize}
