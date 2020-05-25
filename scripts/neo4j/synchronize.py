@@ -27,12 +27,8 @@ def sync_user(u):
 def sync_rating(r):
     RATED = Relationship.type("RATED")
 
-    u = Node("User", _id=r["_id"]["user_id"].__str__())
-    u.__primarylabel__ = "User"
-    u.__primarykey__ = "_id"
-    m = Node("Movie", _id=r["_id"]["movie_id"])
-    m.__primarylabel__ = "Movie"  
-    m.__primarykey__ = "_id"
+    u = graph.nodes.match("User", _id=r["_id"]["user_id"].__str__()).first()
+    m = graph.nodes.match("Movie", _id=r["_id"]["movie_id"]).first()
     graph.merge(RATED(u,m, rating=r['rating'], date=r['date']))
 
 if __name__ == "__main__":
