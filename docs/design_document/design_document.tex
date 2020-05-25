@@ -798,5 +798,16 @@ From the figure we can make two observations:
 \end{enumerate}
 
 \subsection{Sharding}
+Let's now discuss the possible introduction of sharding in our MongoDB. The discussion will be differentiated by collection.
+
+\paragraph{Movies}
+While the size of the \emph{movies} collection is quite large, it has a very low variability and it is not expected to grow fast over time. Furthermore, its contents easily fit into the memory of a single server. For these reasons, the sharding of the movie collection is not suggested.
+
+\paragraph{Users}
+Also the \emph{users} collection is not very large but, differently to the \emph{movies} collection, it grows faster and is composed of many small documents. If the number of users is small (up to 100000 order of magnitude), there is no need to shard them but, if this number grows to millions or even more, the collection could be sharded without problems since operations on users are a really small portion of all operations in Movienator and the additional overhead will not be a problem. The partitioning could be performed on the hash of the \emph{\_id} if the shards are co-located in the same geographical location or could be based on the TLD of the user's email in case of a geographically distributed database.
+
+\paragraph{Ratings}
+The \emph{ratings} collection is the fastest growing collection in the database. It is also possibly the biggest one and the only write-heavy one. Furthermore, users only access their own ratings, with the exception of admins. This makes it possible to flawlessly introduce sharding based on the \emph{user\_id} of the user. By doing so, all ratings of a user will be co-located on the same node. The administrators may experience a higher latency for getting the most recent ratings but it's not important.
+Of course, there should be a significant amount of ratings to justify the introduction of sharding.
 
 \end{document}
