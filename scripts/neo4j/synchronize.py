@@ -53,7 +53,7 @@ if __name__ == "__main__":
 
     print("Movies:  %6.2f%%" % (0), end="")
     for i, _ in enumerate(movie_pool_res):
-        print("\rMovies:  %6.2f%%" % (i/n_movies), end="")
+        print("\rMovies:  %6.2f%%" % ((i+1)/n_movies*100), end="")
     print("\rMovies:  %6.2f%%" % (100))
 
     # synchronize users
@@ -63,7 +63,7 @@ if __name__ == "__main__":
 
     print("Users:   %6.2f%%" % (0), end="")
     for i, _ in enumerate(user_pool_res):
-        print("\rUsers:   %6.2f%%" % (i/n_users), end="")
+        print("\rUsers:   %6.2f%%" % ((i+1)/n_users*100), end="")
     print("\rUsers:   %6.2f%%" % (100))
 
     # synchronize ratings
@@ -73,7 +73,7 @@ if __name__ == "__main__":
     
     print("Ratings: %6.2f%%" % (0), end="")
     for i, _ in enumerate(rating_pool_res):
-        print("\rRatings: %6.2f%%" % (i/n_ratings), end="")
+        print("\rRatings: %6.2f%%" % ((i+1)/n_ratings*100), end="")
     print("\rRatings: %6.2f%%" % (100))
 
     # follow relationships are only on Neo4j
