@@ -297,6 +297,7 @@ Indices on the following fields will be set for this collection:
 	\item \texttt{countries} (multikey index): filter and aggregation by country
 	\item \texttt{genres} (multikey index): filter and aggregation by genre
 	\item \texttt{year}: filter and aggregation by year
+	\item \texttt{date}: sorting by release date
 	\item \texttt{characters.actor\_id} (multikey index): filter and aggregation by actor
 	\item \texttt{directors.id} (multikey index): filter and aggregation by director
 	\item \texttt{total\_rating}: filter and sorting by rating
@@ -706,7 +707,7 @@ The default configuration of MongoDB is a WriteConcern equal to 1 (only the prim
 
 What has been chosen, as already anticipated, is a differentiated approach depending on the request. To access the \lstinline{users} collection, the driver establishes three different connections with the database.
 
-\begin{lstlisting}[language=java]
+\begin{lstlisting}[language=Java]
 mongoClient = MongoClients.create(connectionURI);
 database = mongoClient.getDatabase(dbName);
 
@@ -722,17 +723,63 @@ ratingsCollection = database.getCollection("ratings").withReadPreference(ReadPre
 \end{lstlisting}
 
 \lstinline{usersCollection} will be used for all the requests where we want high availability, like showing up the profile page or finding the user from the admin control page.
-\\
+
 \lstinline{usersCollectionMajorityWrite} handles all the requests for which we want the updates to be permanent (e.g. password changes, new session id etc.): a write concern of 'majority' (which is computed against the total nodes in the replica set) protects us against network partition since no matter what happens to the nodes, as long as a majority is reached, the election system will make sure the successive primary node will have our write. Since the secondaries could or could not have it, when we want consistency we have to read only from the primary. Therefore, the \lstinline{usersCollectionPrimaryRead} will set the correct ReadPreference and will be used accordingly.
 
 For what concerns the other requests, consistency is not strictly necessary and we would like our system to be highly available. For this reason, we keep the default write concern (equal to 1) and set the read preference to 'nearest', thus allowing reads from secondaries (which could have outdated informations).
+
 \subsection{Test and evaluation}
 \subsubsection{Election}
-A test of the election mechanism has been done,
+A test of the election mechanism has been done and, as we can see from the log reported below, it worked flawlessly: since no primary was seen for 10 seconds, a new election started (or, to be precise, a dry run followed by a \textit{real} run).
 \lstinputlisting[language={}]{figs/code/election.log}
 
-As we can see, it worked flawlessly: no primary was seen for 10 seconds, this triggered an election (or, to be precise, a dry run followed by a \textit{real} run).
 The candidate node was \lstinline{172.16.1.251} and received a positive vote from \lstinline{172.16.1.195}, while \lstinline{172.16.1.162} was unreachable (since it was down). A majority (2 out of 3) was reached and the secondary node transitioned to primary. It then caught up with the latest optime (row 19), cleaned the oplog and killed all the current user operations (row 25).
 
 From the time of the dry run for election (19:55:36 and 242ms), which is 10 seconds after the last heartbeat in our case, to the new primary being up and running (19:55:36 and 269ms) only 27ms were elapsed: this is possible since the three nodes are connected to the same LAN, but certifies how the election mechanism is fast and efficient.
+
+\subsubsection{Availability}
+Some tests have been performed to test the ability of our MongoDB cluster to resist the failure of some nodes. Therefore some randomly chosen nodes have 
+been shut down but the application kept responding to requests as expected. 
+
+\subsubsection{Performance}
+Another test we made is the evaluation of the performance, in terms of throughput (requests that can be served per second on peak load), of the database. We chose to test only the read performance of the most common API calls since these will be by far the most common. In particular, we individuated six kinds of API calls:
+\begin{itemize}
+	\item ``Simple browse'': movie browse without filters.
+	\item ``Filtered browse'': movie browse with filters
+	\item ``Search'': movie search
+	\item ``Details'': movie details
+	\item ``Simple Statistics'': movie statistics without filters
+	\item ``Filtered Statistics'': movie statistics with filters
+\end{itemize}
+
+For each type of API call, we generated a random subset of requests from which the testing application will randomly choose a request. 
+The tests have been repeated three times, with a different number of servers in the replica set (1, 2 or 3).
+We used \emph{siege} as a testing application, with 100 concurrent users and no delay between requests (benchmark mode), which executed for a minute for each run. Both back-end server serving the APIs and the \emph{siege} application ran on a server that was part of the replica set (this is the only member of the replica set that was always on during the experiments). The database contains around 50k movies.
+
+\begin{figure}[]
+	\centering
+	\includegraphics[width=\textwidth]{figs/siege_barplot_all.pdf}
+	\caption{Results of the performance test for all 6 request types and for }
+	\label{fig:barplot_all}
+\end{figure}
+\begin{figure}[]
+	\centering
+	\includegraphics[width=\textwidth]{figs/siege_barplot_slow.pdf}
+	\caption{Same plot as figure \ref{fig:barplot_all} but zoomed in to show slowest API calls.}
+	\label{fig:barplot_slow}
+\end{figure}
+
+\paragraph{Results}
+From figures \ref{fig:barplot_all} and \ref{fig:barplot_slow} we can note two things:
+\begin{enumerate}
+	\item ``Simple Browse'', ``Search'' and ``Details'' are much faster than the other queries. This was expected since these queries require little to 
+	no effort to the database. 
+	\item For the fast queries listed above, the performance actually lowers with an increased number of servers in the replica set. This can be explained by the fact that these queries are IO-bound (in contrast, the other slower ones are CPU-bound) and therefore when the Mongo driver tries to balance read requests among the nodes it actually inserts some overhead (when only one server is in the replica set, this is the one the back-end resides on and therefore IO is very fast). % TODO CHECK!
+\end{enumerate}
+
+\paragraph{Possible solutions}
+Since statistics are a core part of the Movienator website, a way to make them run faster must be found. The solution could be caching the most common statistics pages using an in-memory-database (e.g. Redis or Memcached). For instance, we could save the first few pages (e.g. 3 pages of 10 elements) for each possible aggregation (4) and visualization order (3). This would require space for just 360 records but would provide a huge impact on the server throughput.
+
+\subsection{Sharding}
+
 \end{document}
