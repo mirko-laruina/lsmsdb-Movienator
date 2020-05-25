@@ -33,7 +33,7 @@ def sync_rating(r):
     m = Node("Movie", _id=r["_id"]["movie_id"])
     m.__primarylabel__ = "Movie"  
     m.__primarykey__ = "_id"
-    graph.merge(RATED(u,m, rating=r['rating']), date=r['date'])
+    graph.merge(RATED(u,m, rating=r['rating'], date=r['date']))
 
 if __name__ == "__main__":
     # set-up clients
