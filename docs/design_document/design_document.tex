@@ -766,14 +766,17 @@ We used \emph{siege} as a testing application, with 100 concurrent users and no 
 \end{figure}
 
 \paragraph{Results}
-From figures \ref{fig:barplot_all} and \ref{fig:barplot_slow} we can note two things:
+From figures \ref{fig:barplot_all} and \ref{fig:barplot_slow} we can note three things:
 \begin{enumerate}
 	\item ``Simple Browse'', ``Search'' and ``Details'' are much faster than the other queries. This was expected since these queries require little to 
 	no effort to the database. 
-	\item For the fast queries listed above, the performance actually lowers with an increased number of servers in the replica set. This can be explained by the fact that these queries are IO-bound (in contrast, the other slower ones are CPU-bound) and therefore when the Mongo driver tries to balance read requests among the nodes it actually inserts some overhead (when only one server is in the replica set, this is the one the back-end resides on and therefore IO is very fast). % TODO CHECK!
+	\item For the fast queries listed above, the performance actually lowers with an increased number of servers in the replica set. This is a consequence of the set-up we ran experiments on. The Java back-end server ran on the same node as the MongoDB node that was kept alive. Since these queries are IO-bound (in contrast, the other slower ones are computationally bound), when the Mongo driver, configured with the \emph{nearest} read preference, notices that the node is slow, it tries to balance read requests among the other nodes but, since they are remote, this actually introduces overheads.
+	\item Statistics are faster on a filtered query then on a simple one. This is somehow counter-intuitive but keep in mind that the filter phase is very fast since it operates on indices and it reduces the number of elements to aggregate by possibly a large amount. Since the reduce phase needs to run on fewer records, its execution time is reduced.
 \end{enumerate}
 
 \paragraph{Possible solutions}
+Since statistics are a core part of the Movienator website, a way to make them run faster must be found. The solution could be caching the most common statistics pages using an in-memory-database (e.g. Redis or Memcached). For instance, we could save the first few pages (e.g. 3 pages of 10 elements) for each possible aggregation (4) and visualization order (3). This would require space for just 360 records but would provide a huge impact on the server throughput. With regards to the problem of the fast queries being slow on a bigger cluster, a possible solution could be deploying a Java back-end server in each MongoDB node and set-up a load-balancer (e.g. HAProxy) to balance HTTP requests among the different back-ends. By doing so, latencies are minimized by locating the application near to the data source.
+
 \subsubsection{Availability}
 Some tests have been performed to test the ability of our MongoDB cluster to resist the failure of some nodes. Therefore some randomly chosen nodes have 
 been shut down but the application kept responding to requests as expected. 
