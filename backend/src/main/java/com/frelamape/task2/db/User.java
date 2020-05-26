@@ -2,6 +2,8 @@ package com.frelamape.task2.db;
 
 import org.bson.Document;
 import org.bson.types.ObjectId;
+import org.neo4j.driver.Result;
+import org.neo4j.driver.Record;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -15,9 +17,9 @@ public class User {
     private Boolean isBanned;
     private Boolean follower;
     private Boolean following;
-    private List<Statistics<Statistics.Aggregator>> favouriteActors = new ArrayList<>();
-    private List<Statistics<Statistics.Aggregator>> favouriteDirectors = new ArrayList<>();
-    private List<Statistics<Statistics.Aggregator>> favouriteGenres = new ArrayList<>();
+    private List<Statistics<Statistics.Aggregator>> favouriteActors = null;
+    private List<Statistics<Statistics.Aggregator>> favouriteDirectors = null;
+    private List<Statistics<Statistics.Aggregator>> favouriteGenres = null;
     private transient List<Session> sessions = new ArrayList<>();
 
     public User(String username) {
@@ -217,6 +219,28 @@ public class User {
             d.append("password", u.getPassword());
 
             return d;
+        }
+
+        public static User fromNeo4jRecord(Record record){
+            User u = new User(record.get("username").asString());
+            u.setId(new ObjectId(record.get("_id").asString()));
+
+            if (record.containsKey("following"))
+                u.setFollowing(record.get("following").asBoolean());
+
+            if (record.containsKey("follower"))
+                u.setFollower(record.get("follower").asBoolean());
+
+            return u;
+        }
+
+        public static List<User> fromNeo4jResult(Result result){
+            List<User> list = new ArrayList<>();
+            while(result.hasNext()){
+                Record record = result.next();
+                list.add(fromNeo4jRecord(record));
+            }
+            return list;
         }
     }
 

@@ -466,6 +466,9 @@ public class Controller {
             followings = followingsFuture.get();
             if (suggestionsFuture != null)
                 suggestions = suggestionsFuture.get();
+            else {
+                suggestions = new QuerySubset<>(new ArrayList<>(), -1);
+            }
         } catch (InterruptedException | ExecutionException e) {
             e.printStackTrace();
         }
@@ -677,8 +680,8 @@ public class Controller {
 
 
     @CrossOrigin
-    @RequestMapping(value={"/ratings/friends"}, method= RequestMethod.GET)
-    public @ResponseBody String getFriendsRatings(@RequestParam(value = "sessionId") String sid,
+    @RequestMapping(value={"/ratings/following"}, method= RequestMethod.GET)
+    public @ResponseBody String getFollowingRatings(@RequestParam(value = "sessionId") String sid,
                                               @RequestParam(required = false, defaultValue = "10") int n,
                                               @RequestParam(required = false, defaultValue = "1") int page
     ){
@@ -688,7 +691,7 @@ public class Controller {
         if (u == null)
             return ResponseHelper.invalidSession();
 
-        QuerySubset<RatingExtended> ratings = neo4jAdapter.getFriendsRatings(u, n, page);
+        QuerySubset<RatingExtended> ratings = neo4jAdapter.getFollowingRatings(u, n, page);
         return ResponseHelper.success(ratings);
     }
 }
