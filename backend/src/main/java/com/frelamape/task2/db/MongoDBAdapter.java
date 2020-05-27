@@ -856,7 +856,7 @@ public class MongoDBAdapter {
      * @return a paged subset of the users that match the given query
      */
     public QuerySubset<User> searchUser(String query, int n, int page){
-        Bson filter = text("\""+ query + "\"");
+        Bson filter = text(query);
         FindIterable<Document> userIterable = usersCollection
                 .find(filter)
                 .projection(Projections.metaTextScore("score"))
