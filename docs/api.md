@@ -587,8 +587,8 @@ NB: only admins are allowed.
 }
 ```
 
-## `GET /ratings/friends`
-Returns the list of all ratings from friends, sorted by date (descending).
+## `GET /ratings/following`
+Returns the list of all ratings from followed users, sorted by date (descending).
 Paging is supported.
 
 NB: only registered users are allowed.

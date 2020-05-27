@@ -78,9 +78,12 @@ class MongoManager:
         coll_iterator = self.getMoviesByLastScraped(nrows)
         
         for movie in coll_iterator:
+            print("\n--getting movie--\n")
+            print(movie["_id"], movie["title"], movie["title_ita"])
+
             # mark movie as scraped to prevent other scrapers to scrape the same
             # movie
-            self.db['movies'].find_one_and_update({
+            movie_in_db = self.db['movies'].find_one_and_update({
                 '_id': movie['_id']
             }, {
                 '$set': {
@@ -88,16 +91,29 @@ class MongoManager:
                 }
             })
 
-            print("\n--getting movie--\n")
+            # check if copy in db changed since last fetch
+            if movie_in_db['last_scraped'] > movie['last_scraped']:
+                # another scraper took it
+                print("\n--already scraped--\n")
+                continue
+
+            
             #extract movie by source
             #data from mymovies
-            scrape = ms.MovieScraper()
-            mm_movie_info = scrape.getMovieFromMyMovie(movie)
+            try:
+                scrape = ms.MovieScraper()
+                mm_movie_info = scrape.getMovieFromMyMovie(movie)
+            except Exception as e:
+                print(e)
+                mm_movie_info = None
             #data from imdb
-            """aggiungere dati di imdb per film con stesso id"""
-            im_movie_info = scrape.LoadMovie(movie["_id"])
+            try:
+                """aggiungere dati di imdb per film con stesso id"""
+                im_movie_info = scrape.LoadMovie(movie["_id"])
+            except Exception as e:
+                print(e)
+                im_movie_info = None
 
-            pprint(im_movie_info)
             pprint(mm_movie_info)
             
             #updatedinfo
@@ -183,54 +199,42 @@ class MongoManager:
                         }}
                     ),
                 ]
-                
-            if operations:
-                self.db['movies'].bulk_write(operations)
-            
-            del upd_dic['ratings']
 
-            upd_dic['last_scraped'] = datetime.now()
+            # merge ratings
+            ratings = {}
+            for r in movie_in_db['ratings']:
+                if r['source'] == 'internal':
+                    if r['count'] > 0:
+                        r['avgrating'] = r['sum'] / r['count']
+                        ratings['internal'] = r
+                else:
+                    ratings[r['source']] = r
+            for r in upd_dic['ratings']:
+                ratings[r['source']] = r # override existing ratings
+
+            pprint(ratings)
+
+            # calculate new total_rating
+            rating_sum = sum([r['avgrating']*r['weight'] for s,r in ratings.items()])
+            denominator = len(ratings)
+            if denominator != 0:
+                upd_dic['total_rating'] = rating_sum/denominator
+                pprint(upd_dic['total_rating'])
+
             # update other info
-            self.db["movies"].find_one_and_update({
+            del upd_dic['ratings'] # remove ratings since already updated
+            upd_dic['last_scraped'] = datetime.now()
+            operations.append(UpdateOne({
                     '_id': movie['_id']
                 }, {
                     '$set': upd_dic
-            })
+            }))
 
-            # update total_rating
-            movie_upd = self.db["movies"].find_one({
-                    '_id': movie['_id']
-                }, 
-                projection = ['ratings']
-            )
-
-            pprint(movie_upd)
-
-            rating_sum = sum([r['avgrating']*r['weight'] for r in movie_upd['ratings']])
-            denominator = len(movie_upd['ratings'])
+            if operations:
+                self.db['movies'].bulk_write(operations)
             
-            if denominator != 0:
-                total_rating = rating_sum/denominator
-
-                self.db["movies"].find_one_and_update({
-                        '_id': movie['_id']
-                    }, 
-                    {
-                        '$set': {
-                            'total_rating': total_rating
-                        }
-                    }
-                )
-
             print("\n---movie updated---")
-        
-        # #update index
-        # print("\nupdate effettuato\n")
-        # skipIdx+=nrows
-        # f=open("UpdateIndex.txt", "w")
-        # f.write(str(skipIdx))
-        # f.close()
-        
+
          
 if __name__ == "__main__":#test
     """INIT"""
