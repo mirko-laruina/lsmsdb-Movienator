@@ -13,7 +13,7 @@ export default function SocialPage(props) {
     const [isAdmin, setIsAdmin] = React.useState(false);
     //True if the page we are trying to show regards the user who wants to display it
     const [isTargetUser, setIsTargetUser] = React.useState(false);
-    const username = props.match.params.username;
+    const username = props.match.params.username ? props.match.params.username : localStorage.getItem('username');
     const [suggestedUsers, setSuggestedUsers] = React.useState([]);
     const [shownFollowers, setShownFollowers] = React.useState([]);
     const [shownFollowings, setShownFollowings] = React.useState([]);
@@ -49,13 +49,13 @@ export default function SocialPage(props) {
             }
         }).then((data) => {
             if (data.data.success) {
-                setFollowers(data.data.followers);
-                setFollowings(data.data.followings);
+                setFollowers(data.data.response.followers);
+                setFollowings(data.data.response.followings);
                 if(isTargetUser){
-                    setSuggested(data.data.suggested);
+                    setSuggested(data.data.response.suggested);
                 }
             } else {
-                errorHandler(data.data.success, data.data.message)
+                errorHandler(data.data.code, data.data.message)
             }
         }).catch((error) => httpErrorhandler(error))
     }
@@ -69,9 +69,9 @@ export default function SocialPage(props) {
             }
         }).then((data) => {
             if(data.data.success){
-                setFollowers(data.data)
+                setFollowers(data.data.response)
             } else {
-                errorHandler(data.data.success, data.data.message)
+                errorHandler(data.data.code, data.data.message)
             }
         }).catch((error) => httpErrorhandler(error))
     }
@@ -85,9 +85,9 @@ export default function SocialPage(props) {
             }
         }).then((data) => {
             if(data.data.success){
-                setFollowings(data.data)
+                setFollowings(data.data.response)
             } else {
-                errorHandler(data.data.success, data.data.message)
+                errorHandler(data.data.code, data.data.message)
             }
         }).catch((error) => httpErrorhandler(error))
     }
@@ -100,8 +100,7 @@ export default function SocialPage(props) {
         }).then((data) => {
             if(!data.data.success){
                 alert("I couldn't " +(toFollow ? "follow" : "unfollow") + " the user!");
-            } else {
-                errorHandler(data.data.success, data.data.message)
+                errorHandler(data.data.code, data.data.message)
             }
         }).catch((error) => httpErrorhandler(error))
     }

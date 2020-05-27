@@ -11,6 +11,7 @@ export default function SuggestedMovies() {
     useEffect(() => {
         axios.get(baseUrl + "movie/suggestion", {
             params: {
+                sessionId: localStorage.getItem('sessionId'),
                 n: movieNumber
             }
         })

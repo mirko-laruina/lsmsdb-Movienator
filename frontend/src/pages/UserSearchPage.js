@@ -17,7 +17,7 @@ export default function UserSearchPage(props) {
             }
         }).then((data) => {
             if (data.data.success) {
-                setUsers(data.data.response)
+                setUsers(data.data.response.list)
                 setLoading(false)
             } else {
                 errorHandler(data.data.code, data.data.message)

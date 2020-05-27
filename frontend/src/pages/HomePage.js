@@ -119,7 +119,9 @@ export default function HomePage(props) {
       <MyCard>
         <Typography variant="h4" component="h2">Some movies you could like</Typography>
         <br />
-        <SuggestedMovies />
+        { localStorage.getItem('sessionId') != null && (
+          <SuggestedMovies />
+        )}
       </MyCard>
     </BasicPage>
   );

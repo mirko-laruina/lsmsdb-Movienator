@@ -7,7 +7,7 @@ export default function UsersListDisplay(props) {
     return (
         <Grid container>
             {
-                props.users.map((user, i) => {
+                props.users && props.users.map((user, i) => {
                     return (
                         <Grid key={i} container item xs={props.horizontal ? 3 : 12} alignItems='center'>
                             {

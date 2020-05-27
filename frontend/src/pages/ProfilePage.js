@@ -12,7 +12,7 @@ import axios from 'axios'
 export default function ProfilePage(props) {
     const [infos, setInfos] = React.useState({})
     const [admin, setAdmin] = React.useState(false)
-    const user = props.match.params.username
+    const user = props.match.params.username ? props.match.params.username : localStorage.getItem('username')
     const [loading, setLoading] = React.useState(true)
     const [newPassword, setNewPassword] = React.useState("")
     const [errorPw, setErrorPw] = React.useState(false)
@@ -143,7 +143,16 @@ export default function ProfilePage(props) {
                             !isUserSelf && infos.following &&
                             <>
                                 <Typography variant="h5" component="h2">
-                                    {user + " is following you"}
+                                    {"You are following " + user}
+                                </Typography>
+                                <br />
+                            </>
+                        }
+                        {
+                            !isUserSelf && infos.followed &&
+                            <>
+                                <Typography variant="h5" component="h2">
+                                    {user + " is following you."}
                                 </Typography>
                                 <br />
                             </>
