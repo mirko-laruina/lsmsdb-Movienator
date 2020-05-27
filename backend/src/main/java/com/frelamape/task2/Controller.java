@@ -624,7 +624,7 @@ public class Controller {
     public @ResponseBody String searchUser(@RequestParam(value = "sessionId", required = false) String sid,
                                            @RequestParam String query,
                                            @RequestParam(required = false, defaultValue = "10") int n,
-                                           @RequestParam(required = false, defaultValue = "10") int page
+                                           @RequestParam(required = false, defaultValue = "1") int page
     ){
         QuerySubset<User> users = mongoDBAdapter.searchUser(query, n, page);
 
