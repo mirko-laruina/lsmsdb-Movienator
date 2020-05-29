@@ -1,6 +1,6 @@
 import React, { useEffect } from 'react'
 import { Typography } from '@material-ui/core'
-import RestrictedPage from './RestrictedPage'
+import BasicPage from './BasicPage'
 import axios from 'axios'
 import UsersListDisplay from '../components/UsersListDisplay'
 import { baseUrl, errorHandler, httpErrorhandler } from '../utils'
@@ -39,7 +39,7 @@ export default function UserSearchPage(props) {
     }
 
     return (
-        <RestrictedPage history={props.history}>
+        <BasicPage history={props.history}>
             <Typography
                 variant="h4"
                 component="h1"
@@ -72,6 +72,6 @@ export default function UserSearchPage(props) {
                         :
                         <UsersListDisplay users={users} />
             }
-        </RestrictedPage>
+        </BasicPage>
     )
 }

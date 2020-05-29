@@ -29,7 +29,7 @@ export default function SocialPage(props) {
 
 
     useEffect(() => {
-        if (localStorage.getItem('is_admin')) {
+        if (localStorage.getItem('is_admin') === 'true') {
             setIsAdmin(true);
         }
         if (!props.match.params.username
@@ -184,7 +184,7 @@ export default function SocialPage(props) {
                         showFollow
                         users={shownFollowers}
                         followHandler={getAllSocial}
-                        emptyMessage="You don't have any follower" />
+                        emptyMessage={(isTargetUser ? "You don't": (username + " doesn't")) + " have any follower"}/>
                     <Grid container justify="center">
                             <Pagination shape="rounded"
                                 showFirstButton
@@ -205,7 +205,7 @@ export default function SocialPage(props) {
                         showFollow
                         users={shownFollowings}
                         followHandler={getAllSocial}
-                        emptyMessage="You don't follow anyone" />
+                        emptyMessage={(isTargetUser ? "You don't": (username + " doesn't")) + " follow anyone"}/>
                     <Grid container justify="center">
                             <Pagination shape="rounded"
                                 showFirstButton
