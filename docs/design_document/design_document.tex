@@ -120,7 +120,7 @@
 \subsection{Existing Application Summary}
 The application is an aggregator of movies and movie ratings with the purpose 
 of providing logged users statistics and informations about a large set of movies.
-Logged-in user can also rate movies they have watched while not logged-in users 
+Logged-in users can also rate movies they have watched while not logged-in users 
 may still use the service to browse movie rankings and statistics but they are not
 able to give their rate. Only movies released in Italy are considered.
 
@@ -135,7 +135,7 @@ check the full history of ratings. Once a user is banned, he can no longer log i
 
 The movie database will be built upon the publicly available IMDb dataset.
 
-The ratings will be gathered also by periodically scraping external websites 
+The ratings will be gathered by periodically scraping external websites 
 (e.g., Rotten Tomatoes, Coming Soon, MyMovies).
 
 \subsection{Task 3 additions overview}
@@ -143,19 +143,14 @@ Upon the application described above, which we have already designed and
 implemented, we will add the management of followed/following relationships 
 between users and the suggestion of movies to the user based on his ratings.
 
-In particular, every logged user can follow any other user and un-follow them 
-later if they wish. Following another user gives the user the ability to see 
-which movies the latter rates in a dedicated section. In this section the user 
-will see all ratings from followed users in chronological order.
-In his profile a user will see a new 
-section from which he can browse his followed users
-and the users that are following him and receive suggestions for new user to 
-follow based on his current followed and following users. 
-The search functionality will be extended to all registered user in order to 
-more quickly find another user given his username.
+In particular, every logged-in user can follow, or un-follow if previously followed, any other user.
+Following another user gives the ability to see which movies he has been rating.
+A dedicated section will allow to see all the ratings coming from followed users in a chronological order.
+A new section will be built and will be available to logged-in users in their profile page. It will show the list of followers and followings of the user, but will also provide suggestions for new users to follow, based on the current relationship with the other users.
+User search functionality will be extended to all registered users in order to more quickly find another user given his username.
 
 Furthermore, in his homepage, a logged user will receive suggestions about 
-movies that he might like based on his ratings and the most recent ratings on the platform. By doing so, suggestions will reflect the current trends.
+movies that he might like based on both his ratings and the most recent ratings on the platform. By doing so, suggestions will reflect the current trends in the movie industry.
 
 \subsection{Actors}
 Anonymous user, registered user, administrator and updater ``bot''.
@@ -166,7 +161,7 @@ Anonymous user, registered user, administrator and updater ``bot''.
 In addition to what has already been defined in Task2, a \textbf{registered user} can:
 \begin{itemize}
 	\item follow another registered user
-	\item un-follow a followed users
+	\item un-follow a followed user
 	\item browse the users he is following
 	\item browse the users that are following him
 	\item browse suggestions for new users to follow
@@ -241,8 +236,8 @@ In each following subsection, an example document is shown for every collection.
 This section will explain how we intend to execute the queries in the database in terms of graph operations. Simple CRUD operations will not be reported for brevity's sake.
 
 \paragraph{Movie suggestion}
-Movie will be suggested based on the ratings that users that liked similar 
-movies as the user. For example, in figure \ref{fig:graph_example}, 
+Movie will be suggested based on the ratings of the users that liked similar 
+movies as the user we are suggesting to. We consider as liked movies, the ones the user has given a rating greater or equal to 3. For example, in figure \ref{fig:graph_example}, 
 \emph{Movie 3} may be suggested to \emph{User 1} since \emph{User 2} liked 
 \emph{Movie 2} as \emph{User 1} and he also liked \emph{Movie 3}. 
 In practice, starting from a user we will go to each movie he
