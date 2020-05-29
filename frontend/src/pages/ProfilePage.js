@@ -43,7 +43,6 @@ export default function ProfilePage(props) {
                 sessionId: localStorage.getItem('sessionId')
             }
         }).then((data) => {
-            console.log(data.data)
             if (data.data.success) {
                 setInfos(data.data.response)
                 setLoading(false)
@@ -59,7 +58,7 @@ export default function ProfilePage(props) {
             ||
             props.match.params.username === localStorage.getItem('username')
         )
-        setAdmin(localStorage.getItem('is_admin'))
+        setAdmin(localStorage.getItem('is_admin') === 'true')
 
         getProfile()
     }, [props.match.params.username])
@@ -141,7 +140,7 @@ export default function ProfilePage(props) {
                             </Grid>
                             <Grid item xs={3}>
                                 {
-                                    admin !== 'false' &&
+                                    admin &&
                                     <Button fullWidth
                                         variant="outlined"
                                         size="large"
@@ -158,7 +157,7 @@ export default function ProfilePage(props) {
                             Username: {infos.username}
                         </Typography>
                         {
-                            (admin !== 'false'
+                            (admin
                                 ||
                                 isTargetUser) &&
 
