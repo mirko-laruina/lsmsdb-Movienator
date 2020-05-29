@@ -143,39 +143,44 @@ Upon the application described above, which we have already designed and
 implemented, we will add the management of followed/following relationships 
 between users and the suggestion of movies to the user based on his ratings.
 
-In particular, every logged user can follow any other user and see which movies
-the latter rates in a dedicated section. In his profile a user will see a new 
-section from which he can search new users to follow, browse his followed users
+In particular, every logged user can follow any other user and un-follow them 
+later if they wish. Following another user gives the user the ability to see 
+which movies the latter rates in a dedicated section. In this section the user 
+will see all ratings from followed users in chronological order.
+In his profile a user will see a new 
+section from which he can browse his followed users
 and the users that are following him and receive suggestions for new user to 
-follow based on his curring followed and following users. In addition, through 
-another session of the system, the user will be able to browse the latest 
-ratings from the users he follows.
+follow based on his current followed and following users. 
+The search functionality will be extended to all registered user in order to 
+more quickly find another user given his username.
 
 Furthermore, in his homepage, a logged user will receive suggestions about 
-movies that he might like based on his ratings.
+movies that he might like based on his ratings and the most recent ratings on the platform. By doing so, suggestions will reflect the current trends.
 
 \subsection{Actors}
 Anonymous user, registered user, administrator and updater ``bot''.
 
 \subsection{Requirement Analysis}
 
-\subsubsection{ Functional Requirements}
-A \textbf{registered user} can:
-\begin{enumerate}
-	\item follow other registered users
-	\item unfollow followed users
-	\item browse the users he's following
+\subsubsection{Functional Requirements}
+In addition to what has already been defined in Task2, a \textbf{registered user} can:
+\begin{itemize}
+	\item follow another registered user
+	\item un-follow a followed users
+	\item browse the users he is following
 	\item browse the users that are following him
 	\item browse suggestions for new users to follow
 	\item browse a list of suggested movies
-\end{enumerate}
+	\item browse the latest ratings of followed users
+	\item view the profile page of any other user
+	\item search a user through a query by username
+\end{itemize}
 
 \subsubsection{Non-Functional Requirements}
 \begin{itemize}
-	\item \textbf{Availability}: the Database must be replicated in order to be always available.
-	Write operations on the Database can be eventually consistent.
+	\item \textbf{Availability}: the Database must be replicated in order to be always available. Write operations on the Database can be eventually consistent.
 	\item \textbf{Scalability}: the application must be able to scale to an arbitrary number of servers.
-	\item \textbf{Security}: passwards must be stored in a secure way.
+	\item \textbf{Security}: passwords must be stored in a secure way.
 	\item \textbf{Responsive UI}: Client-side application must provide a responsive view both for pc, 
 	laptops and mobile devices.
 \end{itemize}
@@ -191,8 +196,9 @@ A \textbf{registered user} can:
     \label{fig:usecase}
 \end{sidewaysfigure}
 
-The use-case diagram is shown in \cref{fig:usecase}. Different colors are used to highlight cases that are exclusive of some actors: white cases are referred to all users; blue anf green cases are referred to registered user and admin; yellow cases are exclusive of the admin. Green cases highlight the ones that 
-were introduced in task 3.
+The use-case diagram is shown in \cref{fig:usecase}. Different colors are used to highlight cases that are exclusive of some actors: white cases are referred to all users; blue and green cases are referred to registered user and admin; yellow cases are exclusive of the admin. Green cases highlight the ones that 
+were introduced in task 3 and all refer to actions that a registered user can
+do.
 
 \subsection{Class diagram}
 
@@ -220,42 +226,39 @@ The graph database will have 2 different types of nodes and 2 types of edges:
 \begin{itemize}
 	\item \textbf{Movie}: it will contain all information needed to show a list
 		of suggested movies: \emph{id}, \emph{title}, \emph{year}, 
-		\emph{poster\_url}.
-	\item \textbf{User}: it will contain only the username since no other 
-		information is required.
+		\emph{poster}.
+    \item \textbf{User}: it will contain only the \emph{username} and the \emph{\_id} since no other information is required.
 \end{itemize}
 \paragraph{Edge types}
 \begin{itemize}
-	\item \textbf{Rating} (User->Movie): it will contain the rating as 		
+	\item \textbf{Rating} (User->Movie): it will contain the \emph{rating} as 
 		attribute.
 	\item \textbf{Follow} (User->User): no attribute is required.
 \end{itemize}
 In each following subsection, an example document is shown for every collection.
 
-\subsection{Graph operations}
+\subsection{Graph-centric operations}
+This section will explain how we intend to execute the queries in the database in terms of graph operations. Simple CRUD operations will not be reported for brevity's sake.
+
 \paragraph{Movie suggestion}
 Movie will be suggested based on the ratings that users that liked similar 
 movies as the user. For example, in figure \ref{fig:graph_example}, 
 \emph{Movie 3} may be suggested to \emph{User 1} since \emph{User 2} liked 
 \emph{Movie 2} as \emph{User 1} and he also liked \emph{Movie 3}. 
-This is a very simple example, in practice there 
-will be multiple 
-``User->liked Movies->Users that liked those movies->other liked movies ''
-paths starting from the user that will be aggregated on the last movie
-in the chain. In other words,
-the movies suggested to the user are the ones that most users that liked the 
-movies that the user likes like. Of course, this approach would not scale over 
-a very big database, therefore, only the most recent ratings will be considered.
-This makes the suggestions aware of the current trends, which is also a 
-feature. 
+In practice, starting from a user we will go to each movie he
+liked, then to the users who recently liked that movie, then to other movies 
+they liked. We will then count the number of paths like the one described 
+for each movie (the last one in the path) and show the user the top-N movies 
+given this metric.
 
-\paragraph{User suggestions}
+\paragraph{User suggestion}
 Users to follow will be suggested based on the number of common follow 
 relationships. For example, in figure \ref{fig:graph_example}, \emph{User 3}
 may be suggested to \emph{User 2} since \emph{User 2} follows \emph{User 1}
-that follows \emph{User 3}. In practice, all ``user-follow->user-follow->user''
-paths starting from the user will be considered and the users with most common
-followers will be returned.
+that follows \emph{User 3}. In practice, starting from the user, we will go to
+each user he follows and from here to each user that the latter user follows. 
+We will then count the number of paths from the user to the users with common 
+followers and show the user the top-N users given this metric.
 
 \subsection{Software Architecture}
 
@@ -263,16 +266,18 @@ The application will be made of the following 4 components:
 \begin{itemize}
 	\item \textbf{Mongo DB}: a MongoDB cluster will be deployed with
 		replication.
-	\item \textbf{NodeJs}: an auxiliary graph database will be used to 	
+	\item \textbf{Neo4j}: an auxiliary graph database will be used to 	
 		calculate more efficiently the movie suggestions and to store 
-		information about follow relationships.
-	\item \textbf{React Frontend}: web-based UI.
-	\item \textbf{Java Backend}: using \emph{Spring}, the \emph{Java backend} will provide REST APIs to the \emph{React frontent}.
-	\item \textbf{Updater ``bot''}: two Python scripts are needed in order to nightly update the DB with the latest movies and ratings: 
+        information about follow relationships since this kind of operations
+        are more suited to this kind of DB.
+	\item \textbf{React Front-end}: web-based UI.
+	\item \textbf{Java Back-end}: using \emph{Spring}, the \emph{Java back-end} will provide REST APIs to the \emph{React front-end}.
+	\item \textbf{Updater ``bot''}: three Python scripts are needed in order to nightly update the DB with the latest movies and ratings: 
 	\begin{enumerate}
 		\item the \textbf{IMDB parser} periodically parses the IMDb dataset to add the latest movies.
 		\item the \textbf{scraper} continuously parses the rating sources to update the ratings.
+		\item the \textbf{synchronizer} periodically synchronizes movies from MongoDB to Neo4j.
 	\end{enumerate}
-	These scripts will executes asynchronously from the \emph{Java backend}.
+	These scripts will executes asynchronously from the \emph{Java back-end}.
 \end{itemize}
 \end{document}
