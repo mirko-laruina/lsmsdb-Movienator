@@ -5,6 +5,7 @@ import axios from 'axios';
 import { baseUrl, errorHandler, httpErrorhandler } from '../utils';
 
 export default function SuggestedMovies() {
+    const [loading, setLoading] = React.useState(true)
     const [movies, setMovies] = React.useState([])
     const movieNumber = 5;
 
@@ -18,6 +19,7 @@ export default function SuggestedMovies() {
             .then(function (res) {
                 if (res.data.success) {
                     setMovies(res.data.response.list)
+                    setLoading(false)
                 } else {
                     errorHandler(res.data.code, res.data.message)
                 }
@@ -25,7 +27,7 @@ export default function SuggestedMovies() {
     }, [])
 
     return (
-        movies.length != 0 ?
+        !loading ?
             <MovieCarousel movies={movies} />
             :
             <Skeleton width='100%' height="240px" />
