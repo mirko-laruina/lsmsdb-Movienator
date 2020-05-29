@@ -1,20 +1,24 @@
 import React, { useEffect } from 'react'
 import { Typography, FormControl, OutlinedInput, InputAdornment, IconButton, Grid } from '@material-ui/core'
 import Pagination from '@material-ui/lab/Pagination'
-import SearchIcon from '@material-ui/icons/Search'
 import RestrictedPage from './RestrictedPage'
 import HistoryTable from '../components/HistoryTable'
 import ControlPanelSkeleton from '../skeletons/ControlPanelSkeleton'
 import { baseUrl, errorHandler, httpErrorhandler } from '../utils'
 import axios from 'axios'
+import FullWidthSearchBar from '../components/FullWidthSearchBar'
 
 export default function ControlPanel(props) {
     const [loading, setLoading] = React.useState(true)
-    const [searchValue, setSearch] = React.useState("")
     const [ratings, setRatings] = React.useState([])
     const [currentPage, setCurrentPage] = React.useState(1)
     const [pageCount, setPageCount] = React.useState(0)
     const ratingPerPage = 10
+
+
+    const search = (query) => {
+        props.history.push('/search/' + query)
+    }
 
     useEffect(() => {
         axios.get(baseUrl + "/ratings", {
@@ -53,30 +57,9 @@ export default function ControlPanel(props) {
                             Find user
                 </Typography>
                         <br />
-                        <form onSubmit={() => { props.history.push('/admin/search/' + searchValue) }}>
-                            <FormControl fullWidth variant="outlined">
-                                <OutlinedInput
-                                    id="search-user"
-                                    placeholder="Search a user"
-                                    value={searchValue}
-                                    onChange={(e) => setSearch(e.target.value)}
-                                    endAdornment={
-                                        <InputAdornment position="end">
-                                            <IconButton
-                                                type="submit"
-                                                aria-label="search"
-                                            >
-                                                <SearchIcon />
-                                            </IconButton>
-                                        </InputAdornment>
-                                    }
-                                    inputProps={{
-                                        'aria-label': 'weight',
-                                    }}
-                                    labelWidth={0}
-                                />
-                            </FormControl>
-                        </form>
+                        <FullWidthSearchBar 
+                            onSubmit={search}
+                        />
                         <br />
                         <Typography
                             component="h2"
