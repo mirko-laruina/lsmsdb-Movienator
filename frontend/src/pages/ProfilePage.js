@@ -109,7 +109,7 @@ export default function ProfilePage(props) {
                                         fullWidth
                                         size="large"
                                         user={infos.username}
-                                        onClick={() => { window.location.reload() }}
+                                        onClick={() => { getProfile() }}
                                         following={infos.following}
                                     />
                                 </Grid>
