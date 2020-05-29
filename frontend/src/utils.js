@@ -3,7 +3,7 @@ export const baseUrl = 'http://45.76.92.122:8080/api/v1/'
 export const aggregation_fields = ["Country", "Year", "Director", "Actor", "Genre"]
 
 const CODE_INVALID_SESSION = 1;
-const CODE_MONGO_ERROR = 2;
+//const CODE_MONGO_ERROR = 2;
 const CODE_USER_BANNED = 3;
 export const CODE_WRONG_CREDENTIALS = 4;
 const CODE_NOT_FOUND = 5;
