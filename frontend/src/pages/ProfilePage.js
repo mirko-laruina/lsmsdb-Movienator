@@ -8,6 +8,7 @@ import { Typography } from '@material-ui/core'
 import MostLikedTable from '../components/MostLikedTable'
 import ProfilePageSkeleton from '../skeletons/ProfilePageSkeleton'
 import axios from 'axios'
+import FollowButton from '../components/FollowButton'
 
 export default function ProfilePage(props) {
     const [infos, setInfos] = React.useState({})
@@ -66,6 +67,7 @@ export default function ProfilePage(props) {
                 sessionId: localStorage.getItem('sessionId')
             }
         }).then((data) => {
+            console.log(data.data)
             if (data.data.success) {
                 setInfos(data.data.response)
                 setLoading(false)
@@ -118,23 +120,13 @@ export default function ProfilePage(props) {
                             </Grid>
                             {!isUserSelf &&
                                 <Grid item xs={2}>
-                                    {infos.followed ?
-                                        <Button fullWidth
-                                            variant="contained"
-                                            size="large"
-                                            color="primary"
-                                            onClick={alert}>
-                                            Unfollow
-                                    </Button>
-                                        :
-                                        <Button fullWidth
-                                            variant="outlined"
-                                            size="large"
-                                            color="primary"
-                                            onClick={alert}>
-                                            Follow
-                                    </Button>
-                                    }
+                                    <FollowButton
+                                        fullWidth
+                                        size="large"
+                                        user={infos.username}
+                                        onClick={() => { window.location.reload() }}
+                                        following={infos.following}
+                                    />
                                 </Grid>
                             }
                         </Grid>
@@ -145,18 +137,17 @@ export default function ProfilePage(props) {
                                 <Typography variant="h5" component="h2">
                                     {"You are following " + user}
                                 </Typography>
-                                <br />
                             </>
                         }
                         {
-                            !isUserSelf && infos.followed &&
+                            !isUserSelf && infos.follower &&
                             <>
                                 <Typography variant="h5" component="h2">
                                     {user + " is following you."}
                                 </Typography>
-                                <br />
                             </>
                         }
+                        <br />
                         <Grid container spacing={1}>
                             <Grid item xs={9}>
                                 <Typography variant="h4" component='h2'>

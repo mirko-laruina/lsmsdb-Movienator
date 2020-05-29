@@ -7,7 +7,6 @@ import axios from 'axios'
 export default function FollowButton(props) {
     let {onClick, user, following, ...childProps} = props
     const followHandler = (user, toFollow = true) => {
-        console.log(childProps)
         axios.post(baseUrl + "/user/" + user + (toFollow ? "/follow" : "/unfollow"), null, {
             params: {
                 sessionId: localStorage.getItem('sessionId'),
