@@ -69,7 +69,8 @@ export default function ControlPanel(props) {
                         <br />
                         <HistoryTable
                             data={ratings}
-                            adminView
+                            showUser
+                            showDelete
                             readOnly
                         />
                         <br />

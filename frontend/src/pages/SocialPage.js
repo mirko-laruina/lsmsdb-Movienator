@@ -8,6 +8,7 @@ import Pagination from '@material-ui/lab/Pagination'
 import BasicPage from './BasicPage.js'
 import { baseUrl, errorHandler, httpErrorhandler } from '../utils'
 import UsersListDisplay from '../components/UsersListDisplay'
+import FollowingsRatingTable from '../components/FollowingsRatingTable.js';
 
 export default function SocialPage(props) {
     const [isAdmin, setIsAdmin] = React.useState(false);
@@ -217,6 +218,15 @@ export default function SocialPage(props) {
                                 onChange={(e, v) => setFollowingsCurrentPage(v)} />
                     </Grid>
                 </Grid>
+
+                <br />
+                <Typography variant="h4" component="h2">
+                    {"Hot among " + (isTargetUser ? "your" : (username+"'s")) + " followings"}
+                </Typography>
+                <br />
+                <br />
+                <br />
+                <FollowingsRatingTable />
             </Grid>
         </BasicPage>
     )
