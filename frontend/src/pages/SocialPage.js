@@ -175,7 +175,12 @@ export default function SocialPage(props) {
                     <Typography variant="h4" component="h2">
                         {"Share interests with " + (isTargetUser ? "you" : username) + ":"}
                     </Typography>
-                    <UsersListDisplay users={suggestedUsers} horizontal />
+                    <br />
+                    <UsersListDisplay 
+                        users={suggestedUsers}
+                        horizontal
+                        emptyMessage="I can't suggest any user, try following someone first."
+                    />
                     <br />
                 </>
             }
@@ -188,7 +193,8 @@ export default function SocialPage(props) {
                     <UsersListDisplay
                         showFollow
                         users={shownFollowers}
-                        followHandler />
+                        followHandler
+                        emptyMessage="You don't have any follower" />
                     <Grid container justify="center">
                             <Pagination shape="rounded"
                                 showFirstButton
@@ -208,7 +214,8 @@ export default function SocialPage(props) {
                     <UsersListDisplay
                         showFollow
                         users={shownFollowings}
-                        followHandler/>
+                        followHandler
+                        emptyMessage="You don't follow anyone" />
                     <Grid container justify="center">
                             <Pagination shape="rounded"
                                 showFirstButton
