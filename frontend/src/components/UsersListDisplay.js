@@ -25,22 +25,28 @@ export default function UsersListDisplay(props) {
                                             </Grid>
                                             <Grid item xs={3}>
                                                 {
-                                                    !user.followed ?
+                                                    !user.following ?
                                                         <Button
                                                             fullWidth
                                                             variant="outlined"
                                                             color="primary"
-                                                            size="small">
+                                                            size="small"
+                                                            onClick={() => {
+                                                                props.followHandler(user.username)
+                                                            }}>
                                                             Follow
-                                                </Button>
+                                                        </Button>
                                                         :
                                                         <Button
                                                             fullWidth
                                                             variant="contained"
                                                             color="primary"
-                                                            size="small">
+                                                            size="small"
+                                                            onClick={() => {
+                                                                props.followHandler(user.username, false)
+                                                            }}>
                                                             Unfollow
-                                                </Button>
+                                                        </Button>
                                                 }
                                             </Grid>
                                         </>

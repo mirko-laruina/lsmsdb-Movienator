@@ -25,7 +25,7 @@ export default function SocialPage(props) {
 
     const followingsPerPage = 5;
     const followersPerPage = 5;
-    const suggestionsPerPage = (isTargetUser ? 8 : null);
+    const suggestionsPerPage = 8;
 
 
     useEffect(() => {
@@ -42,19 +42,22 @@ export default function SocialPage(props) {
     }, [])
 
     const getAllSocial = () => {
+        let params = {
+            sessionId: localStorage.getItem('sessionId'),
+            n_followings: followingsPerPage,
+            n_followers: followersPerPage,
+        }
+        if(isTargetUser){
+            params.n_suggestions = suggestionsPerPage
+        }
         axios.get(baseUrl + "/user/" + username + "/social", {
-            params: {
-                sessionId: localStorage.getItem('sessionId'),
-                n_followings: followingsPerPage,
-                n_followers: followersPerPage,
-                n_suggestions: suggestionsPerPage
-            }
+            params: params
         }).then((data) => {
             if (data.data.success) {
                 setFollowers(data.data.response.followers);
                 setFollowings(data.data.response.followings);
                 if(isTargetUser){
-                    setSuggested(data.data.response.suggested);
+                    setSuggested(data.data.response.suggestions);
                 }
             } else {
                 errorHandler(data.data.code, data.data.message)
@@ -100,7 +103,9 @@ export default function SocialPage(props) {
                 sessionId: localStorage.getItem('sessionId'),
             }
         }).then((data) => {
-            if(!data.data.success){
+            if(data.data.success){
+                getAllSocial()
+            } else {
                 alert("I couldn't " +(toFollow ? "follow" : "unfollow") + " the user!");
                 errorHandler(data.data.code, data.data.message)
             }
@@ -193,7 +198,7 @@ export default function SocialPage(props) {
                     <UsersListDisplay
                         showFollow
                         users={shownFollowers}
-                        followHandler
+                        followHandler={followHandler}
                         emptyMessage="You don't have any follower" />
                     <Grid container justify="center">
                             <Pagination shape="rounded"
@@ -214,7 +219,7 @@ export default function SocialPage(props) {
                     <UsersListDisplay
                         showFollow
                         users={shownFollowings}
-                        followHandler
+                        followHandler={followHandler}
                         emptyMessage="You don't follow anyone" />
                     <Grid container justify="center">
                             <Pagination shape="rounded"
