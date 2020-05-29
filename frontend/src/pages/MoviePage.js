@@ -23,14 +23,16 @@ export default function MoviePage(props) {
     const [movie, setMovie] = React.useState(null)
 
     const genGenreChips = (movie) => {
-        return movie.genres.map((gen, index) => (
-            <Chip
-                key={index}
-                label={gen}
-                variant="outlined"
-                color="primary"
-                style={styles.genre} />
-        ))
+        return movie.genres.map((gen, index) => {
+            return (
+                <Chip
+                    key={index}
+                    label={gen}
+                    variant="outlined"
+                    color="primary"
+                    style={styles.genre} />
+            )
+        })
     }
 
     const displayRatings = (ratings) => {
@@ -42,15 +44,16 @@ export default function MoviePage(props) {
             if (rating.source === 'internal') {
                 movie.ratings[i].source = 'Movienator'
             }
-            if (rating.count <= 0){
+            if (rating.count <= 0) {
                 len -= 1
             }
+            return movie.ratings[i]
         })
         return movie.ratings.map((rating, i) => {
             if (rating.source === 'user') {
-                return
+                return null
             }
-            else if (rating.count > 0){
+            else if (rating.count > 0) {
                 return (
                     <Grid item xs={12 / len} key={i}>
                         <Typography variant="h6" component="h3">
@@ -67,6 +70,7 @@ export default function MoviePage(props) {
                     </Grid>
                 )
             }
+            return movie.ratings[i]
         })
     }
 

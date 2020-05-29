@@ -5,7 +5,7 @@ import UsersListElement from './UsersListElement'
 
 export default function UsersListDisplay(props) {
     return (
-        props.users && props.users.length != 0 ?
+        props.users && props.users.length !== 0 ?
             <Grid container>
                 {
                     props.users.map((user, i) => {

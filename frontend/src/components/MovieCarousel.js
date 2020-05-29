@@ -22,7 +22,7 @@ export default function MovieCarousel(props) {
     const classes = useStyles()
 
     return (
-        (props.movies && props.movies.length != 0) ?
+        (props.movies && props.movies.length !== 0) ?
         <Tabs
             value={0}
             variant="standard"
@@ -41,6 +41,7 @@ export default function MovieCarousel(props) {
                         icon={
                             <img
                                 src={movie.poster ? movie.poster : require('../assets/blank_poster.png')}
+                                alt={movie.title + " poster"}
                                 style={{ width: '140px' }} />
                         }
                     />
