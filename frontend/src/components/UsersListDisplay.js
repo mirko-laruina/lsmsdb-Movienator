@@ -2,6 +2,7 @@ import React from 'react'
 import { Grid, Button, Typography } from '@material-ui/core'
 import { Link } from 'react-router-dom'
 import UsersListElement from './UsersListElement'
+import FollowButton from './FollowButton'
 
 export default function UsersListDisplay(props) {
     return (
@@ -24,30 +25,13 @@ export default function UsersListDisplay(props) {
                                                 </Link>
                                             </Grid>
                                             <Grid item xs={3}>
-                                                {
-                                                    !user.following ?
-                                                        <Button
-                                                            fullWidth
-                                                            variant="outlined"
-                                                            color="primary"
-                                                            size="small"
-                                                            onClick={() => {
-                                                                props.followHandler(user.username)
-                                                            }}>
-                                                            Follow
-                                                        </Button>
-                                                        :
-                                                        <Button
-                                                            fullWidth
-                                                            variant="contained"
-                                                            color="primary"
-                                                            size="small"
-                                                            onClick={() => {
-                                                                props.followHandler(user.username, false)
-                                                            }}>
-                                                            Unfollow
-                                                        </Button>
-                                                }
+                                                <FollowButton
+                                                    fullWidth
+                                                    size="small"
+                                                    user={user.username}
+                                                    following={user.following}
+                                                    onClick={() => props.followHandler()}
+                                                />
                                             </Grid>
                                         </>
                                 }

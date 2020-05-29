@@ -97,21 +97,6 @@ export default function SocialPage(props) {
         }).catch((error) => httpErrorhandler(error))
     }
 
-    const followHandler = (user, toFollow = true) => {
-        axios.post(baseUrl + "/user/" + user + (toFollow ? "/follow" : "/unfollow"), null, {
-            params: {
-                sessionId: localStorage.getItem('sessionId'),
-            }
-        }).then((data) => {
-            if(data.data.success){
-                getAllSocial()
-            } else {
-                alert("I couldn't " +(toFollow ? "follow" : "unfollow") + " the user!");
-                errorHandler(data.data.code, data.data.message)
-            }
-        }).catch((error) => httpErrorhandler(error))
-    }
-
     const setFollowers = (followers) => {
         setShownFollowers(followers.list);
         setFollowersPageCount(Math.ceil(followers.totalCount/followersPerPage))
@@ -198,7 +183,7 @@ export default function SocialPage(props) {
                     <UsersListDisplay
                         showFollow
                         users={shownFollowers}
-                        followHandler={followHandler}
+                        followHandler={getAllSocial}
                         emptyMessage="You don't have any follower" />
                     <Grid container justify="center">
                             <Pagination shape="rounded"
@@ -219,7 +204,7 @@ export default function SocialPage(props) {
                     <UsersListDisplay
                         showFollow
                         users={shownFollowings}
-                        followHandler={followHandler}
+                        followHandler={getAllSocial}
                         emptyMessage="You don't follow anyone" />
                     <Grid container justify="center">
                             <Pagination shape="rounded"
