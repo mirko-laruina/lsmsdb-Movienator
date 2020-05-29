@@ -32,7 +32,7 @@ export default function MovieListDisplay(props) {
                     <Typography variant="body1">No movies found</Typography>)
                 ||
                 props.array.map((data, index) => (
-                    <div key={index}>
+                    <React.Fragment key={index}>
                         <ListItem component={Link} to={"/movie/" + data.id} alignItems="flex-start">
                             <ListItemAvatar children={
                                 <img alt={data.title}
@@ -42,28 +42,31 @@ export default function MovieListDisplay(props) {
                             </ListItemAvatar>
                             <ListItemText
                                 primary={
-                                    data.genres &&
+                                    data.title &&
                                     <React.Fragment>
-                                        <h4>{data.title} ({data.year})</h4>
-                                        {data.genres.map((gen, index) => (
+                                        <Typography variant="h4" component="h2">
+                                            {data.title} {data.year ? "(" + data.year + ")" : ""}
+                                        </Typography>
+                                        {data.genres && data.genres.map((gen, index) => (
                                             <Chip key={index} size="small" label={gen} variant="outlined" color="primary" style={styles.genre} />
                                         ))}
+                                        <br />
                                     </React.Fragment>
                                 }
-                                primaryTypographyProps={{ variant: 'body2' }}
+                                disableTypography
                                 secondary={
                                     <React.Fragment>
                                         <br />
                                         {data.description &&
                                             <React.Fragment>
-                                            <Typography
-                                                component="span"
-                                                variant="body1"
-                                                color="textPrimary">
-                                                {data.description}
-                                            </Typography>
-                                            <br />
-                                            <br />
+                                                <Typography
+                                                    component="span"
+                                                    variant="body1"
+                                                    color="textPrimary">
+                                                    {data.description}
+                                                </Typography>
+                                                <br />
+                                                <br />
                                             </React.Fragment>
                                         }
                                         {data.totalRating &&
@@ -80,7 +83,7 @@ export default function MovieListDisplay(props) {
                                                 <br />
                                             </React.Fragment>
                                         }
-                                        {   data.userRating &&
+                                        {data.userRating &&
                                             <React.Fragment>
                                                 <Typography
                                                     component="span"
@@ -93,7 +96,7 @@ export default function MovieListDisplay(props) {
                                                 <UserRating
                                                     movieId={data.id}
                                                     rating={data.userRating}
-                                                    readOnly/>
+                                                    readOnly />
                                             </React.Fragment>
                                         }
                                     </React.Fragment>
@@ -101,7 +104,7 @@ export default function MovieListDisplay(props) {
                             />
                         </ListItem>
                         <Divider component="li" />
-                    </div >
+                    </React.Fragment >
                 ))}
         </List>
     )
