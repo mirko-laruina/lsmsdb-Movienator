@@ -12,11 +12,11 @@ import axios from 'axios'
 export default function ProfilePage(props) {
     const [infos, setInfos] = React.useState({})
     const [admin, setAdmin] = React.useState(false)
-    const user = props.match.params.username
+    const user = props.match.params.username ? props.match.params.username : localStorage.getItem('username')
     const [loading, setLoading] = React.useState(true)
     const [newPassword, setNewPassword] = React.useState("")
     const [errorPw, setErrorPw] = React.useState(false)
-    const [isUserSelf, setIsUserSelf] = React.useState(false)
+    const [isTargetUser, setIsTargetUser] = React.useState(false)
 
     const changePassword = () => {
         axios.post(baseUrl + "/auth/password", null, {
@@ -34,33 +34,9 @@ export default function ProfilePage(props) {
         setErrorPw(false)
     }
 
-    useEffect(() => {
-        setIsUserSelf(
-            !props.match.params.username
-            ||
-            props.match.params.username === localStorage.getItem('username')
-        )
-        let reqUser = localStorage.getItem('username')
-        if (!reqUser) {
-            //not logged in
-            return;
-        }
-        let urlUser = props.match.params.username
-        setAdmin(localStorage.getItem('is_admin'))
-        // Note: setAdmin is async, so in the if
-        // we can't check the admin variable directly
-        if (urlUser
-            && reqUser !== urlUser
-            && !localStorage.getItem('is_admin')) {
-            //logged in but requested another user profile page
-            return
-        }
-
-        if (urlUser) {
-            // Admin requesting another user profile page 
-            reqUser = urlUser
-        }
-        let url = baseUrl + "/user/" + reqUser
+    const getProfile = () => {
+        setLoading(true)
+        let url = baseUrl + "/user/" + user
         axios.get(url, {
             params: {
                 sessionId: localStorage.getItem('sessionId')
@@ -73,8 +49,17 @@ export default function ProfilePage(props) {
                 errorHandler(data.data.code, data.data.message)
             }
         }).catch((error) => httpErrorhandler(error))
+    }
 
-        setLoading(true)
+    useEffect(() => {
+        setIsTargetUser(
+            !props.match.params.username
+            ||
+            props.match.params.username === localStorage.getItem('username')
+        )
+        setAdmin(localStorage.getItem('is_admin'))
+
+        getProfile()
     }, [props.match.params.username])
 
     const banUser = () => {
@@ -102,7 +87,7 @@ export default function ProfilePage(props) {
 
             {
                 loading ?
-                    <ProfilePageSkeleton showPw={isUserSelf}/>
+                    <ProfilePageSkeleton showPw={isTargetUser}/>
                     :
                     <React.Fragment>
                         <Typography variant="h3" component="h1">
@@ -132,33 +117,41 @@ export default function ProfilePage(props) {
                         <Typography variant="h5" component='p'>
                             Username: {infos.username}
                         </Typography>
-                        <Typography variant="h5" component='p'>
-                            Email: {infos.email}
-                        </Typography>
+                        {
+                            (admin !== 'false'
+                                ||
+                                isTargetUser) &&
+
+                            <Typography variant="h5" component='p'>
+                                Email: {infos.email}
+                            </Typography>
+                        }
                         <br />
                         <Grid container>
                             <Grid item xs={9}>
                                 <Typography variant="h4" component='h2'>
-                                    The things you like
+                                    {isTargetUser ? "The things you like" : ("The things " + user + " likes")}
                                 </Typography>
                             </Grid>
-                            <Grid item xs={3}>
-                                <Button fullWidth
-                                    variant="outlined"
-                                    size="large"
-                                    color="primary"
-                                    component={Link}
-                                    to={
-                                        admin === 'false' || !props.match.params.username
-                                            ?
-                                            "/history"
-                                            :
-                                            "/history/" + props.match.params.username
-                                    }
-                                >
-                                    Rating history
-                                </Button>
-                            </Grid>
+                            {
+                                <Grid item xs={3}>
+                                    <Button fullWidth
+                                        variant="outlined"
+                                        size="large"
+                                        color="primary"
+                                        component={Link}
+                                        to={
+                                            isTargetUser
+                                                ?
+                                                "/history"
+                                                :
+                                                "/history/" + user
+                                        }
+                                    >
+                                        Rating history
+                                    </Button>
+                                </Grid>
+                            }
                         </Grid>
                         <br />
                         <Typography variant="h5" component='h3'>
@@ -190,7 +183,7 @@ export default function ProfilePage(props) {
                         <br />
                         <br />
                         {
-                            isUserSelf
+                            isTargetUser
                             &&
                             <React.Fragment>
                                 <Typography variant="h4" component='h2'>
