@@ -11,6 +11,7 @@ import UsersListDisplay from '../components/UsersListDisplay'
 
 export default function SocialPage(props) {
     const [isAdmin, setIsAdmin] = React.useState(false);
+    const [firstLoad, setFirstLoad] = React.useState(true);
     //True if the page we are trying to show regards the user who wants to display it
     const [isTargetUser, setIsTargetUser] = React.useState(false);
     const username = props.match.params.username ? props.match.params.username : localStorage.getItem('username');
@@ -37,6 +38,7 @@ export default function SocialPage(props) {
         }
 
         getAllSocial()
+        setFirstLoad(false);
     }, [])
 
     const getAllSocial = () => {
@@ -121,11 +123,13 @@ export default function SocialPage(props) {
 
 
     useEffect(() => {
-        getFollowers()
+        if(!firstLoad)
+            getFollowers()
     }, [followersCurrentPage])
 
     useEffect(() => {
-        getFollowings()
+        if(!firstLoad)
+            getFollowings()
     }, [followingsCurrentPage])
     
 
