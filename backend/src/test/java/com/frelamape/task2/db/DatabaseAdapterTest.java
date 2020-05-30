@@ -1,12 +1,13 @@
 package com.frelamape.task2.db;
 
+import java.util.Date;
+
 import org.junit.Assert;
 import org.junit.BeforeClass;
+import org.junit.Ignore;
 import org.junit.Test;
 
-import java.util.Date;
-import java.util.List;
-
+@Ignore
 public class DatabaseAdapterTest {
     private static DatabaseAdapter dba;
     private static User user1;
