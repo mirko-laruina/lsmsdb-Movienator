@@ -7,13 +7,14 @@ import HistoryTable from '../components/HistoryTable'
 import ControlPanelSkeleton from '../skeletons/ControlPanelSkeleton'
 import { baseUrl, errorHandler, httpErrorhandler } from '../utils'
 import axios from 'axios'
+import MyPagination from '../components/MyPagination'
 
 export default function ControlPanel(props) {
     const [loading, setLoading] = React.useState(true)
     const [searchValue, setSearch] = React.useState("")
     const [ratings, setRatings] = React.useState([])
     const [currentPage, setCurrentPage] = React.useState(1)
-    const [pageCount, setPageCount] = React.useState(0)
+    const [lastPage, setLastPage] = React.useState(true)
     const ratingPerPage = 10
 
     useEffect(() => {
@@ -26,7 +27,7 @@ export default function ControlPanel(props) {
         }).then((data) => {
             if (data.data.success) {
                 setRatings(data.data.response.list)
-                setPageCount(Math.ceil(parseInt(data.data.response.totalCount) / ratingPerPage))
+                setLastPage(data.data.response.lastPage)
                 setLoading(false)
             } else {
                 errorHandler(data.data.code, data.data.message);
@@ -91,14 +92,10 @@ export default function ControlPanel(props) {
                         />
                         <br />
                         <Grid container justify="center">
-                            <Pagination shape="rounded"
-                                showFirstButton
-                                showLastButton
-                                color="primary"
-                                size="large"
-                                count={pageCount}
-                                page={currentPage}
-                                onChange={(e, v) => setCurrentPage(v)} />
+                            <MyPagination 
+                                lastPage={lastPage}
+                                currentPage={currentPage}
+                                onClick={(v) => setCurrentPage(v)} />
                         </Grid>
                     </React.Fragment>
             }

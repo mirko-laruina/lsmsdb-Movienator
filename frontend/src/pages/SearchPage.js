@@ -3,7 +3,7 @@ import { useEffect } from 'react'
 import BasicPage from './BasicPage.js'
 import { Typography, Grid, FormControl, InputBase } from '@material-ui/core'
 import SearchIcon from '@material-ui/icons/Search'
-import Pagination from '@material-ui/lab/Pagination';
+import MyPagination from '../components/MyPagination';
 import MovieListDisplay from '../components/MovieListDisplay'
 
 import { baseUrl, errorHandler, httpErrorhandler } from '../utils.js'
@@ -11,7 +11,7 @@ import axios from 'axios';
 
 export default function BrowsePage(props) {
     const [movies, setMovies] = React.useState([]);
-    const [pageCount, setPageCount] = React.useState(0);
+    const [lastPage, setLastPage] = React.useState(true)
     const [currentPage, setCurrentPage] = React.useState(1);
     const [loading, setLoading] = React.useState(true);
     const [searchValue, setSearchValue] = React.useState("");
@@ -33,7 +33,7 @@ export default function BrowsePage(props) {
             }).then(function (res) {
                 if (res.data.success) {
                     setMovies(res.data.response.list)
-                    setPageCount(Math.ceil(parseInt(res.data.response.totalCount) / filmPerPage))
+                    setLastPage(res.data.response.lastPage)
                     setLoading(false);
                 } else {
                     errorHandler(res.data.code, res.data.message)
@@ -43,7 +43,7 @@ export default function BrowsePage(props) {
 
         setLoading(true)
         searchRequest()
-    }, [pageCount, currentPage, props.match.params.query, queryValue]);
+    }, [currentPage, props.match.params.query, queryValue]);
 
     return (
         <BasicPage history={props.history}>
@@ -81,14 +81,10 @@ export default function BrowsePage(props) {
                 array={movies}
             />
             <Grid container justify="center">
-                <Pagination shape="rounded"
-                    showFirstButton
-                    showLastButton
-                    color="primary"
-                    size="large"
-                    count={pageCount}
-                    page={currentPage}
-                    onChange={(e, v) => {
+                <MyPagination 
+                    lastPage={lastPage}
+                    currentPage={currentPage}
+                    onClick={(v) => {
                         setCurrentPage(v);
                         window.scrollTo(0, 0);
                     }} />

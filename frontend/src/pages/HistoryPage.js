@@ -1,16 +1,16 @@
 import React, { useEffect } from 'react'
 import { Link } from 'react-router-dom'
-import { Pagination } from '@material-ui/lab'
 import RestrictedPage from './RestrictedPage'
 import HistoryTable from '../components/HistoryTable'
 import HistoryPageSkeleton from '../skeletons/HistoryPageSkeleton'
 import { baseUrl, errorHandler, httpErrorhandler } from '../utils'
 import { Typography, Grid, Button } from '@material-ui/core'
 import axios from 'axios'
+import MyPagination from '../components/MyPagination'
 
 export default function HistoryPage(props) {
     const [movies, setMovies] = React.useState([]);
-    const [pageCount, setPageCount] = React.useState(0);
+    const [lastPage, setLastPage] = React.useState(true);
     const [currentPage, setCurrentPage] = React.useState(1);
     const [loading, setLoading] = React.useState(true);
     const filmPerPage = 10;
@@ -36,7 +36,7 @@ export default function HistoryPage(props) {
             console.log(data.data)
             if (data.data.success) {
                 setMovies(data.data.response.list)
-                setPageCount(Math.ceil(parseInt(data.data.response.totalCount) / filmPerPage))
+                setLastPage(data.data.response.lastPage)
                 setLoading(false);
             } else {
                 errorHandler(data.data.code, data.data.message)
@@ -94,14 +94,10 @@ export default function HistoryPage(props) {
                         />
                         <br />
                         <Grid container justify="center">
-                            <Pagination shape="rounded"
-                                showFirstButton
-                                showLastButton
-                                color="primary"
-                                size="large"
-                                count={pageCount}
-                                page={currentPage}
-                                onChange={(e, v) => setCurrentPage(v)} />
+                            <MyPagination
+                                lastPage={lastPage}
+                                currentPage={currentPage}
+                                onClick={(v) => setCurrentPage(v)} />
                         </Grid>
                     </React.Fragment>
 
