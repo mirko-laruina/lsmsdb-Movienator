@@ -48,7 +48,7 @@ export default function SocialPage(props) {
             n_followings: followingsPerPage,
             n_followers: followersPerPage,
         }
-        if(isTargetUser){
+        if (isTargetUser) {
             params.n_suggestions = suggestionsPerPage
         }
         axios.get(baseUrl + "/user/" + username + "/social", {
@@ -57,7 +57,7 @@ export default function SocialPage(props) {
             if (data.data.success) {
                 setFollowers(data.data.response.followers);
                 setFollowings(data.data.response.followings);
-                if(isTargetUser){
+                if (isTargetUser) {
                     setSuggested(data.data.response.suggestions);
                 }
             } else {
@@ -74,7 +74,7 @@ export default function SocialPage(props) {
                 page: followersCurrentPage
             }
         }).then((data) => {
-            if(data.data.success){
+            if (data.data.success) {
                 setFollowers(data.data.response)
             } else {
                 errorHandler(data.data.code, data.data.message)
@@ -90,7 +90,7 @@ export default function SocialPage(props) {
                 page: followingsCurrentPage
             }
         }).then((data) => {
-            if(data.data.success){
+            if (data.data.success) {
                 setFollowings(data.data.response)
             } else {
                 errorHandler(data.data.code, data.data.message)
@@ -100,12 +100,12 @@ export default function SocialPage(props) {
 
     const setFollowers = (followers) => {
         setShownFollowers(followers.list);
-        setFollowersPageCount(Math.ceil(followers.totalCount/followersPerPage))
+        setFollowersPageCount(Math.ceil(followers.totalCount / followersPerPage))
     }
 
     const setFollowings = (followings) => {
         setShownFollowings(followings.list);
-        setFollowingsPageCount(Math.ceil(followings.totalCount/followingsPerPage))
+        setFollowingsPageCount(Math.ceil(followings.totalCount / followingsPerPage))
     }
 
     const setSuggested = (suggested) => {
@@ -114,15 +114,15 @@ export default function SocialPage(props) {
 
 
     useEffect(() => {
-        if(!firstLoad)
+        if (!firstLoad)
             getFollowers()
     }, [followersCurrentPage])
 
     useEffect(() => {
-        if(!firstLoad)
+        if (!firstLoad)
             getFollowings()
     }, [followingsCurrentPage])
-    
+
 
     return (
         <BasicPage history={props.history}>
@@ -167,7 +167,7 @@ export default function SocialPage(props) {
                         {"Share interests with " + (isTargetUser ? "you" : username) + ":"}
                     </Typography>
                     <br />
-                    <UsersListDisplay 
+                    <UsersListDisplay
                         users={suggestedUsers}
                         horizontal
                         emptyMessage="I can't suggest any user, try following someone first."
@@ -185,16 +185,16 @@ export default function SocialPage(props) {
                         showFollow
                         users={shownFollowers}
                         followHandler={getAllSocial}
-                        emptyMessage={(isTargetUser ? "You don't": (username + " doesn't")) + " have any follower"}/>
+                        emptyMessage={(isTargetUser ? "You don't" : (username + " doesn't")) + " have any follower"} />
                     <Grid container justify="center">
-                            <Pagination shape="rounded"
-                                showFirstButton
-                                showLastButton
-                                color="primary"
-                                size="large"
-                                count={followersPageCount}
-                                page={followersCurrentPage}
-                                onChange={(e, v) => setFollowersCurrentPage(v)} />
+                        <Pagination shape="rounded"
+                            showFirstButton
+                            showLastButton
+                            color="primary"
+                            size="large"
+                            count={followersPageCount}
+                            page={followersCurrentPage}
+                            onChange={(e, v) => setFollowersCurrentPage(v)} />
                     </Grid>
                 </Grid>
                 <Grid item xs={6}>
@@ -206,27 +206,32 @@ export default function SocialPage(props) {
                         showFollow
                         users={shownFollowings}
                         followHandler={getAllSocial}
-                        emptyMessage={(isTargetUser ? "You don't": (username + " doesn't")) + " follow anyone"}/>
+                        emptyMessage={(isTargetUser ? "You don't" : (username + " doesn't")) + " follow anyone"} />
                     <Grid container justify="center">
-                            <Pagination shape="rounded"
-                                showFirstButton
-                                showLastButton
-                                color="primary"
-                                size="large"
-                                count={followingsPageCount}
-                                page={followingsCurrentPage}
-                                onChange={(e, v) => setFollowingsCurrentPage(v)} />
+                        <Pagination shape="rounded"
+                            showFirstButton
+                            showLastButton
+                            color="primary"
+                            size="large"
+                            count={followingsPageCount}
+                            page={followingsCurrentPage}
+                            onChange={(e, v) => setFollowingsCurrentPage(v)} />
                     </Grid>
                 </Grid>
 
                 <br />
-                <Typography variant="h4" component="h2">
-                    {"Hot among " + (isTargetUser ? "your" : (username+"'s")) + " followings"}
-                </Typography>
-                <br />
-                <br />
-                <br />
-                <FollowingsRatingTable />
+                {
+                    isTargetUser &&
+                    <React.Fragment>
+                        <Typography variant="h4" component="h2">
+                            {"Hot among your followings"}
+                        </Typography>
+                        <br />
+                        <br />
+                        <br />
+                        <FollowingsRatingTable />
+                    </React.Fragment>
+                }
             </Grid>
         </BasicPage>
     )
