@@ -11,6 +11,7 @@ import axios from 'axios'
 import FollowButton from '../components/FollowButton'
 
 export default function ProfilePage(props) {
+    const isAnon = localStorage.getItem('username') ? false : true
     const [infos, setInfos] = React.useState({})
     const [admin, setAdmin] = React.useState(false)
     const user = props.match.params.username ? props.match.params.username : localStorage.getItem('username')
@@ -87,7 +88,7 @@ export default function ProfilePage(props) {
                     :
                     <React.Fragment>
                         <Grid container alignItems="center" spacing={1}>
-                            <Grid item xs={isTargetUser ? 9 : 7}>
+                            <Grid item xs={(isTargetUser || isAnon) ? 9 : 7}>
                                 <Typography variant="h3" component="h1">
                                     Profile page
                         </Typography>
@@ -102,7 +103,7 @@ export default function ProfilePage(props) {
                                     Social profile
                                     </Button>
                             </Grid>
-                            {!isTargetUser &&
+                            {!isTargetUser && !isAnon &&
                                 <Grid item xs={2}>
                                     <FollowButton
                                         fullWidth
