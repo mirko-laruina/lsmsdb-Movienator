@@ -19,7 +19,6 @@ export default function FollowingsRatingTable(props) {
                 page: currentPage
             }
         }).then((data) => {
-            console.log(data.data)
             if (data.data.success) {
                 setRatings(data.data.response.list)
                 setPageCount(Math.ceil(parseInt(data.data.response.totalCount) / ratingsPerPage))

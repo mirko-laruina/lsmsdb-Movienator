@@ -9,6 +9,7 @@ import BasicPage from './BasicPage.js'
 import { baseUrl, errorHandler, httpErrorhandler } from '../utils'
 import UsersListDisplay from '../components/UsersListDisplay'
 import FollowingsRatingTable from '../components/FollowingsRatingTable.js';
+import FollowButton from '../components/FollowButton.js';
 
 export default function SocialPage(props) {
     const [isAdmin, setIsAdmin] = React.useState(false);
@@ -146,16 +147,13 @@ export default function SocialPage(props) {
                 </Grid>
                 {!isTargetUser &&
                     <Grid item xs={2}>
-                        <Button
-                            component={Link}
-                            to={"/profile/" + (isTargetUser ? "" : username)}
-                            variant="outlined"
-                            color="primary"
-                            size="large"
+                        <FollowButton
                             fullWidth
-                        >
-                            Follow
-                    </Button>
+                            size="large"
+                            user={username}
+                            onClick={() => { getAllSocial() }}
+                            following={true}
+                        />
                     </Grid>
                 }
             </Grid>
