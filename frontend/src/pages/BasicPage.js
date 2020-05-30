@@ -153,6 +153,12 @@ export default function BasicPage(props) {
 
         },
         {
+            label: 'Search user',
+            handler: () => {
+                props.history.push('/search')
+            }
+        },
+        {
             label: 'Rating history',
             handler: () => {
                 props.history.push('/history')

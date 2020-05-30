@@ -8,15 +8,16 @@ import { Typography } from '@material-ui/core'
 import MostLikedTable from '../components/MostLikedTable'
 import ProfilePageSkeleton from '../skeletons/ProfilePageSkeleton'
 import axios from 'axios'
+import FollowButton from '../components/FollowButton'
 
 export default function ProfilePage(props) {
     const [infos, setInfos] = React.useState({})
     const [admin, setAdmin] = React.useState(false)
-    const user = props.match.params.username
+    const user = props.match.params.username ? props.match.params.username : localStorage.getItem('username')
     const [loading, setLoading] = React.useState(true)
     const [newPassword, setNewPassword] = React.useState("")
     const [errorPw, setErrorPw] = React.useState(false)
-    const [isUserSelf, setIsUserSelf] = React.useState(false)
+    const [isTargetUser, setIsTargetUser] = React.useState(false)
 
     const changePassword = () => {
         axios.post(baseUrl + "/auth/password", null, {
@@ -34,33 +35,9 @@ export default function ProfilePage(props) {
         setErrorPw(false)
     }
 
-    useEffect(() => {
-        setIsUserSelf(
-            !props.match.params.username
-            ||
-            props.match.params.username === localStorage.getItem('username')
-        )
-        let reqUser = localStorage.getItem('username')
-        if (!reqUser) {
-            //not logged in
-            return;
-        }
-        let urlUser = props.match.params.username
-        setAdmin(localStorage.getItem('is_admin'))
-        // Note: setAdmin is async, so in the if
-        // we can't check the admin variable directly
-        if (urlUser
-            && reqUser !== urlUser
-            && !localStorage.getItem('is_admin')) {
-            //logged in but requested another user profile page
-            return
-        }
-
-        if (urlUser) {
-            // Admin requesting another user profile page 
-            reqUser = urlUser
-        }
-        let url = baseUrl + "/user/" + localStorage.getItem('username')// + reqUser
+    const getProfile = () => {
+        setLoading(true)
+        let url = baseUrl + "/user/" + user
         axios.get(url, {
             params: {
                 sessionId: localStorage.getItem('sessionId')
@@ -73,8 +50,17 @@ export default function ProfilePage(props) {
                 errorHandler(data.data.code, data.data.message)
             }
         }).catch((error) => httpErrorhandler(error))
+    }
 
-        setLoading(true)
+    useEffect(() => {
+        setIsTargetUser(
+            !props.match.params.username
+            ||
+            props.match.params.username === localStorage.getItem('username')
+        )
+        setAdmin(localStorage.getItem('is_admin') === 'true')
+
+        getProfile()
     }, [props.match.params.username])
 
     const banUser = () => {
@@ -97,11 +83,11 @@ export default function ProfilePage(props) {
         >
             {
                 loading ?
-                    <ProfilePageSkeleton showPw={isUserSelf} />
+                    <ProfilePageSkeleton showPw={isTargetUser} />
                     :
                     <React.Fragment>
                         <Grid container alignItems="center" spacing={1}>
-                            <Grid item xs={isUserSelf ? 9 : 7}>
+                            <Grid item xs={isTargetUser ? 9 : 7}>
                                 <Typography variant="h3" component="h1">
                                     Profile page
                         </Typography>
@@ -112,23 +98,39 @@ export default function ProfilePage(props) {
                                     size="large"
                                     color="primary"
                                     component={Link}
-                                    to={"/social/" + (isUserSelf ? "" : user)}>
+                                    to={"/social/" + (isTargetUser ? "" : user)}>
                                     Social profile
                                     </Button>
                             </Grid>
-                            {!isUserSelf &&
+                            {!isTargetUser &&
                                 <Grid item xs={2}>
-                                    <Button fullWidth
-                                        variant="outlined"
+                                    <FollowButton
+                                        fullWidth
                                         size="large"
-                                        color="primary"
-                                        onClick={alert}>
-                                        Follow
-                                    </Button>
+                                        user={infos.username}
+                                        onClick={() => { getProfile() }}
+                                        following={infos.following}
+                                    />
                                 </Grid>
                             }
                         </Grid>
-
+                        <br />
+                        {
+                            !isTargetUser && infos.following &&
+                            <>
+                                <Typography variant="h5" component="h2">
+                                    {"You are following " + user}
+                                </Typography>
+                            </>
+                        }
+                        {
+                            !isTargetUser && infos.follower &&
+                            <>
+                                <Typography variant="h5" component="h2">
+                                    {user + " is following you."}
+                                </Typography>
+                            </>
+                        }
                         <br />
                         <Grid container spacing={1}>
                             <Grid item xs={9}>
@@ -138,7 +140,7 @@ export default function ProfilePage(props) {
                             </Grid>
                             <Grid item xs={3}>
                                 {
-                                    admin !== 'false' &&
+                                    admin &&
                                     <Button fullWidth
                                         variant="outlined"
                                         size="large"
@@ -155,9 +157,9 @@ export default function ProfilePage(props) {
                             Username: {infos.username}
                         </Typography>
                         {
-                            (admin !== 'false'
+                            (admin
                                 ||
-                                isUserSelf) &&
+                                isTargetUser) &&
 
                             <Typography variant="h5" component='p'>
                                 Email: {infos.email}
@@ -167,11 +169,10 @@ export default function ProfilePage(props) {
                         <Grid container spacing={1}>
                             <Grid item xs={9}>
                                 <Typography variant="h4" component='h2'>
-                                    {isUserSelf ? "The things you like" : "The things he/she likes"}
+                                    {isTargetUser ? "The things you like" : ("The things " + user + " likes")}
                                 </Typography>
                             </Grid>
                             {
-                             (isUserSelf || admin !== 'false') &&
                                 <Grid item xs={3}>
                                     <Button fullWidth
                                         variant="outlined"
@@ -179,11 +180,11 @@ export default function ProfilePage(props) {
                                         color="primary"
                                         component={Link}
                                         to={
-                                            admin === 'false' || !props.match.params.username
+                                            isTargetUser
                                                 ?
                                                 "/history"
                                                 :
-                                                "/history/" + props.match.params.username
+                                                "/history/" + user
                                         }
                                     >
                                         Rating history
@@ -221,7 +222,7 @@ export default function ProfilePage(props) {
                         <br />
                         <br />
                         {
-                            isUserSelf
+                            isTargetUser
                             &&
                             <React.Fragment>
                                 <Typography variant="h4" component='h2'>
