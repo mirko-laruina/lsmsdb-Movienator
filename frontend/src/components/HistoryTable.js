@@ -42,7 +42,7 @@ export default function HistoryTable(props) {
                 <Table className={classes.table} aria-label="caption table">
                     <TableHead classes={{ root: classes.tableHead }}>
                         <TableRow>
-                            {props.adminView &&
+                            {props.showUser &&
                                 <TableCell>Username</TableCell>
                             }
                             <TableCell>Movie</TableCell>
@@ -56,7 +56,7 @@ export default function HistoryTable(props) {
                             return (
                                 <TableRow key={i} classes={{ root: classes.tableRow }}>
                                     {
-                                        props.adminView &&
+                                        props.showUser &&
                                         <TableCell component='th' scope="row">
                                             <Link to={"/profile/" + row.username}>
                                                 <Typography variant="body1" color="primary">
@@ -75,10 +75,10 @@ export default function HistoryTable(props) {
                                     <TableCell align="center">{row.year}</TableCell>
                                     <TableCell align="center">
                                         <UserRating
-                                            showDelete
+                                            showDelete={props.showDelete}
                                             readOnly={props.readOnly}
                                             rating={row.rating}
-                                            user={props.adminView ? row.username : false}
+                                            user={props.showUser ? row.username : false}
                                             movieId={row.movieId}
                                         />
                                     </TableCell>

@@ -1,4 +1,4 @@
-import React, { useEffect } from 'react';
+import React from 'react';
 import { Link } from 'react-router-dom';
 
 /* Graphical components material-ui */
@@ -119,7 +119,9 @@ export default function HomePage(props) {
       <MyCard>
         <Typography variant="h4" component="h2">Some movies you could like</Typography>
         <br />
-        <SuggestedMovies />
+        { localStorage.getItem('sessionId') != null && (
+          <SuggestedMovies />
+        )}
       </MyCard>
     </BasicPage>
   );
