@@ -828,24 +828,6 @@ public class MongoDBAdapter {
     }
 
     /**
-     * Authenticates the given user.
-     *
-     * @param u User instance that must contain username and password.
-     * @return User instance with all user information.
-     */
-    public User authUser(User u){
-        Document userDocument = usersCollection.find(
-                and(eq("username", u.getUsername()),
-                        eq("password", u.getPassword())
-                ))
-                .first();
-        if (userDocument == null)
-            return null;
-        else
-            return User.Adapter.fromDBObject(userDocument);
-    }
-
-    /**
      * Searches a user by name.
      *
      * This uses a text index in the User collection.
