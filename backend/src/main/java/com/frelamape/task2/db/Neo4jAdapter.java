@@ -13,6 +13,7 @@ import javax.annotation.PostConstruct;
 import javax.annotation.PreDestroy;
 
 import java.util.ArrayList;
+import java.util.List;
 
 import static org.neo4j.driver.Values.parameters;
 
@@ -63,7 +64,7 @@ public class Neo4jAdapter {
         // TODO
         return new QuerySubset<>(
                 new ArrayList<>(),
-                -1
+                false
         );    }
 
     public User.Relationship getUserRelationship(User u1, User u2) {
@@ -100,10 +101,16 @@ public class Neo4jAdapter {
                         "LIMIT $limit",
                     parameters("username", user.getUsername(),
                             "skip", n*(page-1),
-                            "limit", n));
+                            "limit", n+1));
+            
+            List<User> users = User.Adapter.fromNeo4jResult(result);
+            boolean lastPage = users.size() <= n;
+            if (!lastPage)
+                users.remove(n);
+    
             return new QuerySubset<>(
-                    User.Adapter.fromNeo4jResult(result),
-                    -1
+                users,
+                lastPage
             );
         }
     }
@@ -121,10 +128,16 @@ public class Neo4jAdapter {
                         "LIMIT $limit",
                     parameters("username", user.getUsername(),
                             "skip", n*(page-1),
-                            "limit", n));
+                            "limit", n+1));
+                            
+            List<User> users = User.Adapter.fromNeo4jResult(result);
+            boolean lastPage = users.size() <= n;
+            if (!lastPage)
+                users.remove(n);
+    
             return new QuerySubset<>(
-                    User.Adapter.fromNeo4jResult(result),
-                    -1
+                users,
+                lastPage
             );
         }
     }
@@ -133,7 +146,7 @@ public class Neo4jAdapter {
         // TODO
         return new QuerySubset<>(
                 new ArrayList<>(),
-                -1
+                false
         );
     }
 
@@ -149,10 +162,16 @@ public class Neo4jAdapter {
                         "LIMIT $limit",
                     parameters("username", u.getUsername(),
                             "skip", n*(page-1),
-                            "limit", n));
+                            "limit", n+1));
+            
+            List<RatingExtended> ratings = RatingExtended.Adapter.fromNeo4jResult(result);
+            boolean lastPage = ratings.size() <= n;
+            if (!lastPage)
+                ratings.remove(n);
+    
             return new QuerySubset<>(
-                    RatingExtended.Adapter.fromNeo4jResult(result),
-                    -1
+                ratings,
+                lastPage
             );
         }
     }

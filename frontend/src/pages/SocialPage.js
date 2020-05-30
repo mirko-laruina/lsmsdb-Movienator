@@ -10,6 +10,7 @@ import { baseUrl, errorHandler, httpErrorhandler } from '../utils'
 import UsersListDisplay from '../components/UsersListDisplay'
 import FollowingsRatingTable from '../components/FollowingsRatingTable.js';
 import FollowButton from '../components/FollowButton.js';
+import MyPagination from '../components/MyPagination.js';
 
 export default function SocialPage(props) {
     const [isAdmin, setIsAdmin] = React.useState(false);
@@ -22,8 +23,8 @@ export default function SocialPage(props) {
     const [shownFollowings, setShownFollowings] = React.useState([]);
     const [followersCurrentPage, setFollowersCurrentPage] = React.useState(1);
     const [followingsCurrentPage, setFollowingsCurrentPage] = React.useState(1);
-    const [followersPageCount, setFollowersPageCount] = React.useState(0);
-    const [followingsPageCount, setFollowingsPageCount] = React.useState(0);
+    const [followersLastPage, setFollowersLastPage] = React.useState(true);
+    const [followingsLastPage, setFollowingsLastPage] = React.useState(true);
 
     const followingsPerPage = 5;
     const followersPerPage = 5;
@@ -101,12 +102,12 @@ export default function SocialPage(props) {
 
     const setFollowers = (followers) => {
         setShownFollowers(followers.list);
-        setFollowersPageCount(Math.ceil(followers.totalCount / followersPerPage))
+        setFollowersLastPage(followers.lastPage)
     }
 
     const setFollowings = (followings) => {
         setShownFollowings(followings.list);
-        setFollowingsPageCount(Math.ceil(followings.totalCount / followingsPerPage))
+        setFollowingsLastPage(followings.lastPage)
     }
 
     const setSuggested = (suggested) => {
@@ -185,14 +186,12 @@ export default function SocialPage(props) {
                         followHandler={getAllSocial}
                         emptyMessage={(isTargetUser ? "You don't" : (username + " doesn't")) + " have any follower"} />
                     <Grid container justify="center">
-                        <Pagination shape="rounded"
-                            showFirstButton
-                            showLastButton
-                            color="primary"
-                            size="large"
-                            count={followersPageCount}
-                            page={followersCurrentPage}
-                            onChange={(e, v) => setFollowersCurrentPage(v)} />
+                        <MyPagination 
+                            currentPage={followersCurrentPage}
+                            lastPage={followersLastPage}
+                            noBorder
+                            noText
+                            onClick={(v) => setFollowersCurrentPage(v)} />
                     </Grid>
                 </Grid>
                 <Grid item xs={6}>
@@ -206,14 +205,12 @@ export default function SocialPage(props) {
                         followHandler={getAllSocial}
                         emptyMessage={(isTargetUser ? "You don't" : (username + " doesn't")) + " follow anyone"} />
                     <Grid container justify="center">
-                        <Pagination shape="rounded"
-                            showFirstButton
-                            showLastButton
-                            color="primary"
-                            size="large"
-                            count={followingsPageCount}
-                            page={followingsCurrentPage}
-                            onChange={(e, v) => setFollowingsCurrentPage(v)} />
+                        <MyPagination 
+                            currentPage={followingsCurrentPage}
+                            lastPage={followingsLastPage}
+                            noBorder
+                            noText
+                            onClick={(v) => setFollowingsCurrentPage(v)} />
                     </Grid>
                 </Grid>
 

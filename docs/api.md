@@ -113,7 +113,7 @@ All parameters are optional. Default behaviour is sorting by release date (ascen
 		},
 		...
 	],
-	"totalCount": 51500
+	"lastPage": false
 }
 ```
 
@@ -143,7 +143,7 @@ the overall rating.
 		},
 		...
 	],
-	"totalCount": 5
+	"lastPage": false
 }
 ```
 
@@ -170,7 +170,7 @@ NB: only registered users.
 		},
 		...
 	],
-	"totalCount": 5
+	"lastPage": false
 }
 ```
 
@@ -289,7 +289,7 @@ Default behaviour is sorting by rating (descending).
 		},
 		...
 	],
-	"totalCount": 500
+	"lastPage": false
 }
 ```
 
@@ -363,7 +363,7 @@ Paging is supported.
 		},
 		...
 	],
-	"totalCount": 5
+	"lastPage": false
 }
 ```
 
@@ -389,7 +389,7 @@ Paging is supported.
 		},
 		...
 	],
-	"totalCount": 25
+	"lastPage": false
 }
 ```
 
@@ -414,7 +414,7 @@ Paging is supported.
 		},
 		...
 	],
-	"totalCount": 25
+	"lastPage": false
 }
 ```
 
@@ -440,7 +440,7 @@ NB: only the user himself can call this API.
 		},
 		...
 	],
-	"totalCount": 10
+	"lastPage": false
 }
 ```
 
@@ -468,7 +468,7 @@ NB: only the user himself will receive the list of suggested users
 			},
 			...
 		],
-		"totalCount": 25
+		"lastPage": false
 	},
 	"followings": {
 		"list": [
@@ -477,7 +477,7 @@ NB: only the user himself will receive the list of suggested users
 			},
 			...
 		],
-		"totalCount": 25
+		"lastPage": false
 	},
 	"suggestions": {
 		"list": [
@@ -486,8 +486,13 @@ NB: only the user himself will receive the list of suggested users
 			},
 			...
 		],
-		"totalCount": 10
+		"lastPage": false
 	},
+	"relationship": { (optional: present only if user making query is logged and not same user)
+      "following": true,
+      "follower": true
+    }
+
 }
 ```
 
@@ -555,7 +560,7 @@ Searches a user from a username (or part of). Paging is supported.
 		},
 		...
 	],
-	"totalCount": 100
+	"lastPage": false
 }
 ```
 
@@ -583,7 +588,7 @@ NB: only admins are allowed.
 		},
 		...
 	],
-	"totalCount": 5100
+	"lastPage": false
 }
 ```
 
@@ -611,6 +616,6 @@ NB: only registered users are allowed.
 		},
 		...
 	],
-	"totalCount": 5100
+	"lastPage": false
 }
 ```

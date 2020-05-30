@@ -3,8 +3,7 @@ import { useEffect } from 'react'
 import BasicPage from './BasicPage.js'
 import { Typography, Grid } from '@material-ui/core'
 
-import Pagination from '@material-ui/lab/Pagination';
-
+import MyPagination from '../components/MyPagination'
 import FilterDisplay from '../components/FilterDisplay.js';
 import Sorting from '../components/Sorting.js';
 import MovieListDisplay from '../components/MovieListDisplay'
@@ -16,7 +15,7 @@ export default function BrowsePage(props) {
     const [filters, setFilters] = React.useState({});
     const [sortOpt, setSortOpt] = React.useState({});
     const [movies, setMovies] = React.useState([]);
-    const [pageCount, setPageCount] = React.useState(0);
+    const [lastPage, setLastPage] = React.useState(true);
     const [currentPage, setCurrentPage] = React.useState(1);
     const [loading, setLoading] = React.useState(true);
     const filmPerPage = 10;
@@ -42,7 +41,7 @@ export default function BrowsePage(props) {
             }).then(function (res) {
                 if (res.data.success) {
                     setMovies(res.data.response.list)
-                    setPageCount(Math.ceil(parseInt(res.data.response.totalCount) / filmPerPage))
+                    setLastPage(res.data.response.lastPage)
                     setLoading(false);
                 } else {
                     errorHandler(res.data.code, res.data.message)
@@ -65,16 +64,12 @@ export default function BrowsePage(props) {
                 numFilm={filmPerPage}
                 array={movies}
             />
-            <Grid container justify="center">
-                <Pagination shape="rounded"
-                    showFirstButton
-                    showLastButton
-                    color="primary"
-                    size="large"
-                    count={pageCount}
-                    page={currentPage}
-                    onChange={(e, v) => setCurrentPage(v)} />
-            </Grid>
+            <br />
+            <MyPagination
+                currentPage={currentPage}
+                onClick={(v) => setCurrentPage(v)}
+                lastPage={lastPage}
+            />
         </BasicPage >
     )
 }
