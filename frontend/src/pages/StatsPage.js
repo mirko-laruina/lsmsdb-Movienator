@@ -14,6 +14,7 @@ import Sorting from '../components/Sorting'
 import { aggregation_fields, baseUrl, errorHandler, httpErrorhandler } from '../utils.js';
 
 import axios from 'axios'
+import MyPagination from '../components/MyPagination';
 
 const useStyles = makeStyles((theme) => (
     {
@@ -41,7 +42,7 @@ export default function StatsPage(props) {
     const [data, setData] = React.useState([]);
     const [loading, setLoading] = React.useState(true);
     const [currentPage, setCurrentPage] = React.useState(1);
-    const [pageCount, setPageCount] = React.useState(1);
+    const [lastPage, setLastPage] = React.useState(true);
 
     const sorts = ["Rating", "Count", "Alphabetic"];
     const filmPerPage = 10;
@@ -78,9 +79,7 @@ export default function StatsPage(props) {
             }).then(function (res) {
                 if (res.data.success) {
                     setData(res.data.response.list)
-                    if (res.data.response.list.length === filmPerPage) {
-                        setPageCount(currentPage + 1)
-                    }
+                    setLastPage(res.data.response.lastPage)
                     setLoading(false)
                 } else {
                     errorHandler(res.data.code, res.data.message)
@@ -139,14 +138,10 @@ export default function StatsPage(props) {
                         <br />
                         {!loading ?
                             <Grid container justify="center">
-                                <Pagination shape="rounded"
-                                    color="primary"
-                                    size="large"
-                                    count={pageCount}
-                                    page={currentPage}
-                                    siblingCount={0}
-                                    boundaryCount={1}
-                                    onChange={(e, v) => {
+                                <MyPagination
+                                    lastPage={lastPage}
+                                    currentPage={currentPage}
+                                    onClick={(v) => {
                                         setCurrentPage(v)
                                     }}
                                 />
