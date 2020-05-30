@@ -489,19 +489,19 @@ The code is structured in 3 modules:
 \end{itemize}
 
 \subsection{Authentication}
+This subsection gives an overview over the most important APIs for authentication and session management. Passwords are stored in the database in the form of a Pbkdf2 hash (128-bit, 10k iterations) which is computed using the \emph{Spring Security} package.
 
 \paragraph{Register}
-In order to register a user, it must first be checked that no user with same username and password exists (snippet 1) and then, if no duplicate entry is found, the user can be added to the database (snippet 2). If creation was successful, a new session for the new user is then added (snippet 5). Any subsequent API call must be accompanied by the session identifier in order to identify the user (snippet 6).
+In order to register a user, it must first be checked that no user with same username and password exists (snippet 1) and then, if no duplicate entry is found, the user can be added to the database (snippet 2). If creation was successful, a new session for the new user is then added (snippet 4). Any subsequent API call must be accompanied by the session identifier in order to identify the user (snippet 5).
 
 \paragraph{Change Password}
-This query (snippet 3) is simply done by matching the user by username and setting the new password.
+This query (snippet 3) is simply done by matching the user by username and setting the new password hash.
 
 \paragraph{Login}
-In order to authenticate the user, a matching user with same username and password is found in the database (snippet 4). If a user matches, a new session
-for the given user is then added (snippet 5).
+In order to authenticate the user, the user document is retrieved from the database and then the password hash is checked with the password. 
 
 \paragraph{Logout}
-The session is removed from the DB (snippet 7).
+The session is removed from the DB (snippet 6).
 
 \lstinputlisting[language=Java]{figs/code/authentication.java}
 
