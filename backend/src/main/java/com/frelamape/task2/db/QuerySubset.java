@@ -8,11 +8,19 @@ import java.util.List;
 
 public class QuerySubset<T> {
     private List<T> list;
-    private long totalCount;
+    private boolean lastPage = false;
 
-    public QuerySubset(List<T> list, long totalCount) {
+    public QuerySubset(List<T> list, boolean lastPage) {
         this.list = list;
-        this.totalCount = totalCount;
+        this.setLastPage(lastPage);
+    }
+
+    public boolean isLastPage() {
+        return lastPage;
+    }
+
+    public void setLastPage(boolean lastPage) {
+        this.lastPage = lastPage;
     }
 
     public List<T> getList() {
@@ -23,11 +31,5 @@ public class QuerySubset<T> {
         this.list = list;
     }
 
-    public long getTotalCount() {
-        return totalCount;
-    }
-
-    public void setTotalCount(long totalCount) {
-        this.totalCount = totalCount;
-    }
+    
 }

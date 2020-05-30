@@ -204,12 +204,16 @@ public class DatabaseAdapter {
                 .find()
                 .sort(descending("date"))
                 .skip(n*(page-1))
-                .limit(n)
+                .limit(n+1)
         );
+
+        boolean lastPage = ratings.size() <= n;
+        if (!lastPage)
+            ratings.remove(n);
 
         return new QuerySubset<>(
                 fillRatingExtended(ratings),
-               -1
+                lastPage
         );
     }
 
@@ -227,12 +231,16 @@ public class DatabaseAdapter {
                 .find(filter)
                 .sort(descending("date"))
                 .skip(n*(page-1))
-                .limit(n)
+                .limit(n+1)
         );
+
+        boolean lastPage = ratings.size() <= n;
+        if (!lastPage)
+            ratings.remove(n);
 
         return new QuerySubset<>(
                 fillRatingExtended(ratings),
-                -1
+                lastPage
         );
     }
 
@@ -553,11 +561,16 @@ public class DatabaseAdapter {
                 .sort(sorting)
                 .projection(include("title", "year", "poster", "genres", "total_rating", "description"))
                 .skip(n*(page-1))
-                .limit(n);
+                .limit(n+1);
+
+        List<Movie> movies = Movie.Adapter.fromDBObjectIterable(movieIterable);
+        boolean lastPage = movies.size() <= n;
+        if (!lastPage)
+        movies.remove(n);
 
         return new QuerySubset<>(
-                Movie.Adapter.fromDBObjectIterable(movieIterable),
-                -1
+                movies,
+                lastPage
         );
     }
 
@@ -600,11 +613,16 @@ public class DatabaseAdapter {
                 .projection(Projections.metaTextScore("score"))
                 .sort(Sorts.metaTextScore("score"))
                 .skip(n*(page-1))
-                .limit(n);
+                .limit(n+1);
+
+        List<Movie> movies = Movie.Adapter.fromDBObjectIterable(movieIterable);
+        boolean lastPage = movies.size() <= n;
+        if (!lastPage)
+            movies.remove(n);
 
         return new QuerySubset<>(
-                Movie.Adapter.fromDBObjectIterable(movieIterable),
-                -1
+                movies,
+                lastPage
         );
     }
 
@@ -743,15 +761,20 @@ public class DatabaseAdapter {
                         ),
                         Aggregates.sort(sorting),
                         Aggregates.skip(n*(page-1)),
-                        Aggregates.limit(n)
+                        Aggregates.limit(n+1)
                 )
         );//.iterator;
 
-        return new QuerySubset<>(
-                Statistics.Adapter.fromDBObjectIterable(iterable, groupClass),
-                -1
-        );
+        List<Statistics<Statistics.Aggregator>> stats = Statistics.Adapter
+                                .fromDBObjectIterable(iterable, groupClass);
+        boolean lastPage = stats.size() <= n;
+        if (!lastPage)
+            stats.remove(n);
 
+        return new QuerySubset<>(
+            stats,
+            lastPage
+        );
     }
 
     /**
@@ -842,11 +865,17 @@ public class DatabaseAdapter {
                 .projection(Projections.metaTextScore("score"))
                 .sort(Sorts.metaTextScore("score"))
                 .skip(n*(page-1))
-                .limit(n);
+                .limit(n+1);
+
+        List<User> users = User.Adapter.fromDBObjectIterable(userIterable);
+        boolean lastPage = users.size() <= n;
+        if (!lastPage)
+            users.remove(n);
 
         return new QuerySubset<>(
-                User.Adapter.fromDBObjectIterable(userIterable),
-                -1);
+            users,
+            lastPage
+        );
     }
 
     /**

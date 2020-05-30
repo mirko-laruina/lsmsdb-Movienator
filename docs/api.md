@@ -113,7 +113,7 @@ All parameters are optional. Default behaviour is sorting by release date (ascen
 		},
 		...
 	],
-	"totalCount": 51500
+	"lastPage": false
 }
 ```
 
@@ -143,7 +143,7 @@ the overall rating.
 		},
 		...
 	],
-	"totalCount": 5
+	"lastPage": false
 }
 ```
 
@@ -262,7 +262,7 @@ Default behaviour is sorting by rating (descending).
 		},
 		...
 	],
-	"totalCount": 500
+	"lastPage": false
 }
 ```
 
@@ -338,7 +338,7 @@ NB: only the user herself and admins are allowed.
 		},
 		...
 	],
-	"totalCount": 5
+	"lastPage": false
 }
 ```
 
@@ -409,6 +409,6 @@ NB: only admins are allowed.
 		},
 		...
 	],
-	"totalCount": 5100
+	"lastPage": false
 }
 ```
