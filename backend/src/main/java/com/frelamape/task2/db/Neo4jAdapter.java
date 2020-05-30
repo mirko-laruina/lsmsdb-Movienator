@@ -19,7 +19,6 @@ import static org.neo4j.driver.Values.parameters;
 
 @Component
 public class Neo4jAdapter {
-    // TODO
 
     private static final Logger logger = LoggerFactory.getLogger(Neo4jAdapter.class);
 
@@ -56,17 +55,39 @@ public class Neo4jAdapter {
         driver.close();
     }
 
+    /**
+     * Returns the Neo4j driver associated to this adapter.
+     */
     public Driver getDriver() {
         return driver;
     }
 
+    /**
+     * Retuns a list of suggested movies.
+     * 
+     * @param u the recipient of the suggestions
+     * @param n the number of suggestions
+     * @return a QuerySubset of n suggested movies.
+     */
     public QuerySubset<Movie> getMovieSuggestions(User u, int n) {
         // TODO
         return new QuerySubset<>(
                 new ArrayList<>(),
                 false
-        );    }
+        );    
+    }
 
+    /**
+     * Returns the relationships between user 1 and user 2.
+     * 
+     * This function will return 
+     * 
+     * @param u1 the first user
+     * @param u2 the second user
+     * @return a User.Relationship instance that indicates whether user 1 
+     *         follows user 2 (following) and whether user 2 follows user 1
+     *         (followed).
+     */
     public User.Relationship getUserRelationship(User u1, User u2) {
         try (org.neo4j.driver.Session session = driver.session()) {
             Result result = session.run(
@@ -88,6 +109,19 @@ public class Neo4jAdapter {
         return null;
     }
 
+    /**
+     * Returns the (paged) list of followers of user.
+     * 
+     * Each user will also contain a User.Relationship instance from the point
+     * of view (PoV) of the user making the query (relationshipPoV).
+     * 
+     * @param user the user whose followers are to be returned
+     * @param relationshipPoV the user whose relationships are to be returned
+     * @param n the number of users to return
+     * @param page the number of the current page (assuming all pages are of n 
+     *             elements).
+     * @return the list of followers of user.
+     */
     public QuerySubset<User> getFollowers(User user, User relationshipPoV, int n, int page) {
         try (org.neo4j.driver.Session session = driver.session()) {
             Result result = session.run(
@@ -118,6 +152,19 @@ public class Neo4jAdapter {
         }
     }
 
+    /**
+     * Returns the (paged) list of users that 'user' is following.
+     * 
+     * Each user will also contain a User.Relationship instance from the point
+     * of view (PoV) of the user making the query (relationshipPoV).
+     * 
+     * @param user the user whose followed are to be returned
+     * @param relationshipPoV the user whose relationships are to be returned
+     * @param n the number of users to return
+     * @param page the number of the current page (assuming all pages are of n 
+     *             elements).
+     * @return the list of users that 'user' is following.
+     */
     public QuerySubset<User> getFollowings(User user, User relationshipPoV, int n, int page) {
         try (org.neo4j.driver.Session session = driver.session()) {
             Result result = session.run(
@@ -148,6 +195,13 @@ public class Neo4jAdapter {
         }
     }
 
+    /**
+     * Returns a list of suggestions for new users to follow
+     * 
+     * @param user the user whom to receive suggestions for
+     * @param n the number of suggestions to be returned
+     * @return the list of suggestions
+     */
     public QuerySubset<User> getUserSuggestions(User user, int n) {
         // TODO
         return new QuerySubset<>(
@@ -156,6 +210,17 @@ public class Neo4jAdapter {
         );
     }
 
+    /**
+     * Returns the list of ratings of the users followed by u.
+     * 
+     * Ratings will be returned in chronological order (most recent first).
+     * 
+     * @param u the users whose follower's ratings are to be returned
+     * @param n the number of ratings to return 
+     * @param page the number of the current page (assuming all pages are of n 
+     *             elements).
+     * @return the list of (extended) ratings.
+     */
     public QuerySubset<RatingExtended> getFollowingRatings(User u, int n, int page) {
         try (org.neo4j.driver.Session session = driver.session()) {
             Result result = session.run(
@@ -182,6 +247,14 @@ public class Neo4jAdapter {
         }
     }
 
+    /**
+     * Creates a new user in Neo4j.
+     * 
+     * NB: Neo4j stores only username and id.
+     * 
+     * @param u the user to be created
+     * @return true if the transaction was successful, false otherwise
+     */
     public boolean insertUser(User u){
         try (org.neo4j.driver.Session session = driver.session()) {
             session.writeTransaction( tx -> tx.run(
@@ -193,6 +266,12 @@ public class Neo4jAdapter {
         }
     }
 
+    /**
+     * Creates or updates a RATED relationship in Neo4j.
+     * 
+     * @param r the rating to be added/updated
+     * @return true if the transaction was successful, false otherwise 
+     */
     public boolean insertRating(Rating r){
         try (org.neo4j.driver.Session session = driver.session()) {
             session.writeTransaction( tx -> tx.run(
@@ -209,6 +288,12 @@ public class Neo4jAdapter {
         }
     }
 
+    /**
+     * Deletes a rating from Neo4j.
+     * 
+     * @param r the rating to be deleted
+     * @return true if the transaction was successful, false otherwise
+     */
     public boolean deleteRating(Rating r){
         try (org.neo4j.driver.Session session = driver.session()) {
             session.writeTransaction( tx -> tx.run(
@@ -223,12 +308,19 @@ public class Neo4jAdapter {
         }
     }
 
+    /**
+     * Add a new FOLLOWS relationship from user A to user B.
+     * 
+     * @param a the user that is following
+     * @param b the user that is being followed
+     * @return true if the transaction was successful, false otherwise
+     */
     public boolean follow(User a, User b){
         try (org.neo4j.driver.Session session = driver.session()) {
             session.writeTransaction( tx -> tx.run(
                     "MATCH (a:User {username: $username_a}) " +
                             "MATCH (b:User {username: $username_b}) " +
-                            "CREATE (a)-[:FOLLOWS]->(b)",
+                            "MERGE (a)-[:FOLLOWS]->(b)",
                     parameters("username_a", a.getUsername(),
                             "username_b", b.getUsername()))
             );
@@ -236,6 +328,13 @@ public class Neo4jAdapter {
         }
     }
 
+    /**
+     * Removes the FOLLOWS relationship from user A to user B.
+     * 
+     * @param a the user that stopped following
+     * @param b the user that is no longer being followed
+     * @return true if the transaction was successful, false otherwise
+     */
     public boolean unfollow(User a, User b){
         try (org.neo4j.driver.Session session = driver.session()) {
             session.writeTransaction( tx -> tx.run(
