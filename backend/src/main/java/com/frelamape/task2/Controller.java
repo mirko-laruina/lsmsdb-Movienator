@@ -413,7 +413,17 @@ public class Controller {
                                                @RequestParam(required = false, defaultValue = "10") int n,
                                                @RequestParam(required = false, defaultValue = "1") int page
     ){
-        QuerySubset<User> followers = neo4jAdapter.getFollowers(new User(username), n, page);
+        User user = new User(username);
+
+        User povUser = null;
+        if (sid != null){
+            Session s = new Session(sid);
+            povUser = mongoDBAdapter.getUserFromSession(s);
+        } else{
+            povUser = user;
+        }
+
+        QuerySubset<User> followers = neo4jAdapter.getFollowers(user, povUser, n, page);
 
         if (followers != null){
             return ResponseHelper.success(followers);
@@ -429,7 +439,17 @@ public class Controller {
                                                @RequestParam(required = false, defaultValue = "10") int n,
                                                @RequestParam(required = false, defaultValue = "1") int page
     ){
-        QuerySubset<User> followings = neo4jAdapter.getFollowings(new User(username), n, page);
+        User user = new User(username);
+        
+        User povUser = null;
+        if (sid != null){
+            Session s = new Session(sid);
+            povUser = mongoDBAdapter.getUserFromSession(s);
+        } else{
+            povUser = user;
+        }
+
+        QuerySubset<User> followings = neo4jAdapter.getFollowings(user, povUser, n, page);
 
         if (followings != null){
             return ResponseHelper.success(followings);
@@ -468,24 +488,33 @@ public class Controller {
                                                      @RequestParam(required = false, defaultValue = "10") int n_followings,
                                                      @RequestParam(required = false, defaultValue = "10") int n_suggestions
     ){
-        User u = new User(username);
-        Future<QuerySubset<User>> followersFuture = neo4jTaskExecutor.getFollowers(u, n_followers, 1);
-        Future<QuerySubset<User>> followingsFuture = neo4jTaskExecutor.getFollowings(u, n_followings, 1);
-        Future<QuerySubset<User>> suggestionsFuture = null;
+        User user = new User(username);
 
-        User su = null;
+        User userPoV = null;
+        boolean isSameUser;
         if (sid != null){
             Session s = new Session(sid);
-            su = mongoDBAdapter.getUserFromSession(s);
+            userPoV = mongoDBAdapter.getUserFromSession(s);
+            isSameUser = userPoV != null && userPoV.getUsername().equals(username);
+        } else{
+            userPoV = user;
+            isSameUser = false;
         }
+        Future<QuerySubset<User>> followersFuture = neo4jTaskExecutor.getFollowers(user, userPoV, n_followers, 1);
+        Future<QuerySubset<User>> followingsFuture = neo4jTaskExecutor.getFollowings(user, userPoV, n_followings, 1);
+        Future<QuerySubset<User>> suggestionsFuture = null;
+        Future<User.Relationship> relationshipFuture = null;
 
-        if (su != null && su.getUsername().equals(username)) {
-            suggestionsFuture = neo4jTaskExecutor.getUserSuggestions(u, n_suggestions);
+        if (isSameUser) {
+            suggestionsFuture = neo4jTaskExecutor.getUserSuggestions(user, n_suggestions);
+        } else if (user != userPoV){
+            relationshipFuture = neo4jTaskExecutor.getUserRelationship(userPoV, user);
         }
 
         QuerySubset<User> followers = null;
         QuerySubset<User> followings = null;
         QuerySubset<User> suggestions = null;
+        User.Relationship relationship = null;
 
         try {
             followers = followersFuture.get();
@@ -495,12 +524,14 @@ public class Controller {
             else {
                 suggestions = new QuerySubset<>(new ArrayList<>(), true);
             }
+            if (relationshipFuture != null)
+                relationship = relationshipFuture.get();
         } catch (InterruptedException | ExecutionException e) {
             e.printStackTrace();
         }
 
         if (!(followers == null && followings == null && suggestions == null)){
-            SocialProfileResponse response = new SocialProfileResponse(followers, followings, suggestions);
+            SocialProfileResponse response = new SocialProfileResponse(followers, followings, suggestions, relationship);
             return ResponseHelper.success(response);
         } else{
             return ResponseHelper.notFound();

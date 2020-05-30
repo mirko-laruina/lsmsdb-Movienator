@@ -88,18 +88,21 @@ public class Neo4jAdapter {
         return null;
     }
 
-    public QuerySubset<User> getFollowers(User user, int n, int page) {
+    public QuerySubset<User> getFollowers(User user, User relationshipPoV, int n, int page) {
         try (org.neo4j.driver.Session session = driver.session()) {
             Result result = session.run(
                         "MATCH (me:User {username: $username}) " +
+                        "MATCH (pov:User {username: $username_pov}) " +
                         "MATCH (user:User)-[:FOLLOWS]->(me) " +
                         "RETURN user.username as username, user._id as _id, " +
-                            "EXISTS((me)-[:FOLLOWS]->(user)) as following, " +
-                            "true as follower " +
+                            "EXISTS((pov)-[:FOLLOWS]->(user)) as following, " +
+                            "EXISTS((user)-[:FOLLOWS]->(pov)) as follower " +
                         "ORDER BY user.username " +
                         "SKIP $skip " +
                         "LIMIT $limit",
-                    parameters("username", user.getUsername(),
+                    parameters(
+                            "username", user.getUsername(),
+                            "username_pov", relationshipPoV.getUsername(),
                             "skip", n*(page-1),
                             "limit", n+1));
             
@@ -115,18 +118,21 @@ public class Neo4jAdapter {
         }
     }
 
-    public QuerySubset<User> getFollowings(User user, int n, int page) {
+    public QuerySubset<User> getFollowings(User user, User relationshipPoV, int n, int page) {
         try (org.neo4j.driver.Session session = driver.session()) {
             Result result = session.run(
                         "MATCH (me:User {username: $username}) " +
                         "MATCH (me)-[:FOLLOWS]->(user:User) " +
+                        "MATCH (pov:User {username: $username_pov}) " +
                         "RETURN user.username as username, user._id as _id, " +
-                            "true as following, " +
-                            "EXISTS((user)-[:FOLLOWS]->(me)) as follower " +
+                            "EXISTS((pov)-[:FOLLOWS]->(user)) as following, " +
+                            "EXISTS((user)-[:FOLLOWS]->(pov)) as follower " +
                         "ORDER BY user.username " +
                         "SKIP $skip " +
                         "LIMIT $limit",
-                    parameters("username", user.getUsername(),
+                    parameters(
+                            "username", user.getUsername(),
+                            "username_pov", relationshipPoV.getUsername(),
                             "skip", n*(page-1),
                             "limit", n+1));
                             

@@ -24,13 +24,13 @@ public class Neo4jTaskExecutor {
     }
 
     @Async("taskExecutor")
-    public Future<QuerySubset<User>> getFollowers(User user, int n, int page) {
-        return new AsyncResult<>(dba.getFollowers(user, n, page));
+    public Future<QuerySubset<User>> getFollowers(User user, User relationshipPoV, int n, int page) {
+        return new AsyncResult<>(dba.getFollowers(user, relationshipPoV, n, page));
     }
 
     @Async("taskExecutor")
-    public Future<QuerySubset<User>>getFollowings(User user, int n, int page) {
-        return new AsyncResult<>(dba.getFollowings(user, n, page));
+    public Future<QuerySubset<User>>getFollowings(User user, User relationshipPoV, int n, int page) {
+        return new AsyncResult<>(dba.getFollowings(user, relationshipPoV, n, page));
     }
 
     @Async("taskExecutor")
