@@ -488,6 +488,11 @@ NB: only the user himself will receive the list of suggested users
 		],
 		"lastPage": false
 	},
+	"relationship": { (optional: present only if user making query is logged and not same user)
+      "following": true,
+      "follower": true
+    }
+
 }
 ```
 
