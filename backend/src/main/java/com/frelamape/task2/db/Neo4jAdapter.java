@@ -228,7 +228,7 @@ public class Neo4jAdapter {
             session.writeTransaction( tx -> tx.run(
                     "MATCH (a:User {username: $username_a}) " +
                             "MATCH (b:User {username: $username_b}) " +
-                            "CREATE (a)-[:FOLLOWS]->(b)",
+                            "MERGE (a)-[:FOLLOWS]->(b)",
                     parameters("username_a", a.getUsername(),
                             "username_b", b.getUsername()))
             );
