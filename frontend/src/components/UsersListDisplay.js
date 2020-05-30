@@ -25,13 +25,16 @@ export default function UsersListDisplay(props) {
                                                 </Link>
                                             </Grid>
                                             <Grid item xs={3}>
-                                                <FollowButton
-                                                    fullWidth
-                                                    size="small"
-                                                    user={user.username}
-                                                    following={user.following}
-                                                    onClick={() => props.followHandler()}
-                                                />
+                                                {
+                                                    (props.noFollowUser !== user.username) &&
+                                                    <FollowButton
+                                                        fullWidth
+                                                        size="small"
+                                                        user={user.username}
+                                                        following={user.following}
+                                                        onClick={() => props.followHandler()}
+                                                    />
+                                                }
                                             </Grid>
                                         </>
                                 }

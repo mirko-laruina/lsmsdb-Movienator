@@ -1,5 +1,5 @@
 import React, { useEffect } from 'react';
-import { Grid, Typography, Button } from '@material-ui/core'
+import { Grid, Typography, Button, Box } from '@material-ui/core'
 import { Link } from 'react-router-dom'
 
 import axios from 'axios'
@@ -25,6 +25,7 @@ export default function SocialPage(props) {
     const [followingsCurrentPage, setFollowingsCurrentPage] = React.useState(1);
     const [followersLastPage, setFollowersLastPage] = React.useState(true);
     const [followingsLastPage, setFollowingsLastPage] = React.useState(true);
+    const [relationship, setRelationship] = React.useState({});
 
     const followingsPerPage = 5;
     const followersPerPage = 5;
@@ -59,6 +60,7 @@ export default function SocialPage(props) {
             if (data.data.success) {
                 setFollowers(data.data.response.followers);
                 setFollowings(data.data.response.followings);
+                setRelationship(data.data.response.relationship)
                 if (isTargetUser) {
                     setSuggested(data.data.response.suggestions);
                 }
@@ -153,7 +155,7 @@ export default function SocialPage(props) {
                             size="large"
                             user={username}
                             onClick={() => { getAllSocial() }}
-                            following={true}
+                            following={relationship.following}
                         />
                     </Grid>
                 }
@@ -182,17 +184,18 @@ export default function SocialPage(props) {
                     <br />
                     <UsersListDisplay
                         showFollow
+                        noFollowUser={localStorage.getItem('username')}
                         users={shownFollowers}
                         followHandler={getAllSocial}
                         emptyMessage={(isTargetUser ? "You don't" : (username + " doesn't")) + " have any follower"} />
-                    <Grid container justify="center">
+                    <Box justify="center">
                         <MyPagination 
                             currentPage={followersCurrentPage}
                             lastPage={followersLastPage}
                             noBorder
                             noText
                             onClick={(v) => setFollowersCurrentPage(v)} />
-                    </Grid>
+                    </Box>
                 </Grid>
                 <Grid item xs={6}>
                     <Typography variant="h4" component="h2" align="center">
@@ -201,17 +204,18 @@ export default function SocialPage(props) {
                     <br />
                     <UsersListDisplay
                         showFollow
+                        noFollowUser={localStorage.getItem('username')}
                         users={shownFollowings}
                         followHandler={getAllSocial}
                         emptyMessage={(isTargetUser ? "You don't" : (username + " doesn't")) + " follow anyone"} />
-                    <Grid container justify="center">
+                    <Box justify="center">
                         <MyPagination 
                             currentPage={followingsCurrentPage}
                             lastPage={followingsLastPage}
                             noBorder
                             noText
                             onClick={(v) => setFollowingsCurrentPage(v)} />
-                    </Grid>
+                    </Box>
                 </Grid>
 
                 <br />
