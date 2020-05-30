@@ -467,7 +467,7 @@ public class Controller {
             if (suggestionsFuture != null)
                 suggestions = suggestionsFuture.get();
             else {
-                suggestions = new QuerySubset<>(new ArrayList<>(), -1);
+                suggestions = new QuerySubset<>(new ArrayList<>(), true);
             }
         } catch (InterruptedException | ExecutionException e) {
             e.printStackTrace();
