@@ -1,6 +1,5 @@
 import React from 'react'
 import BasicPage from "./BasicPage";
-import MyCard from "../components/MyCard";
 import { Typography } from "@material-ui/core";
 
 export default function MaintenancePage() {

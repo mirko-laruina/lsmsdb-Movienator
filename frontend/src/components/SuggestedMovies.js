@@ -2,31 +2,32 @@ import React, { useEffect } from 'react'
 import Skeleton from '@material-ui/lab/Skeleton'
 import MovieCarousel from './MovieCarousel'
 import axios from 'axios';
-import { baseUrl, errorHandler } from '../utils';
+import { baseUrl, errorHandler, httpErrorhandler } from '../utils';
 
 export default function SuggestedMovies() {
+    const [loading, setLoading] = React.useState(true)
     const [movies, setMovies] = React.useState([])
+    const movieNumber = 5;
 
     useEffect(() => {
-        axios.get(baseUrl + "movie/browse", {
-            params: {}
+        axios.get(baseUrl + "movie/suggestion", {
+            params: {
+                sessionId: localStorage.getItem('sessionId'),
+                n: movieNumber
+            }
         })
             .then(function (res) {
-                console.log(res)
                 if (res.data.success) {
                     setMovies(res.data.response.list)
-                    console.log(movies)
+                    setLoading(false)
                 } else {
-                    alert(res.data.message)
-                    alert("You will be disconnected")
-                    localStorage.removeItem('sessionId')
-                    window.location.reload()
+                    errorHandler(res.data.code, res.data.message)
                 }
-            }).catch((response) => errorHandler(response))
+            }).catch((response) => httpErrorhandler(response))
     }, [])
 
     return (
-        movies.length != 0 ?
+        !loading ?
             <MovieCarousel movies={movies} />
             :
             <Skeleton width='100%' height="240px" />

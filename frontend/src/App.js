@@ -65,7 +65,8 @@ function App() {
           <Route path="/social" component={SocialPage} />
           <Route path="/history/:username" component={HistoryPage} />
           <Route path="/history" component={HistoryPage} />
-          <Route path="/admin/search/:query" component={UserSearchPage} />
+          <Route path="/search/:query" component={UserSearchPage} />
+          <Route path="/search/" component={UserSearchPage} />
           <Route path="/admin" component={ControlPanel} />
           <Route path="/stats/:group/" component={StatsPage} />
           <Route path="/results/:query" component={SearchPage} />
