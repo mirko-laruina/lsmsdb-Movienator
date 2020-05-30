@@ -5,11 +5,15 @@ import com.frelamape.task2.api.ResponseHelper;
 import com.frelamape.task2.db.*;
 import org.bson.types.ObjectId;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.security.crypto.password.Pbkdf2PasswordEncoder;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
+
+import javax.annotation.PostConstruct;
 
 /**
  * Main class
@@ -22,18 +26,40 @@ public class Controller {
     @Autowired
     private DatabaseAdapter dba;
 
+    @Value("${com.frelamape.task2.Controller.password_secret}")
+    private String PASSWORD_SECRET;
+    
+    @Value("${com.frelamape.task2.Controller.password_iterations}")
+    private Integer PASSWORD_ITERATIONS;
+
+    @Value("${com.frelamape.task2.Controller.password_hash_length}")
+    private Integer PASSWORD_HASH_LENGTH;
+
+    private Pbkdf2PasswordEncoder passwordEncoder;
+
+    @PostConstruct
+    public void init() {
+        if (PASSWORD_SECRET != null && PASSWORD_ITERATIONS != null && PASSWORD_HASH_LENGTH != null){
+            passwordEncoder = new Pbkdf2PasswordEncoder(PASSWORD_SECRET, PASSWORD_ITERATIONS, PASSWORD_HASH_LENGTH);
+        } else{
+            throw new RuntimeException("Could not retrieve password encoder parameters from application.properties!");
+        }
+    }
+
     @CrossOrigin
     @RequestMapping(value={"/auth/login"}, method= RequestMethod.POST)
     public @ResponseBody String login(@RequestParam("username") String username,
                                       @RequestParam("password") String password){
-        User u = new User(username);
-        u.setPassword(password);
-        u = dba.authUser(u);
-
+        User u = dba.getUserLoginInfo(username);
+    
         if (u == null)
             return ResponseHelper.wrongCredentials();
 
-        Session s = new Session(UUID.randomUUID().toString()); // TODO better session
+        if (!passwordEncoder.matches(password, u.getPassword())){
+            return ResponseHelper.wrongCredentials();
+        }
+
+        Session s = new Session(UUID.randomUUID().toString());
         if (!u.isBanned()){
             if (dba.addSession(u, s))
                 return ResponseHelper.success(new LoginResponse(s.getId(), u.isAdmin()));
@@ -60,7 +86,7 @@ public class Controller {
         if (u == null)
             return ResponseHelper.invalidSession();
 
-        u.setPassword(password);
+        u.setPassword(passwordEncoder.encode(password));
 
         boolean result = dba.editUserPassword(u);
         if (result){
@@ -84,9 +110,9 @@ public class Controller {
         }
 
         User u = new User(username);
-        u.setPassword(password);
+        u.setPassword(passwordEncoder.encode(password));
         u.setEmail(email);
-        Session s = new Session(UUID.randomUUID().toString()); // TODO better session
+        Session s = new Session(UUID.randomUUID().toString());
 
         ObjectId userId = dba.addUser(u);
 

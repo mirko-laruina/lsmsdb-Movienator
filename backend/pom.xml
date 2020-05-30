@@ -53,6 +53,12 @@
             <artifactId>bson</artifactId>
             <version>4.0.0</version>
         </dependency>
+    
+      <dependency>
+        <groupId>org.springframework.security</groupId>
+        <artifactId>spring-security-core</artifactId>
+        <version>5.1.6.RELEASE</version>
+      </dependency>
     </dependencies>
 
     <build>
