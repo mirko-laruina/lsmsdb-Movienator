@@ -1,12 +1,12 @@
 import React, { useEffect } from 'react'
 import { Link } from 'react-router-dom'
-import RestrictedPage from './RestrictedPage'
 import HistoryTable from '../components/HistoryTable'
 import HistoryPageSkeleton from '../skeletons/HistoryPageSkeleton'
 import { baseUrl, errorHandler, httpErrorhandler } from '../utils'
 import { Typography, Grid, Button } from '@material-ui/core'
 import axios from 'axios'
 import MyPagination from '../components/MyPagination'
+import BasicPage from './BasicPage'
 
 export default function HistoryPage(props) {
     const [movies, setMovies] = React.useState([]);
@@ -18,7 +18,7 @@ export default function HistoryPage(props) {
 
     useEffect(() => {
         setLoading(true)
-        if(!props.match.params.username && !localStorage.getItem('username')){
+        if (!props.match.params.username && !localStorage.getItem('username')) {
             return;
         }
         let url = baseUrl + "/user/"
@@ -46,16 +46,9 @@ export default function HistoryPage(props) {
 
 
     return (
-        <RestrictedPage
-            history={props.history}
-            customAuthorization={() => {
-                return localStorage.getItem('is_admin') === 'true'
-                    || localStorage.getItem('username') === props.match.params.username
-                    || (localStorage.getItem('username') && !props.match.params.username)
-            }}
-        >
+        <BasicPage history={props.history} >
 
-            <Grid container>
+            <Grid container alignItems="center">
                 <Grid item xs={9}>
                     <Typography variant="h3" component="h1">
                         {
@@ -66,19 +59,16 @@ export default function HistoryPage(props) {
                     </Typography>
                 </Grid>
                 <Grid item xs={3}>
-                    {
-                        localStorage.getItem('is_admin') === 'true' &&
-                        <Button fullWidth
-                            variant="outlined"
-                            size="large"
-                            color="primary"
-                            component={Link}
-                            to={!props.match.params.username ?
-                                "/profile" :
-                                "/profile/" + props.match.params.username}>
-                            Profile page
-                        </Button>
-                    }
+                    <Button fullWidth
+                        variant="outlined"
+                        size="large"
+                        color="primary"
+                        component={Link}
+                        to={!props.match.params.username ?
+                            "/profile" :
+                            "/profile/" + props.match.params.username}>
+                        Profile page
+                    </Button>
                 </Grid>
             </Grid>
             <br />
@@ -103,6 +93,6 @@ export default function HistoryPage(props) {
 
             }
             <br />
-        </RestrictedPage>
+        </BasicPage>
     )
 }
