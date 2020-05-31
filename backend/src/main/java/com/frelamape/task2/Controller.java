@@ -622,6 +622,10 @@ public class Controller {
         if (u == null)
             return ResponseHelper.invalidSession();
 
+        if (u.getUsername().equals(username)){
+            return ResponseHelper.genericError("You cannot follow yourself!");
+        }
+
         User u2 = new User(username);
         boolean result = neo4jAdapter.follow(u, u2);
         if (result)  {

@@ -41,7 +41,7 @@ public class Neo4jAdapter {
 
     private static final int MIN_RATING = 3;
     private static final int MAX_DAYS = 7;
-    private static final int MAX_PATHS = 1000;
+    private static final int MAX_PATHS = 100;
 
     @PostConstruct
     public void init() {
@@ -86,7 +86,7 @@ public class Neo4jAdapter {
                             "RETURN m2 " +
                             "LIMIT " + MAX_PATHS +
                         "} " +
-                        "RETURN m2._id AS _id, m2.title AS title, m2.poster AS poster, count(*) as score " +
+                        "RETURN m2._id AS _id, m2.title AS title, m2.poster AS poster, 0.5*count(*)*(1+rand()) as score " +
                         "ORDER BY score DESC " +
                         "LIMIT $limit",
                     parameters(
@@ -227,11 +227,33 @@ public class Neo4jAdapter {
      * @return the list of suggestions
      */
     public QuerySubset<User> getUserSuggestions(User user, int n) {
-        // TODO
-        return new QuerySubset<>(
-                new ArrayList<>(),
-                false
-        );
+        try (org.neo4j.driver.Session session = driver.session()) {
+            Result result = session.run(
+                        "CALL{ " +
+                            "MATCH (u:User {username: $username}) " +
+                            "MATCH (u)-[:FOLLOWS]->(:User)-[:FOLLOWS]->(u2:User) " +
+                            "WHERE u<>u2 AND NOT EXISTS((u)-[:FOLLOWS]->(u2)) " +
+                            "RETURN u2 " +
+                            "LIMIT " + MAX_PATHS + " " +
+                        "} " +
+                        "MATCH (u:User {username: $username}) " +
+                        "RETURN u2.username AS username, u2._id AS _id, " + 
+                            "0.5*count(*)*(1+rand()) AS score, " +
+                            "false as following, " +
+                            "EXISTS((u2)-[:FOLLOWS]->(u)) as follower " +
+                        "ORDER BY follower DESC, score DESC " +
+                        "LIMIT $limit",
+                    parameters(
+                            "username", user.getUsername(),
+                            "limit", n));
+                            
+            List<User> users = User.Adapter.fromNeo4jResult(result);
+    
+            return new QuerySubset<>(
+                users,
+                true
+            );
+        }
     }
 
     /**
