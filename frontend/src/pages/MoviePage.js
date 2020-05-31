@@ -82,13 +82,12 @@ export default function MoviePage(props) {
             params.sessionId = localStorage.getItem('sessionId')
         }
         axios.get(url, { params: params }).then((data) => {
-            console.log(data.data)
             if (data.data.success) {
                 setMovie(data.data.response)
             } else {
                 errorHandler(data.data.code, data.data.message)
             }
-        })//.catch((error) => httpErrorhandler(error))
+        }).catch((error) => httpErrorhandler(error))
     }, [props.match.params.id])
 
     return (
