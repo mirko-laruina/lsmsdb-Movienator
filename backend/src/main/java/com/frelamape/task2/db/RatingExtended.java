@@ -5,7 +5,9 @@ import org.neo4j.driver.Result;
 import org.neo4j.driver.Record;
 
 import java.text.SimpleDateFormat;
+import java.time.ZoneOffset;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 
 public class RatingExtended extends Rating {
@@ -58,9 +60,13 @@ public class RatingExtended extends Rating {
             u.setId(new ObjectId(record.get("user_id").asString()));
             Rating r = new Rating(u, m, record.get("rating").asDouble());
             try{
-                r.setDate(ISO8601.parse(record.get("date").asString()));
+                r.setDate(Date.from(record.get("date").asLocalDateTime().toInstant(ZoneOffset.UTC)));
             } catch (Exception e){
-                e.printStackTrace();
+                try{
+                    r.setDate(ISO8601.parse(record.get("date").asString()));
+                } catch(Exception e2){
+                    e2.printStackTrace();
+                }
             }
             return new RatingExtended(m, u, r);
         }
