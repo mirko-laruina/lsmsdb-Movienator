@@ -2,14 +2,13 @@ import React from 'react';
 import { Link } from 'react-router-dom';
 
 /* Basic imports material-ui */
-import { AppBar, Toolbar, Typography, Container, InputBase, FormControl, Slide, Dialog } from '@material-ui/core';
+import { AppBar, Toolbar, Typography, Container, InputBase, FormControl, Slide, Dialog, Avatar } from '@material-ui/core';
 
 /* Graphical components material-ui */
 import { Menu, MenuItem, IconButton, Button } from '@material-ui/core';
 /* Icon material-ui */
-import AccountCircle from '@material-ui/icons/AccountCircle';
 import SearchIcon from '@material-ui/icons/Search';
-
+import Gravatar from 'react-gravatar'
 import { fade, makeStyles } from '@material-ui/core/styles';
 
 import MyCard from '../components/MyCard'
@@ -85,7 +84,11 @@ const useStyles = makeStyles(theme => (
             color: theme.palette.primary.main,
             marginLeft: '1em',
             padding: '0.35em 1.5em'
-        }
+        },
+        avatarSmall: {
+            width: theme.spacing(4),
+            height: theme.spacing(4),
+        },
     }));
 
 export default function BasicPage(props) {
@@ -222,7 +225,9 @@ export default function BasicPage(props) {
                             onClick={(evt) => profilePopupHandler(evt, true)}
                             color="inherit"
                         >
-                            <AccountCircle />
+                            <Avatar className={classes.avatarSmall} >
+                                <Gravatar default="identicon" email={username} />
+                            </Avatar>
                         </IconButton>
                         <Menu
                             id="menu-appbar"
