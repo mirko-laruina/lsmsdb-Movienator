@@ -18,8 +18,8 @@ export default function SocialPage(props) {
     const [isAdmin, setIsAdmin] = React.useState(false);
     const [firstLoad, setFirstLoad] = React.useState(true);
     //True if the page we are trying to show regards the user who wants to display it
-    const [isTargetUser, setIsTargetUser] = React.useState(false);
     const username = props.match.params.username ? props.match.params.username : localStorage.getItem('username');
+    const isTargetUser = (!props.match.params.username || props.match.params.username === localStorage.getItem('username'))
     const [suggestedUsers, setSuggestedUsers] = React.useState([]);
     const [shownFollowers, setShownFollowers] = React.useState([]);
     const [shownFollowings, setShownFollowings] = React.useState([]);
@@ -40,10 +40,6 @@ export default function SocialPage(props) {
     useEffect(() => {
         if (localStorage.getItem('is_admin') === 'true') {
             setIsAdmin(true);
-        }
-        if (!props.match.params.username
-            || props.match.params.username === localStorage.getItem('username')) {
-            setIsTargetUser(true);
         }
 
         getAllSocial()
@@ -73,7 +69,7 @@ export default function SocialPage(props) {
                 setLoadingFollowings(false)
                 if (data.data.response.relationship)
                     setRelationship(data.data.response.relationship)
-                if (data.data.response.suggestions) {
+                if (isTargetUser) {
                     setSuggested(data.data.response.suggestions);
                 }
                 setLoadingPage(false)
