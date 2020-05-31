@@ -58,7 +58,7 @@ export default function MoviePage(props) {
                 return (
                     <Grid item xs={12 / len} key={i}>
                         <Typography variant="h6" component="h3">
-                            {rating.source} {rating.avgRating * rating.weight}/5
+                            {rating.source} {Math.round(rating.avgRating * rating.weight * 100)/100}/5
                         </Typography>
                         <Rating
                             name={rating.source + "-rating"}
