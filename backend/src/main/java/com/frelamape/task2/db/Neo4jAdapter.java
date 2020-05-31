@@ -86,7 +86,7 @@ public class Neo4jAdapter {
                             "RETURN m2 " +
                             "LIMIT " + MAX_PATHS +
                         "} " +
-                        "RETURN m2._id AS _id, m2.title AS title, m2.poster AS poster, count(*) as score " +
+                        "RETURN m2._id AS _id, m2.title AS title, m2.poster AS poster, count(*)+rand() as score " +
                         "ORDER BY score DESC " +
                         "LIMIT $limit",
                     parameters(
