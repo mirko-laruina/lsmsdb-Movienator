@@ -5,7 +5,7 @@ import {
     Typography, TableContainer, Table, TableHead,
     TableRow, TableBody, TableCell, Paper, Grid
 } from '@material-ui/core'
-import { Pagination, Skeleton } from '@material-ui/lab'
+import { Skeleton } from '@material-ui/lab'
 
 import { makeStyles } from '@material-ui/core/styles';
 

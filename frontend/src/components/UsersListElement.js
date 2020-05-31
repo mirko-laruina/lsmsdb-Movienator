@@ -1,7 +1,6 @@
 import React from 'react'
 import Gravatar from 'react-gravatar'
 import { List, ListItem, ListItemAvatar, Avatar, ListItemText } from '@material-ui/core'
-import PersonIcon from '@material-ui/icons/Person'
 
 export default function UsersListElement(props) {
     return (

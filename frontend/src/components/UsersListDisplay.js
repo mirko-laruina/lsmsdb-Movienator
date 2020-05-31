@@ -1,5 +1,5 @@
 import React from 'react'
-import { Grid, Button, Typography } from '@material-ui/core'
+import { Grid, Typography } from '@material-ui/core'
 import { Link } from 'react-router-dom'
 import UsersListElement from './UsersListElement'
 import FollowButton from './FollowButton'

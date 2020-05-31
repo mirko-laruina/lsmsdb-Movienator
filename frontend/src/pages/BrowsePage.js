@@ -1,7 +1,7 @@
 import React from 'react'
 import { useEffect } from 'react'
 import BasicPage from './BasicPage.js'
-import { Typography, Grid } from '@material-ui/core'
+import { Typography } from '@material-ui/core'
 
 import MyPagination from '../components/MyPagination'
 import FilterDisplay from '../components/FilterDisplay.js';

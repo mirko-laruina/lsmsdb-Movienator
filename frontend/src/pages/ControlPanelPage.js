@@ -1,6 +1,5 @@
 import React, { useEffect } from 'react'
-import { Typography, FormControl, OutlinedInput, InputAdornment, IconButton, Grid } from '@material-ui/core'
-import Pagination from '@material-ui/lab/Pagination'
+import { Typography, Grid } from '@material-ui/core'
 import RestrictedPage from './RestrictedPage'
 import HistoryTable from '../components/HistoryTable'
 import ControlPanelSkeleton from '../skeletons/ControlPanelSkeleton'

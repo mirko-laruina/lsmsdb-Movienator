@@ -2,7 +2,6 @@ import React from 'react'
 import { Button, Grid, Typography } from '@material-ui/core'
 import ChevronRightIcon from '@material-ui/icons/ChevronRight';
 import ChevronLeftIcon from '@material-ui/icons/ChevronLeft';
-import { Pagination } from '@material-ui/lab';
 
 export default function MyPagination(props) {
 

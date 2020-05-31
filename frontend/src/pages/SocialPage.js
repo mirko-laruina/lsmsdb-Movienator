@@ -4,7 +4,6 @@ import { Link } from 'react-router-dom'
 
 import axios from 'axios'
 
-import Pagination from '@material-ui/lab/Pagination'
 import BasicPage from './BasicPage.js'
 import { baseUrl, errorHandler, httpErrorhandler } from '../utils'
 import UsersListDisplay from '../components/UsersListDisplay'
