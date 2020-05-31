@@ -7,7 +7,7 @@ import { baseUrl, errorHandler, httpErrorhandler } from '../utils';
 export default function SuggestedMovies() {
     const [loading, setLoading] = React.useState(true)
     const [movies, setMovies] = React.useState([])
-    const movieNumber = 5;
+    const movieNumber = 12;
 
     useEffect(() => {
         axios.get(baseUrl + "movie/suggestion", {

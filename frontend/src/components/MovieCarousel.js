@@ -7,13 +7,16 @@ const MyTab = withStyles({
     textColorInherit: {
         opacity: '1',
     },
+    root: {
+        width: '25%'
+    }
 })(Tab)
 
 const useStyles = makeStyles(theme => (
     {
         tabsIndicator: {
             visibility: 'hidden',
-        },
+        }
     }
 ))
 
@@ -25,7 +28,7 @@ export default function MovieCarousel(props) {
         (props.movies && props.movies.length !== 0) ?
         <Tabs
             value={0}
-            variant="standard"
+            variant="scrollable"
             aria-label="Movie carousel"
             classes={{
                 indicator: classes.tabsIndicator,
@@ -40,9 +43,9 @@ export default function MovieCarousel(props) {
                         label={movie.title}
                         icon={
                             <img
-                                src={movie.poster ? movie.poster : require('../assets/blank_poster.png')}
+                                src={(movie.poster && movie.poster !== "null") ? movie.poster : require('../assets/blank_poster.png')}
                                 alt={movie.title + " poster"}
-                                style={{ width: '140px' }} />
+                                style={{ width: '95%' }} />
                         }
                     />
                 })

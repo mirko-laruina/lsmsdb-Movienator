@@ -8,8 +8,14 @@ export default function MaintenancePage() {
             <Typography variant="h3" component="h1">
                 Maintenance
             </Typography>
+            <br />
             <Typography variant="body1" component="p">
-                We are currently under maintenance. Please, come back later.
+                Something went wrong. Our monkeys are working hard to fix Movienator.
+                Please, come back later.
+            </Typography>
+            <br />
+            <Typography variant="body1" component="p">
+                If you still have issues, contact us.
             </Typography>
         </BasicPage>
     )
