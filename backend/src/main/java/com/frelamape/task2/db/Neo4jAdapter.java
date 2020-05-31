@@ -232,11 +232,12 @@ public class Neo4jAdapter {
                         "CALL{ " +
                             "MATCH (u:User {username: $username}) " +
                             "MATCH (u)-[:FOLLOWS]->(:User)-[:FOLLOWS]->(u2:User) " +
-                            "WHERE u<>u2 AND NOT EXISTS((u)-[:FOLLOWS]->(u2)) " +
+                            "WHERE u<>u2 " +
                             "RETURN u2 " +
                             "LIMIT " + MAX_PATHS + " " +
                         "} " +
                         "MATCH (u:User {username: $username}) " +
+                        "WHERE NOT EXISTS((u)-[:FOLLOWS]->(u2)) " +
                         "RETURN u2.username AS username, u2._id AS _id, " + 
                             "0.5*count(*)*(1+rand()) AS score, " +
                             "false as following, " +
