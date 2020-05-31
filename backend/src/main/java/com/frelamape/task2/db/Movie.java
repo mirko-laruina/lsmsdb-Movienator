@@ -249,7 +249,9 @@ public class Movie {
                 List<Document> ratingsDocList = (List<Document>) ratingsObj;
                 List<AggregatedRating> ratings = new ArrayList<>();
                 for (Document doc:ratingsDocList){
-                    ratings.add(AggregatedRating.Adapter.fromDBObject(doc));
+                    AggregatedRating ar = AggregatedRating.Adapter.fromDBObject(doc);
+                    if (ar.getAvgRating() != null)
+                        ratings.add(ar);
                 }
                 movie.setRatings(ratings);
             }
