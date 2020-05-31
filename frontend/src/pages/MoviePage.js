@@ -36,19 +36,20 @@ export default function MoviePage(props) {
     }
 
     const displayRatings = (ratings) => {
-        let len = ratings.length
+        let len = 0
         movie.ratings.map((rating, i) => {
-            if (rating.source === 'user' && len > 0) {
-                len -= 1
-            }
-            if (rating.source === 'internal') {
-                movie.ratings[i].source = 'Movienator'
-            }
-            if (rating.count <= 0) {
-                len -= 1
+            if (rating.source !== 'user') {
+
+                if (rating.count > 0) {
+                    len += 1
+                }
+                if (rating.source === 'internal') {
+                    movie.ratings[i].source = 'Movienator'
+                }
             }
             return movie.ratings[i]
         })
+
         return movie.ratings.map((rating, i) => {
             if (rating.source === 'user') {
                 return null
@@ -70,7 +71,7 @@ export default function MoviePage(props) {
                     </Grid>
                 )
             }
-            return movie.ratings[i]
+            return null
         })
     }
 
@@ -81,12 +82,13 @@ export default function MoviePage(props) {
             params.sessionId = localStorage.getItem('sessionId')
         }
         axios.get(url, { params: params }).then((data) => {
+            console.log(data.data)
             if (data.data.success) {
                 setMovie(data.data.response)
             } else {
                 errorHandler(data.data.code, data.data.message)
             }
-        }).catch((error) => httpErrorhandler(error))
+        })//.catch((error) => httpErrorhandler(error))
     }, [props.match.params.id])
 
     return (
@@ -95,7 +97,7 @@ export default function MoviePage(props) {
                 !movie ?
                     <MoviePageSkeleton />
                     :
-                    <>
+                    <React.Fragment>
                         <br />
 
                         <Typography
@@ -296,7 +298,7 @@ export default function MoviePage(props) {
                             </>
                         }
 
-                    </>
+                    </React.Fragment>
             }
         </BasicPage >
     )
