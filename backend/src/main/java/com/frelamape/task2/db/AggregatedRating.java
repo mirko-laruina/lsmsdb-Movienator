@@ -73,8 +73,12 @@ public class AggregatedRating {
 
     public void setSum(Double sum) {
         this.sum = sum;
-        if (sum != null && count!= null && count != 0) // sum overrides any value found in average
-            avgRating = sum/count;
+        if (sum != null && count!= null){ // sum overrides any value found in average
+            if (count != 0)
+                avgRating = sum/count;
+            else
+                avgRating = null;
+        }
     }
 
     public static class Adapter {
