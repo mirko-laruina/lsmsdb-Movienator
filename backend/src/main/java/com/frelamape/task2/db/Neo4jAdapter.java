@@ -41,7 +41,7 @@ public class Neo4jAdapter {
 
     private static final int MIN_RATING = 3;
     private static final int MAX_DAYS = 7;
-    private static final int MAX_PATHS = 1000;
+    private static final int MAX_PATHS = 100;
 
     @PostConstruct
     public void init() {
