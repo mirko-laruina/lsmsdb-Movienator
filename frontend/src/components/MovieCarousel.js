@@ -7,15 +7,15 @@ const MyTab = withStyles({
     textColorInherit: {
         opacity: '1',
     },
+    root: {
+        width: '25%'
+    }
 })(Tab)
 
 const useStyles = makeStyles(theme => (
     {
         tabsIndicator: {
             visibility: 'hidden',
-        },
-        tabRoot: {
-            width: '25%',
         }
     }
 ))
@@ -38,9 +38,6 @@ export default function MovieCarousel(props) {
                 props.movies.map((movie, i) => {
                     return <MyTab
                         key={i}
-                        classes={{
-                            root: classes.tabRoot
-                        }}
                         component={Link}
                         to={"/movie/" + movie.id}
                         label={movie.title}
