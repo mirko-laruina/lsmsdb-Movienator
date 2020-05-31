@@ -63,11 +63,15 @@ public class DatabaseTaskExecutor{
             return;
 
         AggregatedRating internalRating = null;
-        for (AggregatedRating ar : m.getRatings()) {
-            if (ar.getSource().equals("internal")) {
-                internalRating = ar;
-                break;
+        if (m.getRatings() != null){
+            for (AggregatedRating ar : m.getRatings()) {
+                if (ar.getSource().equals("internal")) {
+                    internalRating = ar;
+                    break;
+                }
             }
+        } else{
+            m.setRatings(new ArrayList<>());
         }
         // update internal rating
 
