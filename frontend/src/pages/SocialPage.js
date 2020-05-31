@@ -73,7 +73,7 @@ export default function SocialPage(props) {
                 setLoadingFollowings(false)
                 if (data.data.response.relationship)
                     setRelationship(data.data.response.relationship)
-                if (isTargetUser) {
+                if (data.data.response.suggestions) {
                     setSuggested(data.data.response.suggestions);
                 }
                 setLoadingPage(false)
