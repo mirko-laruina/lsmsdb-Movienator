@@ -227,11 +227,33 @@ public class Neo4jAdapter {
      * @return the list of suggestions
      */
     public QuerySubset<User> getUserSuggestions(User user, int n) {
-        // TODO
-        return new QuerySubset<>(
-                new ArrayList<>(),
-                false
-        );
+        try (org.neo4j.driver.Session session = driver.session()) {
+            Result result = session.run(
+                        "CALL{ " +
+                            "MATCH (u:User {username: $username}) " +
+                            "MATCH (u)-[:FOLLOWS]->(:User)-[:FOLLOWS]->(u2:User) " +
+                            "WHERE u<>u2 AND NOT EXISTS((u)-[:FOLLOWS]->(u2)) " +
+                            "RETURN u2 " +
+                            "LIMIT " + MAX_PATHS + " " +
+                        "} " +
+                        "MATCH (u:User {username: $username}) " +
+                        "RETURN u2.username AS username, u2._id AS _id, " + 
+                            "0.5*count(*)*(1+rand()) AS score, " +
+                            "false as following, " +
+                            "EXISTS((u2)-[:FOLLOWS]->(u)) as follower " +
+                        "ORDER BY follower DESC, score DESC " +
+                        "LIMIT $limit",
+                    parameters(
+                            "username", user.getUsername(),
+                            "limit", n));
+                            
+            List<User> users = User.Adapter.fromNeo4jResult(result);
+    
+            return new QuerySubset<>(
+                users,
+                true
+            );
+        }
     }
 
     /**
