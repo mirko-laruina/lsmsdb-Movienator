@@ -1,6 +1,8 @@
 package com.frelamape.task2.db;
 
 import org.bson.Document;
+import org.neo4j.driver.Record;
+import org.neo4j.driver.Result;
 
 import java.util.ArrayList;
 import java.util.Date;
@@ -265,6 +267,25 @@ public class Movie {
                 movies.add(fromDBObject(d));
             }
             return movies;
+        }
+
+        public static List<Movie> fromNeo4jResult(Result result){
+            List<Movie> list = new ArrayList<>();
+            while(result.hasNext()){
+                Record record = result.next();
+                list.add(fromNeo4jRecord(record));
+            }
+            return list;
+        }
+        
+        public static Movie fromNeo4jRecord(Record record){
+            Movie m = new Movie(record.get("_id").asString());
+            m.setTitle(record.get("title").asString());
+            
+            if (record.containsKey("poster"))
+                m.setPoster(record.get("poster").asString());
+
+            return m;
         }
     }
 }
