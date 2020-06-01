@@ -30,7 +30,7 @@ export default function FollowingsRatingTable(props) {
 
     useEffect(() => {
         getRatings()
-    }, [])
+    }, [currentPage])
 
     return (
         <React.Fragment>
