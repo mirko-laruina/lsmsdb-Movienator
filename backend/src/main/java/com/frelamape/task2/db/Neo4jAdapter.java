@@ -275,7 +275,7 @@ public class Neo4jAdapter {
                         "RETURN r.date as date, r.rating as rating, " +
                             "m._id as movie_id, m.title as title, m.year as year, m.poster as poster, " +
                             "u._id as user_id, u.username as username " +
-                        "ORDER BY r.date " +
+                        "ORDER BY r.date DESC " +
                         "SKIP $skip " +
                         "LIMIT $limit",
                     parameters("username", u.getUsername(),
