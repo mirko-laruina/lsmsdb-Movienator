@@ -33,7 +33,6 @@ export default function HistoryPage(props) {
                 page: currentPage
             }
         }).then((data) => {
-            console.log(data.data)
             if (data.data.success) {
                 setMovies(data.data.response.list)
                 setLastPage(data.data.response.lastPage)
