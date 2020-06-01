@@ -5,11 +5,12 @@ export default function HistoryPage(props) {
 
     return (
         <React.Fragment>
-            <Skeleton />
-            <Skeleton />
-            <Skeleton />
-            <Skeleton />
-            <Skeleton />
+            <Skeleton height="60px" width="100%" />
+            <Skeleton height="60px" width="100%" />
+            <Skeleton height="60px" width="100%" />
+            <Skeleton height="60px" width="100%" />
+            <Skeleton height="60px" width="100%" />
+            <Skeleton height="60px" width="100%" />
             <br />
         </React.Fragment>
     )

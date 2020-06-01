@@ -270,14 +270,9 @@ export default function SocialPage(props) {
                         <Typography variant="h4" component="h2">
                             {"Hot among your followings"}
                         </Typography>
-                        {
-                            loadingPage ?
-                                <Skeleton height="280px" width="100%" />
-                                :
-                                <Box my={2} width={1}>
-                                    <FollowingsRatingTable />
-                                </Box>
-                        }
+                        <Box my={2} width={1}>
+                            <FollowingsRatingTable />
+                        </Box>
                     </React.Fragment>
                 }
             </Grid>
