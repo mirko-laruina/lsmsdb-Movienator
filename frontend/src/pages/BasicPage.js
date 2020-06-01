@@ -10,6 +10,7 @@ import { Menu, MenuItem, IconButton, Button } from '@material-ui/core';
 import SearchIcon from '@material-ui/icons/Search';
 import Gravatar from 'react-gravatar'
 import { fade, makeStyles } from '@material-ui/core/styles';
+import AccountCircleIcon from '@material-ui/icons/AccountCircle';
 
 import MyCard from '../components/MyCard'
 import LoginForm from '../components/LoginForm'
@@ -225,9 +226,13 @@ export default function BasicPage(props) {
                             onClick={(evt) => profilePopupHandler(evt, true)}
                             color="inherit"
                         >
-                            <Avatar className={classes.avatarSmall} >
-                                <Gravatar default="identicon" email={username} />
-                            </Avatar>
+                            {localStorage.getItem('sessionId') != null ?
+                                <Avatar className={classes.avatarSmall}>
+                                    <Gravatar default="identicon" email={username} className={classes.avatarSmall} />
+                                </Avatar>
+                                :
+                                <AccountCircleIcon/>
+                            }
                         </IconButton>
                         <Menu
                             id="menu-appbar"

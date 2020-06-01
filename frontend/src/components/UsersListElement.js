@@ -8,7 +8,7 @@ export default function UsersListElement(props) {
             <ListItem>
                 <ListItemAvatar>
                     <Avatar>
-                        <Gravatar default="identicon" email={props.user} />
+                        <Gravatar default="identicon" email={props.user} size={40}/>
                     </Avatar>
                 </ListItemAvatar>
                 <ListItemText
