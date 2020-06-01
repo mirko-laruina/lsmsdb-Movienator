@@ -18,11 +18,6 @@ export default function ResultPage(props) {
         setFilters(filters);
     }
 
-    useEffect(() => {
-        if (localStorage.getItem('filters'))
-            setFilters(JSON.parse(localStorage.getItem('filters')))
-    }, [setFilters])
-
     return (
         <Grid container>
             <Grid item xs={9}>
