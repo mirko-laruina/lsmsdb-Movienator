@@ -58,7 +58,7 @@ export default function MoviePage(props) {
                 return (
                     <Grid item xs={12 / len} key={i}>
                         <Typography variant="h6" component="h3">
-                            {rating.source} {Math.round(rating.avgRating * rating.weight * 100)/100}/5
+                            {rating.source} {Math.round(rating.avgRating * rating.weight * 100) / 100}/5
                         </Typography>
                         <Rating
                             name={rating.source + "-rating"}
@@ -82,6 +82,7 @@ export default function MoviePage(props) {
             params.sessionId = localStorage.getItem('sessionId')
         }
         axios.get(url, { params: params }).then((data) => {
+            console.log(data.data.response)
             if (data.data.success) {
                 setMovie(data.data.response)
             } else {
@@ -104,7 +105,7 @@ export default function MoviePage(props) {
                             component="h1"
                         >
                             {movie.title} ({movie.year})
-                            </Typography>
+                        </Typography>
                         {movie.tagline ?
                             <Typography variant="h6" component="h2">
                                 {movie.tagline}
@@ -292,6 +293,12 @@ export default function MoviePage(props) {
                                     movie.originalLanguage &&
                                     <Typography variant="body1" component="p">
                                         <b>Original language</b>: {movie.originalLanguage}
+                                    </Typography>
+                                }
+                                {
+                                    movie.mpaa &&
+                                    <Typography variant="body1" component="p">
+                                        <b>MPAA</b>: {movie.mpaa}
                                     </Typography>
                                 }
                             </>
