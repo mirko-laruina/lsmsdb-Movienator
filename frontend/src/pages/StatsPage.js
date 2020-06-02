@@ -115,32 +115,43 @@ export default function StatsPage(props) {
                                             <TableCell style={{ width: '30%' }} align="right">Rating</TableCell>
                                         </TableRow>
                                     </TableHead>
-                                    <TableBody>
-                                        {
-                                            data.map((row, i) => (
-                                                <TableRow
-                                                    key={i}
-                                                    onClick={() => {
-                                                        // if a previous aggregation filter was selected
-                                                        // we have to make it a normal filter first
-                                                        makeAggrFilterFinal()
-
-                                                        let aggr_filter = {}
-                                                        aggr_filter[props.match.params.group] = (row.aggregator.name || row.aggregator.year || row.aggregator.id)
-                                                        localStorage.setItem('aggr_filter', JSON.stringify(aggr_filter))
-                                                        props.history.push('/browse')
-                                                    }} classes={{ root: classes.tableRow }}>
-
-                                                    <TableCell component="th" scope="row">
-                                                        {row.aggregator.name || row.aggregator.year || row.aggregator.id}
-                                                    </TableCell>
-                                                    <TableCell align="right">{row.movieCount}</TableCell>
-                                                    <TableCell align="right">{parseFloat(row.avgRating).toFixed(2)}</TableCell>
+                                    {
+                                        data.length === 0 ?
+                                            <TableBody>
+                                                <TableRow>
+                                                    <TableCell>
+                                                        No results matching your criteria
+                                                </TableCell>
                                                 </TableRow>
-                                            ))
+                                            </TableBody>
+                                            :
+                                            <TableBody>
+                                                {
+                                                    data.map((row, i) => (
+                                                        <TableRow
+                                                            key={i}
+                                                            onClick={() => {
+                                                                // if a previous aggregation filter was selected
+                                                                // we have to make it a normal filter first
+                                                                makeAggrFilterFinal()
 
-                                        }
-                                    </TableBody>
+                                                                let aggr_filter = {}
+                                                                aggr_filter[props.match.params.group] = (row.aggregator.name || row.aggregator.year || row.aggregator.id)
+                                                                localStorage.setItem('aggr_filter', JSON.stringify(aggr_filter))
+                                                                props.history.push('/browse')
+                                                            }} classes={{ root: classes.tableRow }}>
+
+                                                            <TableCell component="th" scope="row">
+                                                                {row.aggregator.name || row.aggregator.year || row.aggregator.id}
+                                                            </TableCell>
+                                                            <TableCell align="right">{row.movieCount}</TableCell>
+                                                            <TableCell align="right">{parseFloat(row.avgRating).toFixed(2)}</TableCell>
+                                                        </TableRow>
+                                                    ))
+
+                                                }
+                                            </TableBody>
+                                    }
                                 </Table>
                                 :
                                 <>
