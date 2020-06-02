@@ -221,8 +221,11 @@ The graph database will have 2 different types of nodes and 2 types of edges:
 \begin{itemize}
 	\item \textbf{Movie}: it will contain all information needed to show a list
 		of suggested movies: \emph{id}, \emph{title}, \emph{year}, 
-		\emph{poster}.
-    \item \textbf{User}: it will contain only the \emph{username} and the \emph{\_id} since no other information is required.
+        \emph{poster}. In order to efficiently find a movie, an index is added
+        to the \emph{id} attribute.
+    \item \textbf{User}: it will contain only the \emph{username} and the \emph{\_id} since no other information is required. In order to efficiently find a user, an index is added to both the \emph{id} and the \emph{username}
+    attributes (depending on the API, a user can be fetched either by one or 
+    the other).
 \end{itemize}
 \paragraph{Edge types}
 \begin{itemize}
@@ -302,5 +305,110 @@ The sync function for the \textbf{Rating} edge in shown below:
 \lstinputlisting[language=Python, firstline=16, lastline=23]{figs/code/consistency.py}
 
 The consistency is ensured by this script in an asynchronous way by periodically scanning mongoDB in order to find missing or not updated informations to upload on neo4j. Note that asynchronous consistency is sufficient because there are not features that necessarily requires the strict one.
+
+\subsection{Java backend}
+\begin{figure}[]
+    \centering
+    \includegraphics[width=\textheight,angle=90]{figs/backend.pdf}
+    \caption{Bird's eye view over the main components of the Java backend.}
+    \label{fig:uml-backend}
+\end{figure}
+\begin{figure}[]
+    \centering
+    \includegraphics[width=\textheight,angle=90]{figs/db.pdf}
+    \caption{Detailed view over the db component of the Java backend.}
+    \label{fig:uml-db}
+\end{figure}
+
+In figures \ref{fig:uml-backend} and \ref{fig:uml-db} you can see the UML class
+diagrams of the Java back-end. The structure is the same as the one presented 
+in task 2 so no further discussion will be done on it. In the following the 
+main Cypher queries will be explained and highlighted.
+
+\section{Tests}
+This section reports some tests that have been performed in order to evaluate 
+the performance of the Neo4j database.
+
+Before running the tests, random users, ratings and follow relationships have 
+been created. In particular, 100 test users have been created and, for each 
+user, 50 ratings and 10 follow relationships to another user. In order to 
+better test the movie suggestion functionality, the ratings have been restricted
+to a subset of 1000 movies (instead of the full \~50k movies).
+
+In each of the following experiments, each data point has been obtained running 
+the \emph{siege} application with 100 concurrent users and no delay between 
+requests for 1 minute on a random subset of the possible queries. Experiments 
+have been executed on one of the virtual machines provided by the University 
+of Pisa (2 vCPU, 8GB of RAM).
+
+\subsection{Movie suggestion}
+As already discussed before, the movie suggestion query cannot afford to look
+up all possible paths and for this reason a limit in the maximum number of paths
+along which the aggregation is computed has been reduced. This subsection 
+shows how we decided to use 100 as limit.
+
+In figure \ref{fig:tps_mp}, we reported the number of handled requests every 
+second (i.e. transactions-per-second, tps, in \emph{siege} jargon) for the 
+movie suggestion query with different limits on the maximum number of paths to 
+take into consideration. From the plot, it can be seen that the throughput 
+drastically decreases already in the first step from 100 to 200. For this 
+reason, we decided to set it to set it to 100, which provides an acceptable 
+throughput (around 450). Of course this reasoning holds only for the current 
+configuration on the VM provided by the University of Pisa.
+
+\begin{figure}[]
+    \centering
+    \includegraphics[width=\textwidth]{figs/tps_max_path.pdf}
+    \caption{Plot of the handled requests per second for the movie suggestion query at different limits on the maximum number of paths.}
+    \label{fig:tps_mp}
+\end{figure}
+
+\subsection{Comparison of other common queries}
+In this subsection, the throughput of the most common queries on the graph 
+database is reported. The queries we took into consideration are:
+\begin{itemize}
+    \item Ratings of followed users
+    \item List of followers/following users
+    \item Suggestion of movies
+    \item Suggestion of users
+\end{itemize}
+
+Other queries, like ratings, users and follow relationships insertion and 
+deletion have been ignored in the analysis since they represent just a very 
+small amount of the total queries to the back-end.
+
+\begin{figure}[]
+    \centering
+    \includegraphics[width=\textwidth]{figs/tps_query.pdf}
+    \caption{Bar plot of the throughput of different queries to the graph database}
+    \label{fig:queries-graph}
+\end{figure}
+
+\begin{figure}[]
+    \centering
+    \includegraphics[width=\textwidth]{figs/siege_barplot_all.pdf}
+    \caption{Bar plot of the throughput of different queries to the document database}
+    \label{fig:queries-mongo}
+\end{figure}
+
+In figure \ref{fig:queries-graph} we can see the throughput of queries to Neo4j.
+The results obtained for the other queries to MongoDB is also shown as a
+reference in figure \ref{fig:queries-mongo}. From the figures we can see how 
+Neo4j is significantly slower than MongoDB, if we consider the highest 
+performing queries of both. However, it must be noted that the aforementioned
+queries on MongoDB are much ``simpler'' than the ones on Neo4j.
+
+Focusing on Neo4j queries, we can note that the fastest is the list of 
+followers/following users and this was expected since it's the most simple 
+query that just requires to show all adjacent nodes. Next we have the 
+other three queries that are all quite close to each other. It may look quite
+surprising to see that the suggestion of movies is faster that the list of 
+ratings of followed users but there are two things to be taken into 
+consideration. First, the suggestion of movies just looks 100 paths (as for 
+the previous set of experiments). Second, the ratings of followed users has 
+to perform an expensive order by operation before returning the requested page.
+In the last place, we can find the suggestion of users, which is slower due to 
+the fact that it has to check that returned users are not already followed by 
+the user performing the query in a sub-query.
 
 \end{document}
