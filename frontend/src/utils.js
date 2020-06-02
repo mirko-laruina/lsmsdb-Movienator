@@ -53,6 +53,16 @@ export function disconnect() {
     window.location.reload()
 }
 
+export function getInitialFilters() {
+    let initial_filters = localStorage.getItem('filters');
+    if(initial_filters){
+        initial_filters = JSON.parse(initial_filters);
+    } else {
+        initial_filters = {}
+    }
+    return initial_filters
+}
+
 export function countryToFlag(isoCode) {
     return typeof String.fromCodePoint !== 'undefined'
         ? isoCode.toUpperCase().replace(/./g, char => String.fromCodePoint(char.charCodeAt(0) + 127397))

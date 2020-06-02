@@ -11,7 +11,7 @@ import { makeStyles } from '@material-ui/core/styles';
 
 import FilterDisplay from '../components/FilterDisplay'
 import Sorting from '../components/Sorting'
-import { aggregation_fields, baseUrl, errorHandler, httpErrorhandler } from '../utils.js';
+import { aggregation_fields, baseUrl, errorHandler, httpErrorhandler, getInitialFilters } from '../utils.js';
 
 import axios from 'axios'
 import MyPagination from '../components/MyPagination';
@@ -37,7 +37,7 @@ const useStyles = makeStyles((theme) => (
 export default function StatsPage(props) {
     const classes = useStyles()
     const [isCorrectAggr, setCorrectAggr] = React.useState(false);
-    const [filters, setFilters] = React.useState({});
+    const [filters, setFilters] = React.useState(getInitialFilters());
     const [sortOpt, setSortOpt] = React.useState({});
     const [data, setData] = React.useState([]);
     const [loading, setLoading] = React.useState(true);

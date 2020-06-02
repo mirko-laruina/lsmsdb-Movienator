@@ -8,27 +8,18 @@ import FilterDisplay from '../components/FilterDisplay.js';
 import Sorting from '../components/Sorting.js';
 import MovieListDisplay from '../components/MovieListDisplay'
 
-import { baseUrl, errorHandler, httpErrorhandler } from '../utils.js'
+import { baseUrl, errorHandler, httpErrorhandler, getInitialFilters } from '../utils.js'
 import axios from 'axios';
 
 export default function BrowsePage(props) {
-    const [filters, setFilters] = React.useState({});
+    const [filters, setFilters] = React.useState(getInitialFilters());
     const [sortOpt, setSortOpt] = React.useState({});
     const [movies, setMovies] = React.useState([]);
     const [lastPage, setLastPage] = React.useState(true);
     const [currentPage, setCurrentPage] = React.useState(1);
-    const [firstLoad, setFirstLoad] = React.useState(true)
     const [loading, setLoading] = React.useState(true);
     const filmPerPage = 10;
     const sorts = ["Realease", "Title", "Rating"];
-
-    useEffect(() => {
-        if (localStorage.getItem('filters')) {
-            setFilters(JSON.parse(localStorage.getItem('filters')))
-        } else {
-            setFilters({})
-        }
-    }, [])
 
     useEffect(() => {
         const browseRequest = () => {
@@ -43,6 +34,7 @@ export default function BrowsePage(props) {
             if (localStorage.getItem('username')) {
                 reqParams.sessionId = localStorage.getItem('sessionId')
             }
+            console.log(reqParams)
             axios.get(baseUrl + "movie/browse", {
                 params: reqParams
             }).then(function (res) {
@@ -58,13 +50,7 @@ export default function BrowsePage(props) {
 
         setLoading(true)
 
-        //At the first render, both useEffects are called so there is a double call
-        //This check is meant to avoid it
-        if(!firstLoad){
-            browseRequest()
-        } else {
-            setFirstLoad(false)
-        }
+        browseRequest()
     }, [filters, sortOpt, currentPage]);
 
     return (
