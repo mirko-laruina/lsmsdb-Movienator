@@ -221,8 +221,11 @@ The graph database will have 2 different types of nodes and 2 types of edges:
 \begin{itemize}
 	\item \textbf{Movie}: it will contain all information needed to show a list
 		of suggested movies: \emph{id}, \emph{title}, \emph{year}, 
-		\emph{poster}.
-    \item \textbf{User}: it will contain only the \emph{username} and the \emph{\_id} since no other information is required.
+        \emph{poster}. In order to efficiently find a movie, an index is added
+        to the \emph{id} attribute.
+    \item \textbf{User}: it will contain only the \emph{username} and the \emph{\_id} since no other information is required. In order to efficiently find a user, an index is added to both the \emph{id} and the \emph{username}
+    attributes (depending on the API, a user can be fetched either by one or 
+    the other).
 \end{itemize}
 \paragraph{Edge types}
 \begin{itemize}
