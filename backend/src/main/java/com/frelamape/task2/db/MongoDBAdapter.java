@@ -271,12 +271,15 @@ public class MongoDBAdapter {
     public User getUserLoginInfo(String usernameORemail){
         return User.Adapter.fromDBObject(
                 usersCollectionPrimaryRead.find(
+                    and(
                         or(
                                 eq("username", usernameORemail),
                                 eq("email", usernameORemail)
-                        )
+                        ),
+                        ne("isBanned", true)
+                    )
                 ).projection(
-                        include("_id", "username", "email", "password")
+                        include("_id", "username", "email", "password", "isAdmin")
                 ).first()
         );
     }
