@@ -306,6 +306,25 @@ The sync function for the \textbf{Rating} edge in shown below:
 
 The consistency is ensured by this script in an asynchronous way by periodically scanning mongoDB in order to find missing or not updated informations to upload on neo4j. Note that asynchronous consistency is sufficient because there are not features that necessarily requires the strict one.
 
+\subsection{Java backend}
+\begin{figure}[]
+    \centering
+    \includegraphics[width=\textheight,angle=90]{figs/backend.pdf}
+    \caption{Bird's eye view over the main components of the Java backend.}
+    \label{fig:uml-backend}
+\end{figure}
+\begin{figure}[]
+    \centering
+    \includegraphics[width=\textheight,angle=90]{figs/db.pdf}
+    \caption{Detailed view over the db component of the Java backend.}
+    \label{fig:uml-db}
+\end{figure}
+
+In figures \ref{fig:uml-backend} and \ref{fig:uml-db} you can see the UML class
+diagrams of the Java back-end. The structure is the same as the one presented 
+in task 2 so no further discussion will be done on it. In the following the 
+main Cypher queries will be explained and highlighted.
+
 \section{Tests}
 This section reports some tests that have been performed in order to evaluate 
 the performance of the Neo4j database.
