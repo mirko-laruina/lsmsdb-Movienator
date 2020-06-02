@@ -1,6 +1,5 @@
 import React, { useEffect } from 'react'
 import BasicPage from './BasicPage'
-
 import {
     Typography, TableContainer, Table, TableHead,
     TableRow, TableBody, TableCell, Paper, Grid
@@ -11,7 +10,7 @@ import { makeStyles } from '@material-ui/core/styles';
 
 import FilterDisplay from '../components/FilterDisplay'
 import Sorting from '../components/Sorting'
-import { aggregation_fields, baseUrl, errorHandler, httpErrorhandler, getInitialFilters } from '../utils.js';
+import { aggregation_fields, baseUrl, errorHandler, httpErrorhandler, getInitialFilters, makeAggrFilterFinal } from '../utils.js';
 
 import axios from 'axios'
 import MyPagination from '../components/MyPagination';
@@ -29,7 +28,11 @@ const useStyles = makeStyles((theme) => (
         tableRow: {
             '&:nth-child(even)': {
                 backgroundColor: theme.palette.divider,
-            }
+            },
+            '&:hover': {
+                backgroundColor: theme.palette.secondary.light
+            },
+            cursor: 'pointer'
         }
     }
 ));
@@ -37,7 +40,7 @@ const useStyles = makeStyles((theme) => (
 export default function StatsPage(props) {
     const classes = useStyles()
     const [isCorrectAggr, setCorrectAggr] = React.useState(false);
-    const [filters, setFilters] = React.useState(getInitialFilters());
+    const [filters, setFilters] = React.useState(getInitialFilters(props.history.action === "POP"));
     const [sortOpt, setSortOpt] = React.useState({});
     const [data, setData] = React.useState([]);
     const [loading, setLoading] = React.useState(true);
@@ -46,7 +49,6 @@ export default function StatsPage(props) {
 
     const sorts = ["Rating", "Count", "Alphabetic"];
     const filmPerPage = 10;
-
 
     useEffect(() => {
         let aggr_index = aggregation_fields.findIndex((e) => {
@@ -116,7 +118,19 @@ export default function StatsPage(props) {
                                     <TableBody>
                                         {
                                             data.map((row, i) => (
-                                                <TableRow key={i} classes={{ root: classes.tableRow }}>
+                                                <TableRow
+                                                    key={i}
+                                                    onClick={() => {
+                                                        // if a previous aggregation filter was selected
+                                                        // we have to make it a normal filter first
+                                                        makeAggrFilterFinal()
+
+                                                        let aggr_filter = {}
+                                                        aggr_filter[props.match.params.group] = (row.aggregator.name || row.aggregator.year || row.aggregator.id)
+                                                        localStorage.setItem('aggr_filter', JSON.stringify(aggr_filter))
+                                                        props.history.push('/browse')
+                                                    }} classes={{ root: classes.tableRow }}>
+
                                                     <TableCell component="th" scope="row">
                                                         {row.aggregator.name || row.aggregator.year || row.aggregator.id}
                                                     </TableCell>
@@ -158,6 +172,6 @@ export default function StatsPage(props) {
                         <Typography variant="body1">Statistics for "{props.match.params.group}" are not available</Typography>
                     </>
             }
-        </BasicPage>
+        </BasicPage >
     )
 }

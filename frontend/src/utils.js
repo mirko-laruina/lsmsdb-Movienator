@@ -53,14 +53,45 @@ export function disconnect() {
     window.location.reload()
 }
 
-export function getInitialFilters() {
+export function getInitialFilters(no_aggr = false) {
     let initial_filters = localStorage.getItem('filters');
     if(initial_filters){
         initial_filters = JSON.parse(initial_filters);
     } else {
         initial_filters = {}
     }
+
+    if(!no_aggr){
+        let aggr_filter = localStorage.getItem('aggr_filter');
+        if(aggr_filter){
+            aggr_filter = JSON.parse(aggr_filter)
+            initial_filters = {
+                ...initial_filters,
+                ...aggr_filter
+            }
+        }
+    } else {
+        localStorage.removeItem('aggr_filter')
+    }
     return initial_filters
+}
+
+export function makeAggrFilterFinal(){
+    let filters = localStorage.getItem('filters');
+    if(filters){
+        filters = JSON.parse(filters);
+        let aggr_filter = localStorage.getItem('aggr_filter');
+        if(aggr_filter){
+            aggr_filter = JSON.parse(aggr_filter);
+            filters = {
+                ...filters,
+                ...aggr_filter
+            }
+            localStorage.setItem('filters', JSON.stringify(filters))
+        }
+    } else {
+        localStorage.setItem('filters', localStorage.getItem('aggr_filter'))
+    }
 }
 
 export function countryToFlag(isoCode) {
