@@ -275,4 +275,32 @@ The application will be made of the following 4 components:
 	\end{enumerate}
 	These scripts will executes asynchronously from the \emph{Java back-end}.
 \end{itemize}
+
+\section{Implementation}
+
+\subsection{Neo4j database}
+
+Neo4j database is created by a python script that takes data directly from the document database: useful data are first withdrawn from mongoDB, then they are post-processed in order to filter only the necessaries attributes, and then they are merged into neo4j. This can be done thanks to the \textit{pymongo} and \textit{py2neo} modules.
+
+The script manage the consistency of 3 out of the 4 elements present in our graph database:
+\begin{itemize}
+	\item vertex \textbf{Movie};
+	\item vertex \textbf{User};
+	\item edge \textbf{Rating}.
+\end{itemize}
+Edge \textbf{Follows} is not managed in this script because it only exists in the graph database.
+
+The work is done by 3 functions (one for each managed element) that simply scan the array of documents that they receives as input in order to keep only the attributes we are interested in. Then they create the relative node and finally they merge it with the current Neo4j database. 
+
+The sync function for the \textbf{Movie} vertex in shown below:
+\lstinputlisting[language=Python, firstline=1, lastline=6]{figs/code/consistency.py}
+
+The sync function for the \textbf{User} vertex in shown below:
+\lstinputlisting[language=Python, firstline=8, lastline=14]{figs/code/consistency.py}
+
+The sync function for the \textbf{Rating} edge in shown below:
+\lstinputlisting[language=Python, firstline=16, lastline=23]{figs/code/consistency.py}
+
+The consistency is ensured by this script in an asynchronous way by periodically scanning mongoDB in order to find missing or not updated informations to upload on neo4j. Note that asynchronous consistency is sufficient because there are not features that necessarily requires the strict one.
+
 \end{document}
