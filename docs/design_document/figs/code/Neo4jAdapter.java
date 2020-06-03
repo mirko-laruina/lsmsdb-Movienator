@@ -73,33 +73,33 @@ public class Neo4jAdapter {
      * @param n the number of suggestions
      * @return a QuerySubset of n suggested movies.
      */
-    public QuerySubset<Movie> getMovieSuggestions(User u, int n) {
-        try (org.neo4j.driver.Session session = driver.session()) {
-            Result result = session.run(
-                        "CALL{ " +
-                            "MATCH (u:User {username:$username}) " +
-                            "MATCH (u)-[rum1:RATED]->(m1:Movie)<-[ru2m1:RATED]-(u2:User)-[ru2m2:RATED]->(m2:Movie) " +
-                            "WHERE rum1.rating>="+MIN_RATING+" AND ru2m1.rating>="+MIN_RATING+" AND ru2m2.rating >=" + MIN_RATING + " " +
-                                "AND duration.between(datetime(ru2m1.date), date()).days<=" + MAX_DAYS + " " +
-                                "AND duration.between(datetime(ru2m2.date), date()).days<=" + MAX_DAYS + " " +
-                                "AND u<>u2 AND m1<>m2 " +
-                            "RETURN m2 " +
-                            "LIMIT " + MAX_PATHS +
-                        "} " +
-                        "RETURN m2._id AS _id, m2.title AS title, m2.poster AS poster, 0.5*count(*)*(1+rand()) as score " +
-                        "ORDER BY score DESC " +
-                        "LIMIT $limit",
-                    parameters(
-                            "username", u.getUsername(),
-                            "limit", n));
-            
-            List<Movie> movies = Movie.Adapter.fromNeo4jResult(result);
-            return new QuerySubset<>(
-                movies,
-                true
-            );
-        }
-    }
+public QuerySubset<Movie> getMovieSuggestions(User u, int n) {
+  try (org.neo4j.driver.Session session = driver.session()) {
+    Result result = session.run(
+      "CALL{ " +
+        "MATCH (u:User {username:$username}) " +
+        "MATCH (u)-[rum1:RATED]->(m1:Movie)<-[ru2m1:RATED]-(u2:User)-[ru2m2:RATED]->(m2:Movie) " +
+        "WHERE rum1.rating>="+MIN_RATING+" AND ru2m1.rating>="+MIN_RATING+" AND ru2m2.rating >=" + MIN_RATING + " " +
+          "AND duration.between(datetime(ru2m1.date), date()).days<=" + MAX_DAYS + " " +
+          "AND duration.between(datetime(ru2m2.date), date()).days<=" + MAX_DAYS + " " +
+          "AND u<>u2 AND m1<>m2 " +
+        "RETURN m2 " +
+        "LIMIT " + MAX_PATHS +
+      "} " +
+      "RETURN m2._id AS _id, m2.title AS title, m2.poster AS poster, 0.5*count(*)*(1+rand()) as score " +
+      "ORDER BY score DESC " +
+      "LIMIT $limit",
+      parameters(
+        "username", u.getUsername(),
+        "limit", n));
+    
+    List<Movie> movies = Movie.Adapter.fromNeo4jResult(result);
+    return new QuerySubset<>(
+        movies,
+        true
+    );
+  }
+}
 
     /**
      * Returns the relationships between user 1 and user 2.
