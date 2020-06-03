@@ -741,17 +741,17 @@ From the time of the dry run for election (19:55:36 and 242ms), which is 10 seco
 \subsubsection{Performance}
 Another test we made is the evaluation of the performance, in terms of throughput (requests that can be served per second on peak load), of the database. We chose to test only the read performance of the most common API calls since these will be by far the most common. In particular, we individuated six kinds of API calls:
 \begin{itemize}
-	\item ``Simple browse'': movie browse without filters.
-	\item ``Filtered browse'': movie browse with filters
-	\item ``Search'': movie search
+	\item ``Simple browse'': movie browse without filters (10 movies per request).
+	\item ``Filtered browse'': movie browse with filters (10 movies per request)
+	\item ``Search'': movie search (10 movies per request)
 	\item ``Details'': movie details
-	\item ``Simple Statistics'': movie statistics without filters
-	\item ``Filtered Statistics'': movie statistics with filters
+	\item ``Simple Statistics'': movie statistics without filters (10 groups per request)
+	\item ``Filtered Statistics'': movie statistics with filters (10 groups per request)
 \end{itemize}
 
 For each type of API call, we generated a random subset of requests from which the testing application will randomly choose a request. 
 The tests have been repeated three times, with a different number of servers in the replica set (1, 2 or 3).
-We used \emph{siege} as a testing application, with 100 concurrent users and no delay between requests (benchmark mode), which executed for a minute for each run. Both back-end server serving the APIs and the \emph{siege} application ran on a server that was part of the replica set (this is the only member of the replica set that was always on during the experiments). The database contains around 50k movies.
+We used \emph{siege} as a testing application, with 100 concurrent users and no delay between requests (benchmark mode), which executed for a minute for each run. Both back-end server serving the APIs and the \emph{siege} application ran on a server that was part of the replica set (this is the only member of the replica set that was always on during the experiments). All replica members are hosted on one of the virtual machines provided by the University of Pisa, each having 2 virtual CPU cores and a variable amount of RAM (from 2GB to 8GB, in the one hosting the Java back-end). The database contains around 50k movies. 
 
 \begin{figure}[]
 	\centering
