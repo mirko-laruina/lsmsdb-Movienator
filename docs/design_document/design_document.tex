@@ -294,12 +294,12 @@ Indices on the following fields will be set for this collection:
 	\item \texttt{title}: speed-up sorting by title
 	\item \texttt{title}, \texttt{original\_title} (text\ index): movie lookup 
 			by name
-	\item \texttt{countries} (multikey index): filter and aggregation by country
-	\item \texttt{genres} (multikey index): filter and aggregation by genre
+	\item \texttt{countries} (multi-key index): filter and aggregation by country
+	\item \texttt{genres} (multi-key index): filter and aggregation by genre
 	\item \texttt{year}: filter and aggregation by year
 	\item \texttt{date}: sorting by release date
-	\item \texttt{characters.actor\_id} (multikey index): filter and aggregation by actor
-	\item \texttt{directors.id} (multikey index): filter and aggregation by director
+	\item \texttt{characters.actor\_id} (multi-key index): filter and aggregation by actor
+	\item \texttt{directors.id} (multi-key index): filter and aggregation by director
 	\item \texttt{total\_rating}: filter and sorting by rating
 	\item \texttt{last\_scraped}: fast lookup for next-to-be-scraped movie (oldest movie).
 \end{itemize}
@@ -454,7 +454,7 @@ In the listing above, we can look at the code that performs a first processing o
 New scraped data, both for features update and addition, once parsed, are stored on MongoDB server by means of PyMongo API for Mongo DBMS. BSON is the standard format used to store documents and make remote procedure calls in MongoDB, luckily python dictionaries are directly mapped to BSON type as object and vice versa, so serialization (writings to Mongo) and de-serialization (readings from Mongo) processes are easily managed.
 
 In order to perform the update on the least recently scraped movies, a \emph{last\_scraped} attribute is added (and modified) every time an update operation is executed from the script. The code listing below shows how to process consecutive movies, getting them by \emph{self.\-get\-Movies\-By\-Last\-Scraped} method and proceeding on integrating scraped data.
-The scraper first marks the movie as scraped by updating the \emph{last\_scraped} attribute and then checks whether another scraper is scraping the same movie by comparing the \emph{last\_scraped} attribute that the \emph{find\_one\_and\_update} method returned (original db document) with the one that the scraper retrieved earlier from the db.
+The scraper first marks the movie as scraped by updating the \emph{last\_scraped} attribute and then checks whether another scraper is scraping the same movie by comparing the \emph{last\_scraped} attribute that the \emph{find\_one\_and\_update} method returned (original DB document) with the one that the scraper retrieved earlier from the DB.
 
 After having build the update dictionary, the scraper builds the list of operations to perform to the movie. In particular, old ratings are pulled and replaced with new ratings, then the \emph{total\_rating} is computed and updated along with other information (e.g. \emph{synopsis}, \emph{poster}, ...). In order to interact with Mongo database we exploited several methods from PyMongo module, such as: \texttt{find()}, \texttt{find\_one\_and\_update()}, \texttt{updateOne()}, \texttt{bulk\_write()}
 All these methods take dictionaries as argument, with the exception of \emph{bulk\_write}, that is used for efficiency's sake.
@@ -531,7 +531,7 @@ If user is logged in, a separate query will be done to fetch the user's ratings 
 
 \subsubsection{Search}
 During a search, movies that (fuzzy) match the entire query are returned sorted
-by ``likelyhood'' (meta text score, in MongoDB). Results are paged as before.
+by ``likelihood'' (meta text score, in MongoDB). Results are paged as before.
 
 If user is logged in, a separate query will be done to fetch the user's ratings of the returned movies (refer to \ref{sssec:userratings}).
 
@@ -562,7 +562,7 @@ The aggregation pipeline is performed with the following code:
 
 \lstinputlisting[language=Java]{figs/code/aggregation.java}
 
-The \textbf{match} function uses the array of conditions "\textit{filters}" to perform all the filters in a single step. \textbf{Unwind} deconstructs the array field and returns a document for each array element (this is necessary for country, director and character fields). Then, the \textbf{group} function groups documents by the value expressed in the "\textit{realGroupBy}" and then applies accumulator expression to each group:
+The \textbf{match} function uses the array of conditions "\textit{filters}" to perform all the filters in a single step. \textbf{Unwind} de-constructs the array field and returns a document for each array element (this is necessary for country, director and character fields). Then, the \textbf{group} function groups documents by the value expressed in the "\textit{realGroupBy}" and then applies accumulator expression to each group:
 \begin{itemize}
 	\item \textbf{Accumulators.first} sets "\textit{realGroupName}" as name of the group
 	\item \textbf{Accumulators.avg} calculates the average rating of all the "\textit{total\_rating}" and saves them in the "\textit{avg\_rating}" attribute
@@ -594,7 +594,7 @@ By building the array of identifiers, just one query to the database is necessar
 \lstinputlisting[language=Java]{figs/code/fill_user_ratings.java}
 
 \subsubsection{Browse All}
-Admins can browse all ratings in the collection in descending date order. Results are paged as seen in previous sections. Related code snippet is not shown for brevity's sake.
+Administrators can browse all ratings in the collection in descending date order. Results are paged as seen in previous sections. Related code snippet is not shown for brevity's sake.
 
 \subsubsection{Browse User Ratings}
 Users can browse all their ratings in descending date order. Results are paged as seen in previous sections. Related code snippet is not shown for brevity's sake.
@@ -658,7 +658,7 @@ mongod 	--replSet replicaset0
 		--bind_ip 172.16.1.162
 \end{lstlisting}
 \subsection{Authentication}
-In order to keep our system secure, authentication must be setup.
+In order to keep our system secure, authentication must be set-up.
 A user responsible of handling our database, \textit{moviedb}, was created from the mongo shell.
 \begin{lstlisting}
 db.createUser(
@@ -725,9 +725,9 @@ ratingsCollection = database.getCollection("ratings").withReadPreference(ReadPre
 
 \lstinline{usersCollection} will be used for all the requests where we want high availability, like showing up the profile page or finding the user from the admin control page.
 
-\lstinline{usersCollectionMajorityWrite} handles all the requests for which we want the updates to be permanent (e.g. password changes, new session id etc.): a write concern of 'majority' (which is computed against the total nodes in the replica set) protects us against network partition since no matter what happens to the nodes, as long as a majority is reached, the election system will make sure the successive primary node will have our write. Since the secondaries could or could not have it, when we want consistency we have to read only from the primary. Therefore, the \lstinline{usersCollectionPrimaryRead} will set the correct ReadPreference and will be used accordingly.
+\lstinline{usersCollectionMajorityWrite} handles all the requests for which we want the updates to be permanent (e.g. password changes, new session id etc.): a write concern of 'majority' (which is computed against the total nodes in the replica set) protects us against network partition since no matter what happens to the nodes, as long as a majority is reached, the election system will make sure the successive primary node will have our write. Since the secondary nodes could or could not have it, when we want consistency we have to read only from the primary. Therefore, the \lstinline{usersCollectionPrimaryRead} will set the correct ReadPreference and will be used accordingly.
 
-For what concerns the other requests, consistency is not strictly necessary and we would like our system to be highly available. For this reason, we keep the default write concern (equal to 1) and set the read preference to 'nearest', thus allowing reads from secondaries (which could have outdated informations).
+For what concerns the other requests, consistency is not strictly necessary and we would like our system to be highly available. For this reason, we keep the default write concern (equal to 1) and set the read preference to 'nearest', thus allowing reads from secondary nodes (which could have outdated informations).
 
 \subsection{Test and evaluation}
 \subsubsection{Election}
