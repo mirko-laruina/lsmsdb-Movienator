@@ -283,15 +283,39 @@ The application will be made of the following 4 components:
 
 \subsection{Neo4j database}
 
-Neo4j database is created by a python script that takes data directly from the document database: useful data are first withdrawn from mongoDB, then they are post-processed in order to filter only the necessaries attributes, and then they are merged into neo4j. This can be done thanks to the \textit{pymongo} and \textit{py2neo} modules.
+\subsubsection{Coexistence of two databases}
 
-The script manage the consistency of 3 out of the 4 elements present in our graph database:
+Providing strict consistency between the two databases is both very complicated
+and unnecessary given the application non-functional requirements. Therefore 
+we took is the path of eventual consistency. Writes that 
+involve replicating data on both databases are first stored to MongoDB and then 
+asynchronously to Neo4j to reduce perceived latency by the user. 
+In case of Neo4j failure, it will be necessary to recover the synchronization 
+of the two databases using the script described below. 
+This script will be also be executed periodically to update movie details 
+(which are updated asynchronously by the scraper scripts and for which we can 
+afford a non perfect consistency) and after the IMDB parser script to add 
+possible new movies. 
+
+Furthermore, Neo4j contains enough data to prevent a double access to both 
+MongoDB and Neo4j in the same user query. However, due to the stricter 
+consistency model, authentication is always performed on MongoDB. Therefore some
+queries will first need to authenticate using the session id with MongoDB 
+before accessing the data stored in Neo4j.
+
+\subsubsection{Database Synchronization}
+
+The Neo4j database will be periodically synchronized by a python script that takes data directly from the document database: useful data is first withdrawn from MongoDB, then they it is post-processed in order to filter out unnecessary attributes before merging into Neo4j. This is done in a Python script using the \textit{pymongo} and \textit{py2neo} modules.
+
+The script manage the synchronization of 3 out of the 4 elements present in our graph database:
+
 \begin{itemize}
-	\item vertex \textbf{Movie};
-	\item vertex \textbf{User};
-	\item edge \textbf{Rating}.
+	\item \textbf{Movie} nodes;
+	\item \textbf{User} nodes;
+	\item \textbf{Rated} edge.
 \end{itemize}
-Edge \textbf{Follows} is not managed in this script because it only exists in the graph database.
+
+\textbf{Follows} edges are not managed by the script because they only exists in the graph database.
 
 The work is done by 3 functions (one for each managed element) that simply scan the array of documents that they receives as input in order to keep only the attributes we are interested in. Then they create the relative node and finally they merge it with the current Neo4j database. 
 
@@ -303,8 +327,6 @@ The sync function for the \textbf{User} vertex in shown below:
 
 The sync function for the \textbf{Rating} edge in shown below:
 \lstinputlisting[language=Python, firstline=16, lastline=23]{figs/code/consistency.py}
-
-The consistency is ensured by this script in an asynchronous way by periodically scanning mongoDB in order to find missing or not updated informations to upload on neo4j. Note that asynchronous consistency is sufficient because there are not features that necessarily requires the strict one.
 
 \subsection{Java backend}
 \begin{figure}[]
@@ -339,7 +361,7 @@ In each of the following experiments, each data point has been obtained running
 the \emph{siege} application with 100 concurrent users and no delay between 
 requests for 1 minute on a random subset of the possible queries. Experiments 
 have been executed on one of the virtual machines provided by the University 
-of Pisa (2 vCPU, 8GB of RAM).
+of Pisa (1 virtual CPU core, 8GB of RAM).
 
 \subsection{Movie suggestion}
 As already discussed before, the movie suggestion query cannot afford to look
