@@ -359,10 +359,27 @@ Aim of this query is to return a list of n suggested movies (exploiting \emph{re
     \item \emph{n}, the number of suggestions, represented by \emph{\$limit} in the query string.
 \end{itemize}
 
-...body della query...
+\lstinputlisting[language=Cypher, firstline=76, lastline=102]{figs/code/Neo4jAdapter.java}
 
-At line 81, starting from the user passed as argument (\emph{u}), we refer by \emph{m2} to all the movies that has been rated by \emph{u2} users, namely the users who share interest with \emph{u}, expressed by the fact that some rated movies are in common. 
+At line 81, starting from the user passed as argument (\emph{u}), we refer by \emph{m2} to all the movies that have been rated by \emph{u2} users, namely the users who share interest with \emph{u}, expressed by the fact that some rated movies are in common. 
 From line 82 to line 85 are expressed some meaningful conditions: we only consider rating edges with a rating value higher than \emph{MIN\_RATING}, both for \emph{rum1} and \emph{ru2m1}, we use this condition to evaluate common interests among users. We also have the condition \emph{ru2m2.rating >= MIN\_RATING} to suggest only appreciated movies. Another relevant condition is expressed at lines 82-83 using the temporal function \emph{duration.between(..).days < MAX\_DAYS}, whose scope is to filter rating edges, considering only movies rated during the last week. 
+
+\subsubsection{getUserRelationship}
+Aim of this query is to return the relationships between user 1 and user 2, exploiting a \emph{User.Relationship} instance that indicates whether user 1 follows user 2 (following) and whether user 2 follows user 1 (followed).
+\emph{getUserRelationship} method takes 2 arguments:
+
+\begin{itemize}
+    \item \emph{u1}, first user, whose username becomes \emph{\$username1} query parameter;
+    \item \emph{u2}, second user, whose username becomes \emph{\$username2} query parameter.
+\end{itemize}
+
+
+\lstinputlisting[language=Cypher, firstline=115, lastline=134]{figs/code/Neo4jAdapter.java}
+
+At lines 118-119 the addressed user vertices are matched by username parameter and referred by \emph{u1} and \emph{u2}.
+At lines 120-121 we use a predicate function \emph{EXISTS()}, whose scope is to return true if exists an edge between \emph{u1} and \emph{u2} and the other way around.
+Each Cypher execution returns a stream of records, each record has two properties that rapresent the boolean flag for the presence or not of relationship between the 2 user nodes.
+
 
 \section{Tests}
 This section reports some tests that have been performed in order to evaluate 
