@@ -34,7 +34,6 @@ export default function BrowsePage(props) {
             if (localStorage.getItem('username')) {
                 reqParams.sessionId = localStorage.getItem('sessionId')
             }
-            console.log(reqParams)
             axios.get(baseUrl + "movie/browse", {
                 params: reqParams
             }).then(function (res) {
