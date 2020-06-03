@@ -287,7 +287,7 @@ The application will be made of the following 4 components:
 
 Providing strict consistency between the two databases is both very complicated
 and unnecessary given the application non-functional requirements. Therefore 
-we took is the path of eventual consistency. Writes that 
+we took the path of eventual consistency. Writes that 
 involve replicating data on both databases are first stored to MongoDB and then 
 asynchronously to Neo4j to reduce perceived latency by the user. 
 In case of Neo4j failure, it will be necessary to recover the synchronization 
