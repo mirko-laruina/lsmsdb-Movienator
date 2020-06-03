@@ -95,6 +95,25 @@
     },
 	emphstyle=[1]{\color{javablue}},
 }
+ 
+\lstdefinelanguage{Cypher}{
+	keywords=% Java Classes
+    {%
+        MATCH,
+        AS,
+        as,
+        ORDER,
+        BY,
+        MERGE,
+        CREATE,
+        LIMIT,
+        SKIP,
+        CALL,
+        RETURN,
+        EXISTS,
+        DELETE
+    }
+}
 
 \renewcommand{\arraystretch}{1.5}
 
@@ -352,7 +371,7 @@ main Cypher queries will be explained and highlighted.
 In this section we'll go into details about sensible and complex queries defined for our Neo4j graph database, according to Cypher query language. Cypher allows users to store and retrieve data from the graph database; its syntax provides a visual and logical way to match patterns of nodes and relationships in the graph. It is a declarative, SQL-inspired language for describing visual patterns in graphs using ASCII-Art syntax.
 
 
-\subsubsection{getMovieSuggestions}
+\subsubsection{Movie suggestion}
 Aim of this query is to return a list of n suggested movies (exploiting \emph{result} object), given as input:
 \begin{itemize}
     \item \emph{u}, the recipient of the suggestions, represented by \emph{\$username} in the query string (according to Cypher syntax);
@@ -364,7 +383,7 @@ Aim of this query is to return a list of n suggested movies (exploiting \emph{re
 At line 81, starting from the user passed as argument (\emph{u}), we refer by \emph{m2} to all the movies that have been rated by \emph{u2} users, namely the users who share interest with \emph{u}, expressed by the fact that some rated movies are in common. 
 From line 82 to line 85 are expressed some meaningful conditions: we only consider rating edges with a rating value higher than \emph{MIN\_RATING}, both for \emph{rum1} and \emph{ru2m1}, we use this condition to evaluate common interests among users. We also have the condition \emph{ru2m2.rating >= MIN\_RATING} to suggest only appreciated movies. Another relevant condition is expressed at lines 82-83 using the temporal function \emph{duration.between(..).days < MAX\_DAYS}, whose scope is to filter rating edges, considering only movies rated during the last week. 
 
-\subsubsection{getUserRelationship}
+\subsubsection{User suggestion}
 Aim of this query is to return the relationships between user 1 and user 2, exploiting a \emph{User.Relationship} instance that indicates whether user 1 follows user 2 (following) and whether user 2 follows user 1 (followed).
 \emph{getUserRelationship} method takes 2 arguments:
 
@@ -378,8 +397,97 @@ Aim of this query is to return the relationships between user 1 and user 2, expl
 
 At lines 118-119 the addressed user vertices are matched by username parameter and referred by \emph{u1} and \emph{u2}.
 At lines 120-121 we use a predicate function \emph{EXISTS()}, whose scope is to return true if exists an edge between \emph{u1} and \emph{u2} and the other way around.
-Each Cypher execution returns a stream of records, each record has two properties that rapresent the boolean flag for the presence or not of relationship between the 2 user nodes.
+Each Cypher execution returns a stream of records, each record has two properties that represent the boolean flag for the presence or not of relationship between the 2 user nodes.
+\subsubsection{Other queries}
 
+\paragraph{User creation} Creates a new user.
+
+\begin{lstlisting}[language=Cypher]
+CREATE (:User {_id: $id, username: $username})
+\end{lstlisting}
+
+\paragraph{Rating insertion/update} This operations creates a new rating, if none already exists, otherwise updates the rating already in the DB.
+
+\begin{lstlisting}[language=Cypher]
+MATCH (m:Movie {_id: $movie_id})
+MATCH (u:User {_id: $user_id})
+MERGE (u)-[r:RATED]->(m)
+SET r.rating=$rating, r.date=$date
+\end{lstlisting}
+
+\paragraph{Rating deletion} Removes a rating.
+
+\begin{lstlisting}[language=Cypher]
+MATCH (m:Movie {_id: $movie_id})
+MATCH (u:User {_id: $user_id})
+MATCH (u)-[r:RATED]->(m)
+DELETE r
+\end{lstlisting}
+
+\paragraph{Follow user} A started following B.
+
+\begin{lstlisting}[language=Cypher]
+MATCH (a:User {username: $username_a})
+MATCH (b:User {username: $username_b})
+MERGE (a)-[:FOLLOWS]->(b)
+\end{lstlisting}
+
+\paragraph{Un-follow user} A stopped following B.
+
+\begin{lstlisting}[language=Cypher]
+MATCH (a:User {username: $username_a})
+MATCH (b:User {username: $username_b})
+MATCH (a)-[r:FOLLOWS]->(b)
+DELETE r
+\end{lstlisting}
+
+\paragraph{Ratings of followed users} Returns a (paged) list of all ratings by followed users in chronological order (most recent first). \emph{skip} and \emph{limit} are set so that only the requested page of $n$ elements is returned.
+
+\begin{lstlisting}[language=Cypher]
+MATCH (:User {username: $username})-[:FOLLOWS]->(u:User)-[r:RATED]->(m:Movie)RETURN r.date as date, r.rating as rating,
+    m._id as movie_id, m.title as title, m.year as year, m.poster as poster,
+    u._id as user_id, u.username as username
+ORDER BY r.date DESC
+SKIP $skip
+LIMIT $limit
+\end{lstlisting}
+
+\paragraph{List of Followed Users} Returns the list of the users that a given user (\emph{me} in the query) is following. Furthermore, the query returns the relationship between the returned \emph{user} and a third user (called \emph{pov} in the query), i.e. whether \emph{pow} is \emph{following} \emph{user} and whether \emph{user} is a follower of \emph{pov}. 
+
+\begin{lstlisting}[language=Cypher]
+MATCH (me:User {username: $username})
+MATCH (me)-[:FOLLOWS]->(user:User)
+MATCH (pov:User {username: $username_pov})
+RETURN user.username as username, user._id as _id,
+    EXISTS((pov)-[:FOLLOWS]->(user)) as following,
+    EXISTS((user)-[:FOLLOWS]->(pov)) as follower
+ORDER BY user.username "
+SKIP $skip
+LIMIT $limit
+\end{lstlisting}
+
+\paragraph{List of Followers} Returns the list of the users that follow a given user (\emph{me} in the query). Furthermore, the query returns the relationship between the returned \emph{user} and a third user (called \emph{pov} in the query), i.e. whether \emph{pow} is \emph{following} \emph{user} and whether \emph{user} is a follower of \emph{pov}. 
+
+\begin{lstlisting}[language=Cypher]
+MATCH (me:User {username: $username})
+MATCH (user)-[:FOLLOWS]->(me:User)
+MATCH (pov:User {username: $username_pov})
+RETURN user.username as username, user._id as _id,
+    EXISTS((pov)-[:FOLLOWS]->(user)) as following,
+    EXISTS((user)-[:FOLLOWS]->(pov)) as follower
+ORDER BY user.username "
+SKIP $skip
+LIMIT $limit
+\end{lstlisting}
+
+\paragraph{Users relationship} Returns the relationship between user 1 and user 2, i.e. whether \emph{u1} is \emph{following} B and whether A is a follower of \emph{u2}. 
+
+\begin{lstlisting}[language=Cypher]
+MATCH (u1:User {username: $username1})
+MATCH (u2:User {username: $username2})
+RETURN EXISTS((u1)-[:FOLLOWS]->(u2)),
+    EXISTS((u2)-[:FOLLOWS]->(u1))
+\end{lstlisting}
 
 \section{Tests}
 This section reports some tests that have been performed in order to evaluate 
