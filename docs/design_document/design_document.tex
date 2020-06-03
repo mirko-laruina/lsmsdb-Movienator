@@ -347,6 +347,23 @@ diagrams of the Java back-end. The structure is the same as the one presented
 in task 2 so no further discussion will be done on it. In the following the 
 main Cypher queries will be explained and highlighted.
 
+
+\subsection{Neo4j Queries}
+In this section we'll go into details about sensible and complex queries defined for our Neo4j graph database, according to Cypher query language. Cypher allows users to store and retrieve data from the graph database; its syntax provides a visual and logical way to match patterns of nodes and relationships in the graph. It is a declarative, SQL-inspired language for describing visual patterns in graphs using ASCII-Art syntax.
+
+
+\subsubsection{getMovieSuggestions}
+Aim of this query is to return a list of n suggested movies (exploiting \emph{result} object), given as input:
+\begin{itemize}
+    \item \emph{u}, the recipient of the suggestions, represented by \emph{\$username} in the query string (according to Cypher syntax);
+    \item \emph{n}, the number of suggestions, represented by \emph{\$limit} in the query string.
+\end{itemize}
+
+...body della query...
+
+At line 81, starting from the user passed as argument (\emph{u}), we refer by \emph{m2} to all the movies that has been rated by \emph{u2} users, namely the users who share interest with \emph{u}, expressed by the fact that some rated movies are in common. 
+From line 82 to line 85 are expressed some meaningful conditions: we only consider rating edges with a rating value higher than \emph{MIN\_RATING}, both for \emph{rum1} and \emph{ru2m1}, we use this condition to evaluate common interests among users. We also have the condition \emph{ru2m2.rating >= MIN\_RATING} to suggest only appreciated movies. Another relevant condition is expressed at lines 82-83 using the temporal function \emph{duration.between(..).days < MAX\_DAYS}, whose scope is to filter rating edges, considering only movies rated during the last week. 
+
 \section{Tests}
 This section reports some tests that have been performed in order to evaluate 
 the performance of the Neo4j database.
