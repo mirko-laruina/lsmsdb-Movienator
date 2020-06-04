@@ -524,6 +524,9 @@ reason, we decided to set it to set it to 100, which provides an acceptable
 throughput (around 450). Of course this reasoning holds only for the current 
 configuration on the VM provided by the University of Pisa.
 
+In order to further increase the throughput of this very frequent query, the 
+introduction of an in-memory database could be taken into consideration. This database could store the suggested movies to the user for as long as the user is active in the website (few minutes) in case the user goes to the homepage again (which is very likely). It is not advisable to cache this value longer since this would make suggestions too static, which we do not want for a better user experience.
+
 \begin{figure}[]
     \centering
     \includegraphics[width=\textwidth]{figs/tps_max_path.pdf}
