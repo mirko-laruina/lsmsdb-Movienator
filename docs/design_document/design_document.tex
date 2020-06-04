@@ -363,25 +363,28 @@ The sync function for the \textbf{Rating} edge in shown below:
 
 In figures \ref{fig:uml-backend} and \ref{fig:uml-db} you can see the UML class
 diagrams of the Java back-end. The structure is the same as the one presented 
-in task 2 so no further discussion will be done on it. In the following the 
-main Cypher queries will be explained and highlighted.
+in task 2 with the addition of the \emph{Neo4jAdapter} class which implements the Cypher queries to the Neo4j database (explained in the following sub-section) and of the \emph{Neo4jTaskExecutor} which provides a simple way to asynchronously executing the queries when needed. 
 
 
 \subsection{Neo4j Queries}
-In this section we'll go into details about sensible and complex queries defined for our Neo4j graph database, according to Cypher query language. Cypher allows users to store and retrieve data from the graph database; its syntax provides a visual and logical way to match patterns of nodes and relationships in the graph. It is a declarative, SQL-inspired language for describing visual patterns in graphs using ASCII-Art syntax.
+In this section we'll go into details of the queries defined for our Neo4j graph database, according to Cypher query language. Cypher allows users to store and retrieve data from the graph database; its syntax provides a ``visual'' and logical way to match patterns of nodes and relationships in the graph. It is a declarative, SQL-inspired language for describing visual patterns in graphs using ASCII-Art syntax.
 
 
 \subsubsection{Movie suggestion}
-Aim of this query is to return a list of n suggested movies (exploiting \emph{result} object), given as input:
+Aim of this query is to return a list of $n$ suggested movies (exploiting \emph{result} object), given as input:
 \begin{itemize}
-    \item \emph{u}, the recipient of the suggestions, represented by \emph{\$username} in the query string (according to Cypher syntax);
-    \item \emph{n}, the number of suggestions, represented by \emph{\$limit} in the query string.
+    \item \emph{User u}, the recipient of the suggestions, represented by \emph{\$username} in the query string (according to Cypher syntax);
+    \item \emph{int n}, the number of suggestions, represented by \emph{\$limit} in the query string.
 \end{itemize}
+
+Earlier we defined what we meant with movie suggestion. However, it is clear that the algorithm provided is inefficient in the sense that it needs to explore a large number of paths. Assuming each user rates in average 50 movies and that a movie has in average 1000 ratings, there are 50*1000*50 = 250000 paths! This is not affordable in such a frequent query. Therefore we need a way to prevent this explosion in the number of paths. The solution we used is 1) to filter out old ratings and -- 2) if this is not sufficient, put a hard limit in the total amount of paths that will be considered in the final aggregation. The first limitation has also a positive side-effect: by keeping only most recent ratings, the most trending movies will be returned to the user. Furthermore, to avoid suggesting always the same movies to the user, for each movie we multiply the score by a random value so that the final value is randomly picked from a uniform distribution [score/2; score].
+
+In order to do this filtering, we needed to introduce a Cypher sub-query since \emph{LIMIT} statements can only be placed after a RETURN statement. Please note that the \emph{LIMIT} statement effectively prevents the query executor to visit more nodes than necessary.
 
 \lstinputlisting[language=Java, firstline=76, lastline=102, firstnumber=76]{figs/code/Neo4jAdapter.java}
 
-At line 81, starting from the user passed as argument (\emph{u}), we refer by \emph{m2} to all the movies that have been rated by \emph{u2} users, namely the users who share interest with \emph{u}, expressed by the fact that some rated movies are in common. 
-From line 82 to line 85 are expressed some meaningful conditions: we only consider rating edges with a rating value higher than \emph{MIN\_RATING}, both for \emph{rum1} and \emph{ru2m1}, we use this condition to evaluate common interests among users. We also have the condition \emph{ru2m2.rating >= MIN\_RATING} to suggest only appreciated movies. Another relevant condition is expressed at lines 82-83 using the temporal function \emph{duration.between(..).days < MAX\_DAYS}, whose scope is to filter rating edges, considering only movies rated during the last week. 
+At line 81, starting from the user passed as argument (\emph{u}), we match the movies \emph{m2} as the movies that have been rated by \emph{u2} users, namely the users who share interest (i.e. at least a common liked movie) with \emph{u}. 
+From line 82 to line 85 are expressed some meaningful conditions: we only consider \emph{RATED} edges with a rating value higher than \emph{MIN\_RATING}, both for \emph{rum1} and \emph{ru2m1}. This condition ensures that the movie is indeed a common interests among the two users. We also have the condition \emph{ru2m2.rating >= MIN\_RATING} to match only appreciated movies. Another relevant condition is expressed at lines 82-83 using the temporal function \emph{duration.between(..).days < MAX\_DAYS}, whose scope is to filter rating edges, considering only movies rated during the last week.
 
 \subsubsection{User suggestion}
 Aim of this query is to return the relationships between user 1 and user 2, exploiting a \emph{User.Relationship} instance that indicates whether user 1 follows user 2 (following) and whether user 2 follows user 1 (followed).
@@ -392,6 +395,7 @@ Aim of this query is to return the relationships between user 1 and user 2, expl
     \item \emph{u2}, second user, whose username becomes \emph{\$username2} query parameter.
 \end{itemize}
 
+The same problem of ``number of paths explosion'' that we seen could happen also in this query. Therefore the same approach as before (without the temporal limitation). We also applied the same randomization technique as before.
 
 \lstinputlisting[language=Java, firstline=115, lastline=134, firstnumber=115]{figs/code/Neo4jAdapter.java}
 
