@@ -226,36 +226,36 @@ public QuerySubset<Movie> getMovieSuggestions(User u, int n) {
      * @param n the number of suggestions to be returned
      * @return the list of suggestions
      */
-    public QuerySubset<User> getUserSuggestions(User user, int n) {
-        try (org.neo4j.driver.Session session = driver.session()) {
-            Result result = session.run(
-                        "CALL{ " +
-                            "MATCH (u:User {username: $username}) " +
-                            "MATCH (u)-[:FOLLOWS]->(:User)-[:FOLLOWS]->(u2:User) " +
-                            "WHERE u<>u2 " +
-                            "RETURN u2 " +
-                            "LIMIT " + MAX_PATHS + " " +
-                        "} " +
-                        "MATCH (u:User {username: $username}) " +
-                        "WHERE NOT EXISTS((u)-[:FOLLOWS]->(u2)) " +
-                        "RETURN u2.username AS username, u2._id AS _id, " + 
-                            "0.5*count(*)*(1+rand()) AS score, " +
-                            "false as following, " +
-                            "EXISTS((u2)-[:FOLLOWS]->(u)) as follower " +
-                        "ORDER BY follower DESC, score DESC " +
-                        "LIMIT $limit",
-                    parameters(
-                            "username", user.getUsername(),
-                            "limit", n));
-                            
-            List<User> users = User.Adapter.fromNeo4jResult(result);
-    
-            return new QuerySubset<>(
-                users,
-                true
-            );
-        }
-    }
+public QuerySubset<User> getUserSuggestions(User user, int n) {
+  try (org.neo4j.driver.Session session = driver.session()) {
+    Result result = session.run(
+            "CALL{ " +
+                "MATCH (u:User {username: $username}) " +
+                "MATCH (u)-[:FOLLOWS]->(:User)-[:FOLLOWS]->(u2:User) " +
+                "WHERE u<>u2 " +
+                "RETURN u2 " +
+                "LIMIT " + MAX_PATHS + " " +
+            "} " +
+            "MATCH (u:User {username: $username}) " +
+            "WHERE NOT EXISTS((u)-[:FOLLOWS]->(u2)) " +
+            "RETURN u2.username AS username, u2._id AS _id, " + 
+                "0.5*count(*)*(1+rand()) AS score, " +
+                "false as following, " +
+                "EXISTS((u2)-[:FOLLOWS]->(u)) as follower " +
+            "ORDER BY follower DESC, score DESC " +
+            "LIMIT $limit",
+        parameters(
+            "username", user.getUsername(),
+            "limit", n));
+                    
+    List<User> users = User.Adapter.fromNeo4jResult(result);
+
+    return new QuerySubset<>(
+        users,
+        true
+    );
+  }
+}
 
     /**
      * Returns the list of ratings of the users followed by u.
